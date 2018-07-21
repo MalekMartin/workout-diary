@@ -4,17 +4,19 @@ import { Subject } from 'rxjs/Subject';
 import { takeUntil, debounceTime, switchMap } from 'rxjs/operators';
 import * as moment from 'moment';
 import { FormControl } from '@angular/forms';
+import { ActivitiesService } from '../../../core/activities/activities.service';
 
 @Component({
     selector: 'wd-workout-list',
     templateUrl: 'workout-list.component.html',
     styleUrls: ['./workout-list.component.scss']
 })
-
 export class WorkoutListComponent implements OnInit, OnDestroy {
-
     workouts;
-    fromDate = moment().subtract(30, 'days').format('YYYY-MM-DDThh:mm:ss') + 'Z';
+    fromDate =
+        moment()
+            .subtract(30, 'days')
+            .format('YYYY-MM-DDThh:mm:ss') + 'Z';
     totalDuration = 0;
     totalDistance = 0;
     types: any[];
@@ -24,27 +26,50 @@ export class WorkoutListComponent implements OnInit, OnDestroy {
     view: 'calendar' | 'list' = 'list';
 
     ranges = [
-        {id: 1, name: 'Posledních 30 dní', value: {from: this.fromDate, to: null}},
-        {id: 2, name: 'Tento měsíc', value: {
-            from: moment().set('date', 1).format('YYYY-MM-DDThh:mm:ss') + 'Z',
-            to: moment().set('date', moment().daysInMonth()).format('YYYY-MM-DDThh:mm:ss') + 'Z'
-        }},
-        {id: 3, name: 'Tento rok', value: {
-            from: moment().set('date', 1).set('month', 1).format('YYYY-MM-DDThh:mm:ss') + 'Z',
-            to: moment().set('date', 31).set('month', 12).format('YYYY-MM-DDThh:mm:ss') + 'Z'}},
-        {id: 4, name: 'Vše', value: {from: null, to: null}}
+        { id: 1, name: 'Posledních 30 dní', value: { from: this.fromDate, to: null } },
+        {
+            id: 2,
+            name: 'Tento měsíc',
+            value: {
+                from:
+                    moment()
+                        .set('date', 1)
+                        .format('YYYY-MM-DDThh:mm:ss') + 'Z',
+                to:
+                    moment()
+                        .set('date', moment().daysInMonth())
+                        .format('YYYY-MM-DDThh:mm:ss') + 'Z'
+            }
+        },
+        {
+            id: 3,
+            name: 'Tento rok',
+            value: {
+                from:
+                    moment()
+                        .set('date', 1)
+                        .set('month', 1)
+                        .format('YYYY-MM-DDThh:mm:ss') + 'Z',
+                to:
+                    moment()
+                        .set('date', 31)
+                        .set('month', 12)
+                        .format('YYYY-MM-DDThh:mm:ss') + 'Z'
+            }
+        },
+        { id: 4, name: 'Vše', value: { from: null, to: null } }
     ];
 
     range = new FormControl(this.ranges[0].id);
 
     private _onDestroy$ = new Subject();
 
-    constructor(private _workouts: WorkoutService,
-                private _cd: ChangeDetectorRef) {
-    }
+    constructor(private _workouts: WorkoutService, private _cd: ChangeDetectorRef, private _activities: ActivitiesService) {}
 
     ngOnInit() {
-        this.types = this._workouts.activities;
+        this._activities.activityStream.pipe(takeUntil(this._onDestroy$)).subscribe(a => {
+            this.types = a;
+        });
 
         this.findWorkouts()
             .pipe(takeUntil(this._onDestroy$))
@@ -55,7 +80,7 @@ export class WorkoutListComponent implements OnInit, OnDestroy {
             .pipe(
                 debounceTime(300),
                 switchMap(value => this.findWorkouts()),
-                takeUntil(this._onDestroy$),
+                takeUntil(this._onDestroy$)
             )
             .subscribe(this._onWorkoutsSuccess);
     }
@@ -97,9 +122,7 @@ export class WorkoutListComponent implements OnInit, OnDestroy {
 
     private _typesFromLocalStorage() {
         const types = localStorage.getItem('wd.filter.types');
-        return !!types
-            ? JSON.parse(types)
-            : [];
+        return !!types ? JSON.parse(types) : [];
     }
 
     private _onWorkoutsSuccess = w => {

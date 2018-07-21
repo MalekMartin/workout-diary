@@ -1,9 +1,15 @@
-checkpoints
+<h3>Check points</h3>
 <wd-check-point-form (saved)="save($event)"></wd-check-point-form>
 
-<ng-container *ngIf="checkPoints">
-    <wd-check-point-list
+<div class="content">
+    <wd-check-point-list *ngIf="checkPoints"
+        class="item"
         [checkPoints]="checkPoints"
         (edited)="onEdit($event)"
-        (deleted)="onDelete($event)"></wd-check-point-list>
-</ng-container>
+        (deleted)="onDelete($event)"
+        (selected)="showOnMap($event)"></wd-check-point-list>
+
+    <div class="item">
+        map
+    </div>
+</div>

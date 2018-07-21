@@ -1,28 +1,30 @@
 import { Component, Output, EventEmitter, Input, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { WorkoutService } from '../../../core/workout/workout.service';
-import { Workout } from '../../../core/workout/workout.interface';
+import { Workout, Activity } from '../../../core/workout/workout.interface';
 import { SecToTimePipe } from '../../../shared/pipes/sec-to-time.pipe';
 import * as moment from 'moment';
 import { GearService } from '../../../core/gear/gear.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 import { Gear } from '../../../core/gear/gear.interface';
+import { ActivitiesService } from '../../../core/activities/activities.service';
+import { forkJoin } from 'rxjs/observable/forkJoin';
+import { first } from 'rxjs/operators/first';
 
 @Component({
     selector: 'wd-workout-form',
     templateUrl: 'workout-form.component.html',
     styleUrls: ['./workout-form.component.scss']
 })
-
 export class WorkoutFormComponent implements OnInit, OnDestroy {
-
     @Input() workout: Workout;
     @Output() saved = new EventEmitter();
 
     pipe: SecToTimePipe;
 
     gears: Gear[];
+    activities: Activity[];
 
     form = this._fb.group({
         name: ['', [Validators.required, Validators.maxLength(255)]],
@@ -33,8 +35,6 @@ export class WorkoutFormComponent implements OnInit, OnDestroy {
         min: [0, [Validators.min(0), Validators.max(59)]],
         sec: [0, [Validators.min(0), Validators.max(59)]],
         energy: [0, [Validators.min(0), Validators.max(5000)]],
-        // avgHr: [0, [Validators.min(0), Validators.max(240)]],
-        // maxHr: [0, [Validators.min(0), Validators.max(240)]],
         distance: [0, Validators.min(0)],
         note: ['', Validators.maxLength(255)],
         gear: ['']
@@ -46,28 +46,38 @@ export class WorkoutFormComponent implements OnInit, OnDestroy {
         private _fb: FormBuilder,
         private _workout: WorkoutService,
         private _gearService: GearService,
+        private _activities: ActivitiesService
     ) {
         this.pipe = new SecToTimePipe();
     }
 
     ngOnInit() {
-        this.findGears();
+        this.prepareData();
     }
 
     ngOnDestroy() {
         this._onDestroy$.next();
     }
 
-    get activities() {
-        return this._workout.activities;
-    }
-
     save() {
         this.saved.emit(this.form.value);
     }
 
+    prepareData() {
+        forkJoin(this._gearService.getGears(), this._activities.activityStream.pipe(first()))
+            .pipe(takeUntil(this._onDestroy$))
+            .subscribe(([g, a]) => {
+                this.gears = g;
+                this.activities = a;
+                if (!!this.workout) {
+                    this._presetForm();
+                }
+            });
+    }
+
     findGears() {
-        this._gearService.getGears()
+        this._gearService
+            .getGears()
             .pipe(takeUntil(this._onDestroy$))
             .subscribe((gears: Gear[]) => {
                 this.gears = gears;
@@ -77,11 +87,17 @@ export class WorkoutFormComponent implements OnInit, OnDestroy {
             });
     }
 
+    setActivities() {
+        this._activities.activityStream.pipe(takeUntil(this._onDestroy$)).subscribe(a => {
+            this.activities = a;
+        });
+    }
+
     private _presetForm() {
         const time = this._prepareTime(this.workout.duration);
         this.form.setValue({
             name: this.workout.name,
-            activity: this.workout.activity,
+            activity: this.workout.activity.id,
             date: moment(this.workout.date).toDate(),
             time: this.workout.time,
             hour: time.hours,

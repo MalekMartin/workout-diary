@@ -1,0 +1,14 @@
+:host {
+    display: block;
+    padding: 15px;
+}
+
+.content {
+    display: flex;
+    margin: 0 -10px;
+
+    .item {
+        width: calc(50% - 10px);
+        margin: 0 5px 10px 5px;
+    }
+}

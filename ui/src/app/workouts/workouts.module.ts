@@ -33,6 +33,7 @@ import { WorkoutEditComponent } from './workout/workout-edit/workout-edit.compon
 import { WorkoutNotFoundComponent } from './workout/workout-not-found/workout-not-found.component';
 import { WorkoutTypesGroupComponent } from './workout/workout-types-group/workout-types-group.component';
 import { GearService } from '../core/gear/gear.service';
+import { ActivitiesService } from '../core/activities/activities.service';
 
 const COMP = [
     WorkoutFormComponent,
@@ -43,7 +44,7 @@ const COMP = [
     WorkoutAddComponent,
     WorkoutEditComponent,
     WorkoutNotFoundComponent,
-    WorkoutTypesGroupComponent,
+    WorkoutTypesGroupComponent
 ];
 
 @NgModule({
@@ -72,13 +73,10 @@ const COMP = [
         WdFileUploadModule,
         FileUploadModule,
 
-        WorkoutDetailModule,
+        WorkoutDetailModule
     ],
     exports: [WorkoutsComponent],
     declarations: [WorkoutsComponent, ...COMP],
-    providers: [
-        WorkoutService,
-        GearService,
-    ],
+    providers: [WorkoutService, GearService, ActivitiesService]
 })
-export class WorkoutsModule { }
+export class WorkoutsModule {}

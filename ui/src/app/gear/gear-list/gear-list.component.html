@@ -11,12 +11,12 @@
     </thead>
     <tbody>
         <tr *ngFor="let gear of gears">
-            <td>{{gear.model}} {{gear.brand}}</td>
+            <td>{{gear.brand}} {{gear.model}}</td>
             <td>{{gear.purchaseDate | moment: 'DD.MM.YYYY'}}</td>
             <td>{{gear.price}} Kč</td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td>{{gear.count}}</td>
+            <td>{{gear.distance}} km</td>
+            <td>{{gear.duration | secToTime}}</td>
             <td><i class="material-icons" (click)="delete(gear.id)">delete</i></td>
         </tr>
     </tbody>

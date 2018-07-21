@@ -21,6 +21,10 @@ export const workoutsRoutes: Routes = [
                 loadChildren: 'app/workouts/spinning-workouts/spinning-workouts.module#SpinningWorkoutsModule'
             },
             {
+                path: 'activities',
+                loadChildren: 'app/workouts/activities/activities.module#ActivitiesModule'
+            },
+            {
                 path: 'new',
                 component: WorkoutAddComponent
 

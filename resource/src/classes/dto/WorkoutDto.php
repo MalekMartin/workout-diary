@@ -2,6 +2,7 @@
 
 require 'WorkoutFileDto.php';
 require 'WorkoutGearDto.php';
+require 'ActivityDto.php';
 
 class WorkoutDto
 {
@@ -32,7 +33,7 @@ class WorkoutDto
         $this->date = $v['date'];
         $this->time = $v['time'];
         $this->name = $v['name'];
-        $this->activity = intval($v['activity']);
+        $this->activity = new ActivityDto($v['activityId'], $v['name'], $v['color'], $v['icon']);
         $this->duration = intval($v['duration']);
         $this->distance = floatval($v['distance']);
         $this->avgHr = intval($v['avgHr']);
