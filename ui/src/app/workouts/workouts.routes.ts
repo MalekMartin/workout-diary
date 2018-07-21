@@ -9,7 +9,8 @@ import { WorkoutNotFoundComponent } from './workout/workout-not-found/workout-no
 export const workoutsRoutes: Routes = [
     {
         path: '',
-        component: WorkoutsComponent
+        redirectTo: 'workouts/all',
+        pathMatch: 'full'
     },
     {
         path: 'workouts',
