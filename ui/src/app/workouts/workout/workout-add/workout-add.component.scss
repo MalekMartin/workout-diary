@@ -1,0 +1,22 @@
+h3 {
+    text-align: center;
+}
+
+.dropzone {
+    margin: 10px 0;
+    border: 1px solid #ccc;
+
+    .my-drop-zone {
+        margin: 6px;
+        padding: 30px 60px;
+        border: 1px dashed #ccc;
+        text-align: center;
+    }
+
+    &.nv-file-over {
+        .my-drop-zone {
+            border: 1px solid rgb(235, 74, 0);
+            color: rgb(235, 74, 0);
+        }
+    }
+}

@@ -1,0 +1,59 @@
+<div class="wrapper" *ngIf="!!workout">
+    
+    <wd-workout-detail-header [workout]="workout"
+        [prev]="prev"
+        [next]="next"
+        (delete)="delete($event)"
+        (edit)="goToEdit()"></wd-workout-detail-header>
+
+    <mat-card *ngIf="!!route && !!route.coordinates && !!route.coordinates.length"
+        class="map-content">
+        <wd-map [coordinates]="route.coordinates"
+            [lat]="route.center.lat"
+            [lon]="route.center.lon"></wd-map>
+    </mat-card>
+
+    <div class="flex">
+        <div class="content-50">
+            <mat-card>
+                <wd-workout-detail-numbers [workout]="workout"></wd-workout-detail-numbers>
+            </mat-card>
+            
+            <mat-card>
+                <wd-workout-checkpoint-form
+                    [workoutId]="id"
+                    (saved)="onCheckPointsChanged()"></wd-workout-checkpoint-form>
+
+                    <ng-container *ngIf="!!workoutRoute && !!workoutRoute.length && !checkPointsLoading">
+                        <wd-workout-check-point-table
+                            [data]="workoutRoute"
+                            (deleted)="deleteCheckPoint($event)">
+                        </wd-workout-check-point-table>
+                    </ng-container>
+                    <div *ngIf="!!checkPointsLoading">
+                        Nahrávám...
+                    </div>
+            </mat-card>
+        </div>
+        <div class="content-50">
+            <mat-card *ngIf="!!workout.log.id">
+                <wd-workout-detail-graph *ngIf="id" [id]="id"></wd-workout-detail-graph>
+            </mat-card>
+            
+            <mat-card *ngIf="workout.log.id">
+                <div class="file-wrapper">
+                    <span class="file-name" (click)="export()">{{workout.log.name}}</span>
+                    <span class="file-size">{{workout.log.size | fileSize}}</span>
+                    <span class="file-actions">
+                        <a (click)="convertWorkoutToGpx()">GPX</a>
+                        <i class="material-icons" (click)="deleteFileLog()">delete</i>
+                    </span>
+                </div>
+            </mat-card>
+
+            <wd-file-upload *ngIf="!workout.log.id"
+                [url]="'/resource/workout/' + id + '/file'"
+                (uploaded)="uploaded($event)"></wd-file-upload>
+        </div>
+    </div>
+</div>

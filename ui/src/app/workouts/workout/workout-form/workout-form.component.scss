@@ -1,0 +1,24 @@
+form {
+    width: 600px;
+    margin: auto;
+
+    div {
+        &.main {
+            mat-form-field {
+                width: 49%;
+            }
+        }
+
+        &.time {
+            mat-form-field {
+                width: 100px;
+            }
+        }
+
+        &.note {
+            mat-form-field {
+                width: 100%;
+            }
+        }
+    }
+}

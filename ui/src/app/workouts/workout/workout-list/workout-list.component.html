@@ -1,0 +1,49 @@
+<div *ngIf="isLoading" class="loading">
+    Nahrávám...
+</div>
+<div *ngIf="workouts">
+    <div>
+        <wd-workout-chart [workouts]="workouts"></wd-workout-chart>
+    </div>
+
+    <div class="summaries">
+        <div class="item">
+            <div class="value">{{workouts.length}}</div>
+            <div class="name">Počet tréninků</div>
+        </div>
+        <div class="item">
+            <div class="value">{{totalDuration | secToTime}}</div>
+            <div class="name">Celkový čas</div>
+        </div>
+        <div class="item">
+            <div class="value">{{totalDistance.toFixed(2)}} km</div>
+            <div class="name">Celková vzdálenost</div>
+        </div>
+    </div>
+
+    <div class="filter-container">
+        <wd-workout-types-group
+            [types]="types"
+            (changed)="typesChanged()"></wd-workout-types-group>
+    </div>
+
+    <div class="filter-container">
+        <mat-form-field>
+            <mat-select [formControl]="range" placeholder="Období">
+                <mat-option *ngFor="let r of ranges" [value]="r.id">
+                {{ r.name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+    
+    <ng-container *ngIf="!!workouts && !!workouts.length && view === 'calendar'">
+        <wd-workout-calendar [workoutsData]="workouts"></wd-workout-calendar>
+    </ng-container>
+
+    <div *ngIf="view === 'list'" class="workout-list-wrapper">
+        <div *ngFor="let workout of workouts" class="card-wrapper">
+            <wd-workout-list-item [workout]="workout"></wd-workout-list-item>
+        </div>
+    </div>
+</div>

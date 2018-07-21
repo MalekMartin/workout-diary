@@ -1,0 +1,8 @@
+# Vendor folder - installed plugins
+src/vendor/*
+
+# Logs
+src/logs/*
+
+# .htaccess configuration
+.htaccess

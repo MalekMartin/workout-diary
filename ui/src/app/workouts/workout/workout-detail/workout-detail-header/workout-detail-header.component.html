@@ -1,0 +1,40 @@
+<h1>
+    <div class="workout-icon">
+        <i class="material-icons"
+            [style.backgroundColor]="workout.activity.color">{{workout.activity.icon}}</i>
+    </div>
+    <div class="workout-title">
+        <div class="date">{{workout.date | moment}} {{workout.time}}</div>
+        <div class="workout-name">{{workout.activity.name || ''}} - {{workout.name}}</div>
+    </div>
+    <div *ngIf="!!workout.gear" class="gear">
+        {{workout.gear.brand}} {{workout.gear.model}}
+    </div>
+    <div class="space"></div>
+    <div class="controls">
+        <button *ngIf="!!prev" mat-icon-button [routerLink]="['/workouts', prev]">
+            <i class="material-icons">navigate_before</i>
+        </button>
+        <button *ngIf="!prev" mat-icon-button disabled>
+            <i class="material-icons">navigate_before</i>
+        </button>
+        <button *ngIf="!!next" mat-icon-button [routerLink]="['/workouts', next]">
+            <i class="material-icons">navigate_next</i>
+        </button>
+        <button *ngIf="!next" mat-icon-button disabled>
+            <i class="material-icons">navigate_next</i>
+        </button>
+    </div>
+    <div class="more">
+        <mat-menu #appMenu="matMenu">
+            <button mat-menu-item (click)="edit.emit(workout.id)">Upravit</button>
+            <button mat-menu-item (click)="delete.emit(workout.id)">Smazat</button>
+        </mat-menu>
+                
+        <button mat-icon-button [matMenuTriggerFor]="appMenu">
+            <mat-icon>more_vert</mat-icon>
+        </button>
+    </div>
+</h1>
+<div class="note" *ngIf="!!workout.note">{{workout.note}}</div>
+

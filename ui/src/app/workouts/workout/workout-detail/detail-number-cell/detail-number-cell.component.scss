@@ -1,0 +1,20 @@
+.cell {
+    padding: 12px 10px;
+    text-align: center;
+
+    .value {
+        font-size: 24px;
+        font-weight: bold;
+
+        .units {
+            font-size: 18px;
+            color: #a6a6a6;
+            font-weight: normal;
+        }
+    }
+
+    .note {
+        font-size: 14px;
+        color: #a6a6a6;
+    }
+}

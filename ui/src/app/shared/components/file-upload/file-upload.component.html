@@ -1,0 +1,11 @@
+<div class="dropzone" [ngClass]="{'nv-file-over': hasBaseDropZoneOver}">
+    <div ng2FileDrop
+        (fileOver)="fileOverBase($event)"
+        [uploader]="uploader"
+        class="my-drop-zone">
+        <div><i class="icon-upload"></i> Přetáhni soubor sem.</div>
+    </div>
+    <div class="spinner" *ngIf="isUploading">
+        <i class="icon-spinner2"></i>
+    </div>
+</div>

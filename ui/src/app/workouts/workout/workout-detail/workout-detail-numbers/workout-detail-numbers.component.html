@@ -1,0 +1,37 @@
+<div class="numbers">
+    <wd-detail-number-cell
+        [value]="workout.duration | secToTime"
+        description="Délka trvání"></wd-detail-number-cell>
+    <wd-detail-number-cell
+        [value]="workout.distance"
+        units="km"
+        description="Vzdálenost"></wd-detail-number-cell>
+    <wd-detail-number-cell
+        [value]="workout.energy"
+        units="kcal"
+        description="Energie"></wd-detail-number-cell>
+    <wd-detail-number-cell
+        [value]="workout.avgSpeed + ' / ' + workout.maxSpeed"
+        units="km/h"
+        description="Prům. / Max. rychlost"></wd-detail-number-cell>
+    <wd-detail-number-cell
+        [value]="workout.avgHr + ' / ' + workout.maxHr"
+        units="bpm"
+        description="Prům. / Max. SF"></wd-detail-number-cell>
+    <wd-detail-number-cell
+        [value]="workout.avgCadence + ' / ' + workout.maxCadence"
+        [units]="cadenceUnits"
+        description="Prům. / Max. kadence"></wd-detail-number-cell>
+    <wd-detail-number-cell
+        [value]="workout.maxEle + ' / ' + workout.minEle"
+        units="m"
+        description="Max. / Min. n.m."></wd-detail-number-cell>
+    <wd-detail-number-cell
+        [value]="workout.eleUp"
+        units="m"
+        description="Stoupání"></wd-detail-number-cell>
+    <wd-detail-number-cell
+        [value]="workout.eleDown"
+        units="m"
+        description="Klesání"></wd-detail-number-cell>
+</div>

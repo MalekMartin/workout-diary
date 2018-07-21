@@ -1,0 +1,56 @@
+.chart-wrapper {
+    display: flex;
+    height: 145px;
+    width: 700px;
+    margin: 0 auto 16px auto;
+
+    .item {
+        flex-grow: 1;
+        margin-top: auto;
+
+        .date {
+            font-size: 12px;
+            text-align: center;
+            color: #666;
+            padding-top: 3px;
+            border-top: 1px solid #ccc;
+
+            &.weekend {
+                font-weight: bold;
+                color: #434343;
+            }
+        }
+
+        .bar {
+            margin-bottom: -4px;
+            border-radius: 2px 2px 0 0;
+        }
+
+        a {
+            background-color: #70b600;
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            
+            i {
+                font-size: 12px;
+                color: white;
+            }
+        }
+
+        .workouts-cell {
+            text-align: center;
+        }
+    }
+
+    .workout-icons {
+        text-align: center;
+    }
+}
+
+.bar {
+    display: inline-block;
+    width: 18px;
+    background-color: #70b600;
+}

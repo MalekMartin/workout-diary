@@ -1,0 +1,41 @@
+<div>
+    <div class="chart-wrapper">
+        <div class="item" *ngFor="let item of data">
+            <div class="workout-icons">
+                <!-- <div *ngFor="let workout of item.workouts" class="workouts-cell">
+                    <a [routerLink]="['/workouts', workout.id]"
+                        [matTooltip]="(workout.duration | secToTime) + ' | ' + workout.distance + 'km | ' + workout.energy + ' kcal'">
+                        <i class="material-icons">{{workout.activity.icon}}</i>
+                    </a>
+                </div> -->
+                <div class="bar" [style.height.px]="columnHeigh(item.totalDuration)"
+                    [style.backgroundColor]="item.color"
+                    [matTooltip]="(item.totalDuration | secToTime) + ' | ' + item.totalDistance + ' km | ' + item.totalCalories + ' kcal'"
+                    matTooltipPosition="above"></div>
+            </div>
+            <div class="date" [class.weekend]="item.day === 'Sobota' || item.day === 'Neděle'">
+                <span [matTooltip]="item.day" >{{item.date | moment: 'D'}}</span>
+            </div>
+            <!-- <div class="date" [class.weekend]="item.day === 'Sobota' || item.day === 'Neděle'">
+                {{item.date | moment: 'DD.MM'}}
+                <br>{{item.day}}
+            </div> -->
+        </div>
+    </div>
+</div>
+
+<!-- workout chart will be here soon -->
+<!-- <ngx-charts-bar-vertical-stacked *ngIf="!!data"
+    [view]="view"
+    [scheme]="colorScheme"
+    [results]="data"
+    [gradient]="false"
+    [xAxis]="true"
+    [yAxis]="true"
+    [legend]="false"
+    [showXAxisLabel]="true"
+    [showYAxisLabel]="true"
+    xAxisLabel="Dny"
+    yAxisLabel="Čas"
+    (select)="onSelect($event)">
+</ngx-charts-bar-vertical-stacked> -->

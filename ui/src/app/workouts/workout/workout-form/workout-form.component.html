@@ -1,0 +1,76 @@
+<form [formGroup]="form">
+    <div class="main">
+        <mat-form-field>
+            <input matInput formControlName="name" placeholder="Název">
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-select formControlName="activity" placeholder="Aktivita">
+                <mat-option *ngFor="let activity of activities" [value]="activity.id">
+                {{ activity.name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+    
+    <div class="main">
+        <mat-form-field>
+            <input matInput [matDatepicker]="picker" formControlName="date" placeholder="Datum">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field>
+            <input matInput formControlName="time" placeholder="Čas">
+        </mat-form-field>
+    </div>
+
+    <div class="time">
+        <mat-form-field>
+            <mat-select formControlName="gear" placeholder="Vybavení">
+                <mat-option *ngFor="let gear of gears" [value]="gear.id">
+                {{ gear.brand }} {{gear.model}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+
+    <div class="time">
+        <mat-form-field>
+            <input matInput formControlName="hour" placeholder="hod">
+        </mat-form-field>
+        <mat-form-field>
+            <input matInput formControlName="min" placeholder="min">
+        </mat-form-field>
+        <mat-form-field>
+            <input matInput formControlName="sec" placeholder="sec">
+        </mat-form-field>
+    </div>
+
+    <div class="time">
+        <mat-form-field>
+            <input matInput formControlName="distance" placeholder="Vzdálenost">
+        </mat-form-field>
+
+        <mat-form-field>
+            <input matInput formControlName="energy" placeholder="Energie">
+        </mat-form-field>
+
+        <!-- <mat-form-field>
+            <input matInput formControlName="avgHr" placeholder="Průměrná SF">
+        </mat-form-field>
+
+        <mat-form-field>
+            <input matInput formControlName="maxHr" placeholder="Maximální SF">
+        </mat-form-field> -->
+    </div>
+
+    <div class="note">
+        <mat-form-field>
+            <textarea matInput formControlName="note" placeholder="Poznámka" matTextareaAutosize matAutosizeMinRows="2"
+                        matAutosizeMaxRows="8"></textarea>
+        </mat-form-field>
+    </div>
+    <ng-content></ng-content>
+    <button mat-raised-button color="primary" [disabled]="!form.valid" (click)="!!form.valid && save()">Uložit</button>
+</form>

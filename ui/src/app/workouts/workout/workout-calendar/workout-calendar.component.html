@@ -1,0 +1,17 @@
+<div class="calendar-wrapper">
+    <div class="calendar-content" *ngIf="!!data">
+        <div *ngFor="let week of data" class="week">
+            <div *ngFor="let day of week" class="day-wrapper" [class.invalid]="!day.inRange">
+                <div class="day">
+                    <div class="date" [class.today]="day.today">{{day.date | moment: 'D'}}</div>
+                    <div class="workouts">
+                        <i class="material-icons" *ngFor="let workout of day.workouts"
+                            [routerLink]="['/workouts', workout.id]"
+                            [style.backgroundColor]="workout.activity.color"
+                            [matTooltip]="workout.duration | secToTime">{{workout.activity.icon}}</i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

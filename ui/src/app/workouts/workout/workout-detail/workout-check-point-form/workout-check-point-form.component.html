@@ -1,0 +1,11 @@
+<form [formGroup]="form">
+    <mat-form-field>
+        <mat-select formControlName="checkPoint" placeholder="Vyber check point">
+            <mat-option *ngFor="let item of checkPoints" [value]="item.id">
+            {{ item.name }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <button mat-raised-button color="primary" [disabled]="!form.valid" (click)="!!form.valid && save()">Uložit</button>
+</form>

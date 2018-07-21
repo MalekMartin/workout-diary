@@ -1,0 +1,13 @@
+<form [formGroup]="form">
+    <mat-form-field>
+        <input matInput formControlName="name" placeholder="Název">
+    </mat-form-field>
+    <mat-form-field>
+        <input matInput formControlName="lat" placeholder="Latitude">
+    </mat-form-field>
+    <mat-form-field>
+        <input matInput formControlName="lon" placeholder="Longitude">
+    </mat-form-field>
+
+    <button mat-raised-button color="primary" [disabled]="!form.valid" (click)="!!form.valid && save()">Uložit</button>
+</form>

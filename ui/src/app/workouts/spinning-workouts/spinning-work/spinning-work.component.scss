@@ -1,0 +1,210 @@
+:host {
+    background: rgba(0, 0, 0, 0.03);
+    display: block;
+    padding: 10px 10px 30px 10px;
+}
+
+.header {
+    .title {
+        font-size: 36px;
+    }
+
+    .subtitle {
+        font-size: 16px;
+        color: #999;
+
+        span {
+            display: inline-block;
+            padding-right: 10px;
+            margin-right: 8px;
+            border-right: 1px solid #777;
+
+            &:last-child {
+                border: 0;
+                padding: 0;
+                margin: 0;
+            }
+        }
+    }
+}
+
+.content {
+    width: 500px;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 1px 1px 4px #ccc;
+    background: #fff;
+
+    .controls {
+    }
+
+    .main-text {
+        font-size: 130px;
+        text-align: center;
+        padding: 20px;
+        font-weight: bold;
+    }
+
+    .section-type {
+        font-size: 28px;
+        text-align: center;
+        margin-top: 15px;
+        text-transform: uppercase;
+        padding: 5px;
+        border-radius: 25px;
+        transition: all 0.6s;
+
+        &.easy {
+            background: rgb(255, 251, 0);
+            box-shadow: 0px 0px 4px rgb(170, 159, 0);
+        }
+    
+        &.work {
+            background: rgb(196, 17, 17);
+            box-shadow: 0px 0px 4px rgb(170, 0, 0);
+            color: #fff;
+        }
+    
+        &.rest {
+            background: rgb(21, 187, 15);
+            box-shadow: 0px 0px 4px rgb(28, 170, 0);
+            color: #fff;
+        }
+    }
+
+    .zone {
+        padding: 5px 0;
+
+        .zone-bar-wrapper {
+            background-color: #eee;
+            border-radius: 5px;
+        }
+
+        .zone-bar {
+            height: 10px;
+            border-radius: 5px;
+            width: 100%;
+            transition: all 0.5s;
+
+            &.zone1 {
+                width: 20%;
+                background-color: #999;
+            }
+            &.zone2 {
+                width: 40%;
+                background-color: rgb(25, 125, 255);
+            }
+            &.zone3 {
+                width: 60%;
+                background-color: rgb(15, 180, 0);
+            }
+            &.zone4 {
+                width: 80%;
+                background-color: rgb(255, 94, 0);
+            }
+            &.zone5 {
+                width: 100%;
+                background-color: rgb(255, 0, 0);
+            }
+        }
+    }
+
+    .workout-bar-wrapper {
+        height: 8px;
+        border-radius: 5px;
+        width: 100%;
+        transition: all 0.5s;
+        background-color: #eee;
+
+        .workout-bar {
+            height: 8px;
+            border-radius: 5px;
+            transition: all 0.5s;
+            background-color: rgb(0, 117, 172);
+        }
+    }
+
+    .training-info {
+        font-size: 16px;
+        display: flex;
+
+        .remaining-time {
+            flex-grow: 1;
+        }
+        .remaining-sections {
+            flex-grow: 1;
+            text-align: right;
+        }
+    }
+
+    .tempo {
+        text-align: center;
+        // display: flex;
+
+        // .strokes {
+        //     display: flex;
+        //     text-align: center;
+        // }
+
+        // .hr {
+        //     text-align: right;
+        // }
+    }
+
+    .stroke {
+        margin: auto 15px auto 0;
+        width: 20px;
+        height: 20px;
+        border-radius: 15px;
+        background-color: #ccc;
+        border: 1px solid #999;
+        box-shadow: 1px 1px 4px #444;
+
+        // transition-property: all;
+        // transition-duration: 0.3s;
+
+        &.even.active {
+            background-color: rgb(0, 192, 0);
+        }
+
+        &.odd.active {
+            background-color: rgb(0, 192, 0);
+        }
+
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+}
+
+.flex-1 {
+    flex-grow: 1;
+}
+
+.flex-0 {
+    flex-grow: 0;
+}
+
+.ped {
+    position: relative;
+    height: 20px;
+    border-radius: 10px;
+    background-color: #eee;
+
+    div {
+        width: 80px;
+        position: absolute;
+        background: rgb(21, 94, 163);
+        border: 1px solid rgb(18, 78, 134);
+        height: 20px;
+        border-radius: 10px;
+
+        &.left {
+            left: 0;
+        }
+
+        &.right {
+            left: calc(100% - 80px);
+        }
+    }
+}

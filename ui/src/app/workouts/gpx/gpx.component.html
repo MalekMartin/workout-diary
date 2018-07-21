@@ -1,0 +1,53 @@
+<div class="wrapper">
+    <form [formGroup]="form">
+        <div class="inputs">
+            <div>
+                <mat-form-field>
+                    <input matInput formControlName="ele" placeholder="Nadmořská výška">
+                </mat-form-field>
+            </div>
+
+            <div>
+                <mat-form-field>
+                    <input matInput formControlName="lat" placeholder="Latitude">
+                </mat-form-field>
+            </div>
+
+            <div>
+                <mat-form-field>
+                    <input matInput formControlName="lon" placeholder="Longitude">
+                </mat-form-field>
+            </div>
+        </div>
+        <div>
+            <!-- <mat-checkbox formControlName="defaultCoordinates">použít zadané souřadnice</mat-checkbox> -->
+            <mat-radio-group formControlName="options">
+                <mat-radio-button value="REMOVE_EMPTY">Odstranit chybějící souřadnice</mat-radio-button>
+                <mat-radio-button value="USE_DEFAULT">Použít zadané souřadnice</mat-radio-button>
+            </mat-radio-group>
+        </div>
+    </form>
+
+    <div class="dropzone" [ngClass]="{'nv-file-over': hasBaseDropZoneOver}">
+        <div ng2FileDrop
+            (fileOver)="fileOverBase($event)"
+            [uploader]="uploader"
+            class="my-drop-zone">
+            <div><i class="icon-upload"></i> Přetáhni soubor sem.</div>
+        </div>
+    </div>
+
+    <div *ngFor="let item of uploader.queue">
+        {{item.file.name}} <span (click)="item.remove()">odebrat</span>
+    </div>
+
+    <div class="progress" *ngIf="isUploading">
+        <div class="progress-bar" [ngStyle]="{ 'width': uploader.progress + '%' }"></div>
+    </div>
+
+    <div class="upload-button-div">
+        <button mat-raised-button color="primary" (click)="uploader.uploadAll()" [disabled]="!uploader.getNotUploadedItems().length">
+            Nahrát
+        </button>
+    </div>
+</div>

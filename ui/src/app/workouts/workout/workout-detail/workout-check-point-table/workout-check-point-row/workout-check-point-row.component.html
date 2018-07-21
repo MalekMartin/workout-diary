@@ -1,0 +1,9 @@
+<td class="name">{{item.name}}</td>
+<td class="cp-value">{{item.data.dst}}</td>
+<td class="cp-time">{{item.data.time | secToTime}}</td>
+<td class="cp-value">({{item.data.splitTime | secToTime}})</td>
+<td class="cp-value">{{item.data.avgHr}}</td>
+<td class="cp-value">{{item.data.avgSpeed}}</td>
+<td class="actions" *ngIf="item.id != 'FINISH'">
+    <i class="material-icons" (click)="deleted.emit(item.id)">delete</i>
+</td>

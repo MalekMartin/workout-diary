@@ -1,0 +1,11 @@
+<div>
+    <div>
+        <mat-form-field>
+            <input matInput [formControl]="name" placeholder="Jméno">
+        </mat-form-field>
+        <button mat-raised-button color="primary" [disabled]="!name.valid"
+            (click)="name.valid && create()">Vytvořit</button>
+    </div>
+</div>
+
+<wd-spinning-workout-list></wd-spinning-workout-list>

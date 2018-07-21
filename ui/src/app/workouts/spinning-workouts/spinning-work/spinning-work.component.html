@@ -1,0 +1,70 @@
+<ng-container *ngIf="!!workout">
+    <div class="header">
+        <div class="title">{{workout.name}}</div>
+        <div class="subtitle">
+            <span>celkový čas: <b>{{totalDuration | secToTime}}</b></span>
+            <span>počet intervalů: <b>{{workout.sections.length}}</b></span>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button mat-raised-button color="primary"
+            (click)="status !== 'SPINNING' && start()"
+            [disabled]="status === 'SPINNING'">Start</button>
+        <button mat-raised-button color="warn"
+            (click)="status === 'SPINNING' && stop()"
+            [disabled]="status !== 'SPINNING'">Stop</button>
+    </div>
+
+    <div class="content">
+
+        <div class="main-text" *ngIf="counter > 0">{{counter}}</div>
+
+        <ng-container *ngIf="counter < 1 && !!currentSection">
+            <div class="training-info">
+                <div class="remaining-time">
+                    {{currentDuration | secToTime}}
+                </div>
+                <div class="remaining-sections">
+                    {{index + 1}} / {{workout.sections.length}}
+                </div>
+            </div>
+            <div class="workout-progress">
+                <div class="workout-bar-wrapper">
+                    <div class="workout-bar" [style.width]="workoutProgress"></div>
+                </div>
+            </div>
+            <div class="section-type" [class.easy]="currentSection?.type === 'WARM_UP' || currentSection?.type === 'COOL_DOWN'"
+                [class.rest]="currentSection?.type === 'REST'"
+                [class.work]="currentSection?.type === 'WORK'">{{sectionType}}</div>
+
+            <div class="remaining-section-time main-text">
+                {{currentSection.duration > 0 ? (currentSection.duration | secToTime) : '--:--'}}
+            </div>
+
+            <div class="zone">
+                HR Zone: <b>{{currentSection?.zone}}</b>
+                <div class="zone-bar-wrapper">
+                    <div class="zone-bar"
+                        [class.zone1]="currentSection?.zone === '1'"
+                        [class.zone2]="currentSection?.zone === '2'"
+                        [class.zone3]="currentSection?.zone === '3'"
+                        [class.zone4]="currentSection?.zone === '4'"
+                        [class.zone5]="currentSection?.zone === '5'"></div>
+                </div>
+            </div>
+
+            <div class="ped">
+                <div [style.transitionProperty]="'all'"
+                    [style.transitionDuration]="strokesDuration + 'ms'"
+                    [class.left]="!!peddal"
+                    [class.right]="!peddal"></div>
+            </div>
+            <div class="tempo">
+                RPM: <b>{{currentSection.rpm}}</b>
+            </div>
+        </ng-container>
+
+        <!-- <div class="main-text" *ngIf="status === 'FINISHED'">KONEC</div> -->
+    </div>
+</ng-container>

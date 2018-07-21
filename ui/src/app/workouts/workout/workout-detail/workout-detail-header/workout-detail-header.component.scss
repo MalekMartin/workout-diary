@@ -1,0 +1,59 @@
+
+h1 {
+    display: flex;
+
+    .workout-icon {
+        flex-grow: 0;
+        margin: auto 10px auto 0;
+
+        i {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            background-color: #777;
+            color: white;
+            text-align: center;
+            border-radius: 20px;
+        }
+    }
+
+
+    .workout-title {
+        flex-grow: 0;
+        margin: auto 0;
+
+        .workout-name {
+            font-size: 32px;
+            line-height: 32px;
+        }
+
+        .date {
+            font-size: 12px;
+            color: #999;
+            font-weight: 500;
+            // margin-left: 6px;
+        }
+    }
+
+    .gear {
+        margin: auto 12px 0 12px;
+        font-size: 18px;
+        color: #ccc;
+    }
+
+    .space {
+        flex-grow: 1;
+    }
+
+    .more {
+        flex-grow: 0;
+        margin: auto 0;
+    }
+}
+
+.note {
+    color: #999;
+    font-size: 13px;
+    margin: 0 0 20px 50px;
+}

@@ -1,0 +1,30 @@
+.switch-graph {
+    padding: 5px 0;
+
+    span {
+        cursor: pointer;
+        display: inline-block;
+        margin-right: 10px;
+
+        &.active {
+            color: #469c00;
+            text-decoration: underline;
+        }
+    }
+}
+
+.chart-fog {
+    background-color: #fff;
+    opacity: 0.6;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+.chart-fog-label {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    top: 50%;
+}

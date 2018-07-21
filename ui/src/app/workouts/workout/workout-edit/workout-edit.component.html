@@ -1,0 +1,6 @@
+<h3>Upravit cvičení</h3>
+
+<wd-workout-form *ngIf="workout"
+    [workout]="workout"
+    (saved)="save($event)">
+</wd-workout-form>

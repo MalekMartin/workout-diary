@@ -1,0 +1,18 @@
+.content {
+    padding: 10px;
+}
+
+.sub-menu {
+    padding: 10px 20px;
+    background-color: white;
+
+    a {
+        display: inline-block;
+        font-size: 14px;
+        padding: 0 10px;
+        text-decoration: none;
+        color: #444;
+    }
+
+    box-shadow: 0px 2px 3px #cccccc;
+}

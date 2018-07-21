@@ -1,0 +1,55 @@
+.wrapper {
+    width: 100%;
+    margin: 10px;
+
+    form {
+        text-align: center;
+    }
+
+    .inputs {
+        display: flex;
+
+        div {
+            margin: 0px 3px;
+            flex-grow: 1;
+            text-align: center;
+        }
+    }
+
+    mat-form-field {
+        width: 400px;
+    }
+
+    .progress {
+        height: 5px;
+        background-color: #ccc;
+
+        .progress-bar {
+            height: 5px;
+            background-color: rgb(67, 184, 0);
+        }
+    }
+}
+
+.dropzone {
+    margin: 10px;
+    border: 1px solid #ccc;
+
+    .my-drop-zone {
+        margin: 6px;
+        padding: 30px 60px;
+        border: 1px dashed #ccc;
+        text-align: center;
+    }
+
+    &.nv-file-over {
+        .my-drop-zone {
+            border: 1px solid rgb(235, 74, 0);
+            color: rgb(235, 74, 0);
+        }
+    }
+}
+
+.upload-button-div {
+    text-align: center;
+}

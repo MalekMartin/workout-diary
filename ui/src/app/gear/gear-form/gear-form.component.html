@@ -1,0 +1,21 @@
+<form [formGroup]="form">
+    <mat-form-field>
+        <input matInput formControlName="brand" placeholder="Značka">
+    </mat-form-field>
+    <mat-form-field>
+        <input matInput formControlName="model" placeholder="Model">
+    </mat-form-field>
+    <mat-form-field>
+        <input matInput formControlName="manufactureYear" placeholder="Rok výroby">
+    </mat-form-field>
+    <mat-form-field>
+        <input matInput formControlName="price" placeholder="Cena">
+    </mat-form-field>
+    <mat-form-field>
+        <input matInput [matDatepicker]="picker" formControlName="purchaseDate" placeholder="Datum koupě">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <button mat-raised-button color="primary" [disabled]="!form.valid" (click)="!!form.valid && save()">Uložit</button>
+</form>

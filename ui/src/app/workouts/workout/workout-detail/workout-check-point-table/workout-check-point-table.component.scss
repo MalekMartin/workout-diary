@@ -1,0 +1,30 @@
+table {
+    width: 100%;
+
+    .check-point-header {
+        th {
+            font-weight: bold;
+            padding-bottom: 6px;
+            text-align: left;
+        }
+    }
+}
+
+.check-point, .check-point-header {
+    font-size: 13px;
+
+    &.start {
+        padding-bottom: 2px;
+    }
+
+    .name {
+        // width: 220px;
+    }
+    .cp-value {
+        // width: 80px;
+    }
+    .cp-time {
+        // width: 90px;
+    }
+
+}

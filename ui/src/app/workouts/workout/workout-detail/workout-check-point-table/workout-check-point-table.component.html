@@ -1,0 +1,40 @@
+<table>
+    <thead>
+        <tr class="check-point-header">
+            <th class="name">Check point</th>
+            <th class="cp-value">Vzdálenost [km]</th>
+            <th class="cp-time">Čas</th>
+            <th class="cp-value">Mezičas</th>
+            <th class="cp-value">TF</th>
+            <th class="cp-value">Rychlost [km/h]</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr class="check-point start">
+            <td class="name">Start</td>
+            <td class="cp-value">0 km</td>
+            <td class="cp-time">{{0 | secToTime}}</td>
+            <td class="cp-value">({{0 | secToTime}})</td>
+            <td class="cp-value">0 bpm</td>
+            <td class="cp-value">0 km/h</td>
+        </tr>
+        <tr 
+            wd-workout-check-point-row
+            [item]="item"
+            (deleted)="deleted.emit($event)"
+            *ngFor="let item of data"
+            class="check-point">
+            <!-- <div class="name">{{item.name}}</div>
+            <ng-container *ngIf="!!item.data">
+                <div class="cp-value">{{item.data.dst}} km</div>
+                <div class="cp-time">{{item.data.time | secToTime}}</div>
+                <div class="cp-value">({{item.data.splitTime | secToTime}})</div>
+                <div class="cp-value">{{item.data.avgHr}} bpm</div>
+                <div class="cp-value">{{item.data.avgSpeed}} km/h</div>
+            </ng-container>
+            <div class="actions" *ngIf="item.id != 'FINISH'">
+                <i class="material-icons" (click)="deleteCheckPoint(item.id)">delete</i>
+            </div> -->
+        </tr>
+    </tbody>
+</table>

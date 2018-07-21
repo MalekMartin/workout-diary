@@ -1,0 +1,5 @@
+<h3>Vybavení</h3>
+
+<wd-gear-add (saved)="getAllGears()"></wd-gear-add>
+<wd-gear-list *ngIf="!!gears && !!gears.length" [gears]="gears"
+    (deleted)="onDelete($event)"></wd-gear-list>

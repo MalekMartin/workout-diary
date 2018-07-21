@@ -1,0 +1,9 @@
+checkpoints
+<wd-check-point-form (saved)="save($event)"></wd-check-point-form>
+
+<ng-container *ngIf="checkPoints">
+    <wd-check-point-list
+        [checkPoints]="checkPoints"
+        (edited)="onEdit($event)"
+        (deleted)="onDelete($event)"></wd-check-point-list>
+</ng-container>

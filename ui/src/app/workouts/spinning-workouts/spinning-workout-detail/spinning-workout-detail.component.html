@@ -1,0 +1,12 @@
+<div *ngIf="!!workout">
+    <h3>{{workout.name}} ({{totalDuration | secToTime}})</h3>
+    <button mat-raised-button color="warn" (click)="onDelete()">Smazat</button>
+
+    <div class="sections">
+        <wd-spinning-section-item *ngFor="let section of workout.sections"
+            [section]="section"></wd-spinning-section-item>
+    </div>
+    {{totalDuration | secToTime}}
+    <br>
+    <wd-spinning-workout-form (save)="onSave($event)"></wd-spinning-workout-form>
+</div>

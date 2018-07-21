@@ -1,0 +1,23 @@
+<table>
+    <thead>
+        <tr>
+            <th>Vybavení</th>
+            <th>Datum koupě</th>
+            <th>Cena</th>
+            <th>Počet workouts</th>
+            <th>Vzdálenost</th>
+            <th>Čas</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let gear of gears">
+            <td>{{gear.model}} {{gear.brand}}</td>
+            <td>{{gear.purchaseDate | moment: 'DD.MM.YYYY'}}</td>
+            <td>{{gear.price}} Kč</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td><i class="material-icons" (click)="delete(gear.id)">delete</i></td>
+        </tr>
+    </tbody>
+</table>

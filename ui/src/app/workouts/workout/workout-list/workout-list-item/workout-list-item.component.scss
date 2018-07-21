@@ -1,0 +1,80 @@
+.header {
+    display: flex;
+
+    .icon-wrapper {
+        margin: auto 0;
+        i {
+            background-color: #777;
+            color: white;
+            border-radius: 16px;
+            display: block;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            text-align: center;
+            margin-right: 12px;
+            font-size: 20px;
+        }
+    }
+
+    .title {
+        font-size: 14px;
+        padding-bottom: 3px;
+    }
+    .date {
+        font-size: 12px;
+        color: #999;
+    }
+}
+
+.values-list {
+    padding: 8px 0px 0px 0px;
+
+    .value {
+        font-size: 24px;
+    }
+    .desc {
+        font-size: 12px;
+        text-align: center;
+    }
+}
+
+mat-card {
+    cursor: pointer;
+}
+
+// .card-wrapper {
+//     margin-bottom: 5px;
+// }
+
+// .date {
+//     font-size: 12px;
+//     color: #a8b8c4;
+// }
+
+// .title {
+//     font-weight: 400;
+//     display: flex;
+//     margin-top: 3px;
+
+//     i {
+//         flex-grow: 0;
+//     }
+
+//     div {
+//         flex-grow: 1;
+//         margin: auto 0 auto 10px;
+//     }
+// }
+
+// .flex {
+//     display: flex;
+// }
+
+// .cell {
+//     margin: auto 25px;
+//     font-size: 28px;
+//     font-weight: bold;
+//     flex-grow: 1;
+//     text-align: center;
+// }

@@ -1,0 +1,59 @@
+:host {
+    display: block;
+    padding: 10px;
+}
+
+mat-card {
+    margin-bottom: 15px;
+}
+
+.flex {
+    display: flex;
+}
+
+.content-50 {
+    flex-grow: 1;
+    width: 50%;
+    margin: 0 3px;
+}
+
+.file-wrapper {
+    font-size: 12px;
+    display: flex;
+
+    .file-name {
+        flex-grow: 2;
+        cursor: pointer;
+        text-decoration: underline;
+        color: rgb(128, 197, 0);
+    }
+    .file-size {
+        flex-grow: 1;
+    }
+
+    .file-actions {
+        a {
+            margin-right: 6px;
+            cursor: pointer;
+            color: #80c500;
+        }
+    }
+
+    i {
+        font-size: 13px;
+    }
+}
+
+.map-content {
+    padding: 0;
+}
+
+@media(max-width: 987px) {
+    .flex {
+        display: block;
+    }
+
+    .content-50 {
+        width: 100%;
+    }
+}

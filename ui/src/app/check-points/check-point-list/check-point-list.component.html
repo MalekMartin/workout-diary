@@ -1,0 +1,5 @@
+<div *ngFor="let item of checkPoints">
+    <wd-check-point-list-item [checkPoint]="item"></wd-check-point-list-item>
+    <i class="material-icons" (click)="edited.emit(item)">create</i>
+    <i class="material-icons" (click)="deleted.emit(item)">delete</i>
+</div>

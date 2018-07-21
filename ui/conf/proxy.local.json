@@ -1,0 +1,6 @@
+{
+    "/resource/*": {
+        "target": "http://192.168.1.102:9090",
+        "secure": false
+    }
+}
