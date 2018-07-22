@@ -1,0 +1,7 @@
+<h3>Aktivity</h3>
+
+<wd-activity-form (saved)="onSave($event)"></wd-activity-form>
+
+<wd-activity-list [activities]="activities"
+    (edited)="onEdit($event)"
+    (deleted)="onDelete($event)"></wd-activity-list>

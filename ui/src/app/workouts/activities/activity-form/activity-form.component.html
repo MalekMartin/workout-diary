@@ -1,0 +1,13 @@
+<form [formGroup]="form">
+    <mat-form-field>
+        <input matInput formControlName="name" placeholder="Název">
+    </mat-form-field>
+    <mat-form-field>
+        <input matInput formControlName="color" placeholder="Barva">
+    </mat-form-field>
+    <mat-form-field>
+        <input matInput formControlName="icon" placeholder="Ikona">
+    </mat-form-field>
+    <button mat-raised-button color="primary" [disabled]="!form.valid" (click)="!!form.valid && save()">Uložit</button>
+    <button mat-raised-button color="primary" (click)="form.reset()">Reset</button>
+</form>

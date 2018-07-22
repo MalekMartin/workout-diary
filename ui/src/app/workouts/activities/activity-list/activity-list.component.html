@@ -1,0 +1,21 @@
+<ng-container *ngIf="activities">
+    <table>
+        <tbody>
+            <tr *ngFor="let a of activities">
+                <td>{{a.name}}</td>
+                <td>
+                    <div class="color" [style.backgroundColor]="a.color"></div>
+                </td>
+                <td><mat-icon>{{a.icon}}</mat-icon></td>
+                <td>
+                    <button mat-icon-button (click)="edited.emit(a)">
+                        <mat-icon>create</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="deleted.emit(a)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</ng-container>

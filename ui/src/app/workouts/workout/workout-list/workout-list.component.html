@@ -12,7 +12,7 @@
             <div class="name">Počet tréninků</div>
         </div>
         <div class="item">
-            <div class="value">{{totalDuration | secToTime}}</div>
+            <div class="value">{{totalDuration | secToWords}}</div>
             <div class="name">Celkový čas</div>
         </div>
         <div class="item">
@@ -21,7 +21,7 @@
         </div>
     </div>
 
-    <div class="filter-container">
+    <div class="filter-container" *ngIf="!!types">
         <wd-workout-types-group
             [types]="types"
             (changed)="typesChanged()"></wd-workout-types-group>

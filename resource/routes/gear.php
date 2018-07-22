@@ -28,7 +28,8 @@ $app->post('/resource/gear/{id}/update', function (Request $request, Response $r
 $app->get('/resource/gear/all', function (Request $request, Response $response, $args) {
     $this->logger->addInfo("Get all gears");
     $mapper = new Gear($this->db);
-    $data = $mapper->findAllGear();
+    // $data = $mapper->findAllGear();
+    $data = $mapper->findAllWithWorkoutProperties();
     return $response->withJson($data);
 });
 

@@ -4,10 +4,17 @@ import { RouterModule } from '@angular/router';
 import { checkpointsRoutes } from './check-points.routes';
 import { CheckPointFormComponent } from './check-point-form/check-point-form.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MatFormFieldModule, MatInputModule, MatButtonModule, MatTooltipModule } from '@angular/material';
+import {
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatTooltipModule,
+    MatCardModule,
+    MatListModule,
+    MatIconModule
+} from '@angular/material';
 import { CheckPointService } from '../core/check-point/check-point.service';
 import { CheckPointListComponent } from './check-point-list/check-point-list.component';
-import { CheckPointListItemComponent } from './check-point-list-item/check-point-list-item.component';
 import { CommonModule } from '@angular/common';
 
 @NgModule({
@@ -19,16 +26,12 @@ import { CommonModule } from '@angular/common';
         MatInputModule,
         MatButtonModule,
         MatTooltipModule,
+        MatCardModule,
+        MatListModule,
+        MatIconModule
     ],
     exports: [CheckPointsComponent],
-    declarations: [
-        CheckPointsComponent,
-        CheckPointFormComponent,
-        CheckPointListComponent,
-        CheckPointListItemComponent,
-    ],
-    providers: [
-        CheckPointService
-    ],
+    declarations: [CheckPointsComponent, CheckPointFormComponent, CheckPointListComponent],
+    providers: [CheckPointService]
 })
-export class CheckPointsModule { }
+export class CheckPointsModule {}

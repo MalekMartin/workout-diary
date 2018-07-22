@@ -32,9 +32,9 @@ class Workout {
 
     public function addWorkout($d) {
         $duration = $d->sec + ($d->min * 60) + ($d->hour * 60 * 60);
-        $query = $this->db->prepare('INSERT INTO workout (name, activity, `date`, `time`, duration, energy, distance, note)
-            VALUES (?,?,?,?,?,?,?,?)');
-        $query->execute(array($d->name, $d->activity, $d->date, $d->time, $duration, $d->energy, $d->distance, $d->note));
+        $query = $this->db->prepare('INSERT INTO workout (name, activity, `date`, `time`, duration, energy, distance, note, gearId)
+            VALUES (?,?,?,?,?,?,?,?,?)');
+        $query->execute(array($d->name, $d->activity, $d->date, $d->time, $duration, $d->energy, $d->distance, $d->note, $d->gear));
 
         return $this->db->lastInsertId();
     }
@@ -55,10 +55,12 @@ class Workout {
         $query = $this->db->prepare('SELECT workout.id, workout.name, activity, `date`, `time`, duration, energy, avgHr,
             avgSpeed, avgCadence, maxSpeed, maxCadence, maxEle, minEle, eleUp, eleDown,
             maxHr, distance, note, log, files.name AS `filename`, files.size, files.type,
-            gear.id as gearId, gear.brand, gear.model
+            gear.id as gearId, gear.brand, gear.model,
+            a.id as activityId, a.name, a.color, a.icon
             FROM workout
                 LEFT JOIN exported_files AS files ON workout.id = files.workoutId
                 LEFT JOIN gear ON workout.gearId = gear.id
+                LEFT JOIN activity as a ON workout.activity = a.id
             WHERE 1 ' . $inArray . '
             ORDER BY `date` DESC, `time` DESC' . $limit);
         $query->execute(array());
@@ -76,10 +78,12 @@ class Workout {
         $query = $this->db->prepare('SELECT workout.id, workout.name, activity, `date`, time, duration, energy, avgHr,
             avgSpeed, avgCadence, maxSpeed, maxCadence, maxEle, minEle, eleUp, eleDown,
             maxHr, distance, note, files.id AS log, files.name AS `filename`, files.size, files.type,
-            gear.id as gearId, gear.brand, gear.model
+            gear.id as gearId, gear.brand, gear.model,
+            a.id as activityId, a.name, a.color, a.icon
             FROM workout
                 LEFT JOIN exported_files AS files ON workout.id = files.workoutId
                 LEFT JOIN gear ON workout.gearId = gear.id
+                LEFT JOIN activity as a ON workout.activity = a.id
             WHERE workout.id = ?');
         $query->execute(array($id));
         $res = $query->fetch();
@@ -762,10 +766,12 @@ class Workout {
         $query = $this->db->prepare('SELECT workout.id, workout.name, activity, `date`, `time`, duration, energy, avgHr,
         avgSpeed, avgCadence, maxSpeed, maxCadence, maxEle, minEle, eleUp, eleDown,
         maxHr, distance, note, log, files.name AS `filename`, files.size, files.type,
-        gear.id as gearId, gear.brand, gear.model
+        gear.id as gearId, gear.brand, gear.model,
+        a.id as activityId, a.name, a.color, a.icon
         FROM workout
             LEFT JOIN exported_files AS files ON workout.id = files.workoutId
             LEFT JOIN gear ON workout.gearId = gear.id
+            LEFT JOIN activity as a ON workout.activity = a.id
         WHERE workout.date >= ? AND workout.date <= ?
         ' . $inArray . '
         ORDER BY `date` DESC, `time` DESC');
@@ -781,10 +787,12 @@ class Workout {
         $query = $this->db->prepare('SELECT workout.id, workout.name, activity, `date`, `time`, duration, energy, avgHr,
         avgSpeed, avgCadence, maxSpeed, maxCadence, maxEle, minEle, eleUp, eleDown,
         maxHr, distance, note, log, files.name AS `filename`, files.size, files.type,
-        gear.id as gearId, gear.brand, gear.model
+        gear.id as gearId, gear.brand, gear.model,
+        a.id as activityId, a.name, a.color, a.icon
         FROM workout
             LEFT JOIN exported_files AS files ON workout.id = files.workoutId
             LEFT JOIN gear ON workout.gearId = gear.id
+            LEFT JOIN activity as a ON workout.activity = a.id
         WHERE workout.date >= ?' . $inArray . '
         ORDER BY `date` DESC, `time` DESC');
         $query->execute(array($from));
@@ -799,10 +807,12 @@ class Workout {
         $query = $this->db->prepare('SELECT workout.id, workout.name, activity, `date`, `time`, duration, energy, avgHr,
         avgSpeed, avgCadence, maxSpeed, maxCadence, maxEle, minEle, eleUp, eleDown,
         maxHr, distance, note, log, files.name AS `filename`, files.size, files.type,
-        gear.id as gearId, gear.brand, gear.model
+        gear.id as gearId, gear.brand, gear.model,
+        a.id as activityId, a.name, a.color, a.icon
         FROM workout
             LEFT JOIN exported_files AS files ON workout.id = files.workoutId
             LEFT JOIN gear ON workout.gearId = gear.id
+            LEFT JOIN activity as a ON workout.activity = a.id
         WHERE workout.date <= ?
         ' . $inArray . '
         ORDER BY `date` DESC, `time` DESC');

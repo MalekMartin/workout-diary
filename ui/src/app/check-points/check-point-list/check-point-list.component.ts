@@ -13,6 +13,7 @@ export class CheckPointListComponent implements OnInit {
 
     @Output() deleted = new EventEmitter();
     @Output() edited = new EventEmitter();
+    @Output() selected = new EventEmitter<CheckPoint>();
 
     constructor() { }
 

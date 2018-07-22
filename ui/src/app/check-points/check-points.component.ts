@@ -45,13 +45,17 @@ export class CheckPointsComponent implements OnInit, OnDestroy {
     }
 
     onEdit(item: CheckPoint) {
-
+        // TODO
     }
 
     onDelete(item: CheckPoint) {
         this._checkpointService
             .deleteCheckPoint(item.id)
             .subscribe(this._onDeleteSuccess, this._onDeleteError);
+    }
+
+    showOnMap(item: CheckPoint) {
+        // TODO
     }
 
     private _onCheckPointsSuccess = (cp: CheckPoint[]) => {

@@ -8,6 +8,7 @@ import { Component, OnInit } from '@angular/core';
             <a [routerLink]="['/workouts/all']">Přehled</a>
             <a [routerLink]="['/workouts/new']">Nový</a>
             <a [routerLink]="['/workouts/spinning']">Spinning</a>
+            <a [routerLink]="['/workouts/activities']">Aktivity</a>
         </div>
         <router-outlet></router-outlet>
     `

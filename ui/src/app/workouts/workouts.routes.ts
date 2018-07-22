@@ -9,7 +9,8 @@ import { WorkoutNotFoundComponent } from './workout/workout-not-found/workout-no
 export const workoutsRoutes: Routes = [
     {
         path: '',
-        component: WorkoutsComponent
+        redirectTo: 'workouts/all',
+        pathMatch: 'full'
     },
     {
         path: 'workouts',
@@ -18,6 +19,10 @@ export const workoutsRoutes: Routes = [
             {
                 path: 'spinning',
                 loadChildren: 'app/workouts/spinning-workouts/spinning-workouts.module#SpinningWorkoutsModule'
+            },
+            {
+                path: 'activities',
+                loadChildren: 'app/workouts/activities/activities.module#ActivitiesModule'
             },
             {
                 path: 'new',

@@ -20,6 +20,26 @@ export interface Workout {
     gear: Gear;
 }
 
+export interface WorkoutWoActivity {
+    activity: string;
+    avgHr: number;
+    avgSpeed: number;
+    avgCadence: number;
+    distance: number;
+    duration: number;
+    energy: number;
+    maxHr: number;
+    maxSpeed: number;
+    maxCadence: number;
+    note: string;
+    id: string;
+    date: string;
+    time: string;
+    log: WorkoutLogFile;
+    name: string;
+    gear: Gear;
+}
+
 export interface Activity {
     id: string;
     name: string;
