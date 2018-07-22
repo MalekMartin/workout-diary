@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
+import { Observable, ReplaySubject } from 'rxjs';
 import { HttpService } from '../http.service';
 import { Activity } from '../workout/workout.interface';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
-import { Observable } from 'rxjs/Observable';
 
 @Injectable()
 export class ActivitiesService {

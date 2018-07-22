@@ -5,12 +5,10 @@ import { Workout, Activity } from '../../../core/workout/workout.interface';
 import { SecToTimePipe } from '../../../shared/pipes/sec-to-time.pipe';
 import * as moment from 'moment';
 import { GearService } from '../../../core/gear/gear.service';
-import { takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs/Subject';
+import { takeUntil ,  first } from 'rxjs/operators';
+import { Subject ,  forkJoin } from 'rxjs';
 import { Gear } from '../../../core/gear/gear.interface';
 import { ActivitiesService } from '../../../core/activities/activities.service';
-import { forkJoin } from 'rxjs/observable/forkJoin';
-import { first } from 'rxjs/operators/first';
 
 @Component({
     selector: 'wd-workout-form',

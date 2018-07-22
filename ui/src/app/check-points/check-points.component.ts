@@ -3,7 +3,7 @@ import { CheckPoint } from '../core/check-point/check-point.interface';
 import { CheckPointService } from '../core/check-point/check-point.service';
 import { CheckPointFormComponent } from './check-point-form/check-point-form.component';
 import { takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 
 @Component({
     selector: 'wd-check-points',

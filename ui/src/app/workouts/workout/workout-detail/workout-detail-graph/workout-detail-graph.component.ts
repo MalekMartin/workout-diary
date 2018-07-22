@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { WorkoutService } from '../../../../core/workout/workout.service';
 import { takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 import { WorkoutType } from '../../../../core/workout/workout.interface';
 
 

@@ -3,11 +3,10 @@ import { WorkoutService } from '../../../core/workout/workout.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Workout, WorkoutLogFile, TrackPoints, Activity } from '../../../core/workout/workout.interface';
 import { takeUntil, map } from 'rxjs/operators';
-import { Subject } from 'rxjs/Subject';
+import { Subject ,  forkJoin } from 'rxjs';
 import { CheckPointService } from '../../../core/check-point/check-point.service';
 import * as moment from 'moment';
 import { ActivitiesService } from '../../../core/activities/activities.service';
-import { forkJoin } from 'rxjs/observable/forkJoin';
 
 declare var require: any;
 const FileSaver = require('file-saver');

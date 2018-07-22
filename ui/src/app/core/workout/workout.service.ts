@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpService } from '../http.service';
-import { map } from 'rxjs/operators';
-import { WorkoutType, Workout, WorkoutWoActivity } from './workout.interface';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { ActivitiesService } from '../activities/activities.service';
-import { forkJoin } from 'rxjs/observable/forkJoin';
+import { HttpService } from '../http.service';
+import { Workout, WorkoutType } from './workout.interface';
 
 @Injectable()
 export class WorkoutService {
