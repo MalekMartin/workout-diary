@@ -28,13 +28,15 @@
     </div>
 
     <div class="filter-container">
-        <mat-form-field>
+        <!-- <mat-form-field>
             <mat-select [formControl]="range" placeholder="Období">
                 <mat-option *ngFor="let r of ranges" [value]="r.id">
                 {{ r.name }}
                 </mat-option>
             </mat-select>
-        </mat-form-field>
+        </mat-form-field> -->
+        <wd-workout-range-selector
+            (changed)="rangeChanged($event)"></wd-workout-range-selector>
     </div>
     
     <ng-container *ngIf="!!workouts && !!workouts.length && view === 'calendar'">

@@ -1,0 +1,7 @@
+<mat-form-field>
+    <mat-select [formControl]="range" placeholder="Období">
+        <mat-option *ngFor="let r of ranges" [value]="r.id">
+        {{ r.name }}
+        </mat-option>
+    </mat-select>
+</mat-form-field>

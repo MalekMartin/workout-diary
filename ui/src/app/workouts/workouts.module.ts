@@ -34,6 +34,7 @@ import { WorkoutNotFoundComponent } from './workout/workout-not-found/workout-no
 import { WorkoutTypesGroupComponent } from './workout/workout-types-group/workout-types-group.component';
 import { GearService } from '../core/gear/gear.service';
 import { ActivitiesService } from '../core/activities/activities.service';
+import { WorkoutRangeSelectorComponent } from './workout/workout-range-selector/workout-range-selector.component';
 
 const COMP = [
     WorkoutFormComponent,
@@ -44,7 +45,8 @@ const COMP = [
     WorkoutAddComponent,
     WorkoutEditComponent,
     WorkoutNotFoundComponent,
-    WorkoutTypesGroupComponent
+    WorkoutTypesGroupComponent,
+    WorkoutRangeSelectorComponent,
 ];
 
 @NgModule({

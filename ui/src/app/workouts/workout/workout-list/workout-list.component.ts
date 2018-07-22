@@ -13,10 +13,6 @@ import { ActivitiesService } from '../../../core/activities/activities.service';
 })
 export class WorkoutListComponent implements OnInit, OnDestroy {
     workouts;
-    fromDate =
-        moment()
-            .subtract(30, 'days')
-            .format('YYYY-MM-DDThh:mm:ss') + 'Z';
     totalDuration = 0;
     totalDistance = 0;
     types: any[];
@@ -24,43 +20,7 @@ export class WorkoutListComponent implements OnInit, OnDestroy {
     isLoading = false;
 
     view: 'calendar' | 'list' = 'list';
-
-    ranges = [
-        { id: 1, name: 'Posledních 30 dní', value: { from: this.fromDate, to: null } },
-        {
-            id: 2,
-            name: 'Tento měsíc',
-            value: {
-                from:
-                    moment()
-                        .set('date', 1)
-                        .format('YYYY-MM-DDThh:mm:ss') + 'Z',
-                to:
-                    moment()
-                        .set('date', moment().daysInMonth())
-                        .format('YYYY-MM-DDThh:mm:ss') + 'Z'
-            }
-        },
-        {
-            id: 3,
-            name: 'Tento rok',
-            value: {
-                from:
-                    moment()
-                        .set('date', 1)
-                        .set('month', 1)
-                        .format('YYYY-MM-DDThh:mm:ss') + 'Z',
-                to:
-                    moment()
-                        .set('date', 31)
-                        .set('month', 12)
-                        .format('YYYY-MM-DDThh:mm:ss') + 'Z'
-            }
-        },
-        { id: 4, name: 'Vše', value: { from: null, to: null } }
-    ];
-
-    range = new FormControl(this.ranges[0].id);
+    range = null;
 
     private _onDestroy$ = new Subject();
 
@@ -74,15 +34,6 @@ export class WorkoutListComponent implements OnInit, OnDestroy {
         this.findWorkouts()
             .pipe(takeUntil(this._onDestroy$))
             .subscribe(this._onWorkoutsSuccess);
-
-        this.range.valueChanges
-            .pipe(takeUntil(this._onDestroy$))
-            .pipe(
-                debounceTime(300),
-                switchMap(value => this.findWorkouts()),
-                takeUntil(this._onDestroy$)
-            )
-            .subscribe(this._onWorkoutsSuccess);
     }
 
     ngOnDestroy() {
@@ -93,13 +44,33 @@ export class WorkoutListComponent implements OnInit, OnDestroy {
 
     findWorkouts() {
         const types = this._typesFromLocalStorage();
-        const range = this.range.value;
         this.isLoading = true;
-        const r = this.ranges.find(item => item.id === range);
-        return this._workouts.workoutsByDateRange(r.value.from, r.value.to, types);
+        const range = !!this.range
+            ? this.range
+            : {
+                from: moment().subtract(30, 'day')
+                    .set('hour', 1)
+                    .set('minute', 0)
+                    .format('YYYY-MM-DDThh:mm:ss') + 'Z',
+                to: moment()
+                    .format('YYYY-MM-DDThh:mm:ss') + 'Z'
+            };
+
+        return this._workouts.workoutsByDateRange(
+            range.from,
+            range.to,
+            types
+        );
     }
 
     typesChanged() {
+        this.findWorkouts()
+            .pipe(takeUntil(this._onDestroy$))
+            .subscribe(this._onWorkoutsSuccess);
+    }
+
+    rangeChanged(val) {
+        this.range = val;
         this.findWorkouts()
             .pipe(takeUntil(this._onDestroy$))
             .subscribe(this._onWorkoutsSuccess);
