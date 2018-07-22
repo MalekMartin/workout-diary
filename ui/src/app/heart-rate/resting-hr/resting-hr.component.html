@@ -89,7 +89,7 @@
 </div>
 <div *ngIf="graphLoading">Načítám data...</div>
 
-<div *ngIf="!!tableSource1 && !!tableSource.length">
+<div *ngIf="!!tableSource && !!tableSource.length">
     <div class="example-container mat-elevation-z8">
         <mat-table #table [dataSource]="tableSource">
         

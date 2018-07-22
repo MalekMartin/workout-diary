@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { RequestOptionsArgs, Headers } from '@angular/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -36,10 +35,6 @@ export class HttpService {
     get createHeaders() {
         const headers = { 'Content-Type': 'text/plain;charset=UTF-8' };
         return { headers: new HttpHeaders(headers) };
-    }
-
-    get createBlobHeaders(): RequestOptionsArgs {
-        return { responseType: 3 };
     }
 
     private buildUrl(url: string) {

@@ -20,7 +20,6 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
     id: string;
     workout: Workout;
     downoading = false;
-    cadenceUnits: string;
     route: TrackPoints;
 
     next: string;
@@ -59,7 +58,6 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
                 this.workout = w;
 
                 const a = w.activity.id;
-                this.cadenceUnits = a === '1' || a === '5' ? 'spm' : a === '2' || a === '3' ? 'rpm' : null;
                 this.id = w.id;
 
                 this.onCheckPointsChanged();

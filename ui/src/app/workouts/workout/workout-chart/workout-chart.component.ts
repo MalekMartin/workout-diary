@@ -2,15 +2,24 @@ import { Component, OnInit, Input } from '@angular/core';
 import { Workout } from '../../../core/workout/workout.interface';
 import * as moment from 'moment';
 
+const WEEKDAYS = {
+    0: 'Neděle',
+    1: 'Pondělí',
+    2: 'Úterý',
+    3: 'Středa',
+    4: 'Čtvrtek',
+    5: 'Pátek',
+    6: 'Sobota'
+};
+
 @Component({
     selector: 'wd-workout-chart',
     templateUrl: 'workout-chart.component.html',
     styleUrls: ['./workout-chart.component.scss']
 })
-
 export class WorkoutChartComponent implements OnInit {
-
-    @Input() set workouts(w: Workout[]) {
+    @Input()
+    set workouts(w: Workout[]) {
         this.data = this.build(w);
     }
 
@@ -19,9 +28,9 @@ export class WorkoutChartComponent implements OnInit {
 
     data;
 
-    constructor() { }
+    constructor() {}
 
-    ngOnInit() { }
+    ngOnInit() {}
 
     build(w: Workout[]) {
         const range = [];
@@ -36,7 +45,7 @@ export class WorkoutChartComponent implements OnInit {
             let totalDuration = 0;
             let totalDistance = 0;
             let totalCalories = 0;
-            // workouts.forEach(item => totalDuration += item.duration);
+
             for (let j = 0; j < workouts.length; j++) {
                 totalDuration += workouts[j].duration;
                 totalDistance += workouts[j].distance;
@@ -45,7 +54,7 @@ export class WorkoutChartComponent implements OnInit {
             this.maxDuration = totalDuration > this.maxDuration ? totalDuration : this.maxDuration;
             range.push({
                 date: date.format('YYYY-MM-DD'),
-                day: weekdays[date.day()],
+                day: WEEKDAYS[date.day()],
                 workouts,
                 totalDuration,
                 totalDistance,
@@ -62,30 +71,4 @@ export class WorkoutChartComponent implements OnInit {
     columnHeigh(duration: number) {
         return Math.ceil((duration / this.maxDuration) * this.colMaxHeight);
     }
-
 }
-
-
-const weekdays = {
-    0: 'Neděle',
-    1: 'Pondělí',
-    2: 'Úterý',
-    3: 'Středa',
-    4: 'Čtvrtek',
-    5: 'Pátek',
-    6: 'Sobota'
-};
-
-// {
-//     "name": "Germany",
-//     "series": [
-//       {
-//         "name": "2010",
-//         "value": 7300000
-//       },
-//       {
-//         "name": "2011",
-//         "value": 8940000
-//       }
-//     ]
-//   },

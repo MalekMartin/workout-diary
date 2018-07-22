@@ -11,6 +11,10 @@ export interface Workout {
     maxHr: number;
     maxSpeed: number;
     maxCadence: number;
+    maxEle: number;
+    minEle: number;
+    eleUp: number;
+    eleDown: number;
     note: string;
     id: string;
     date: string;

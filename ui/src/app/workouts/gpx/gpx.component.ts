@@ -12,30 +12,25 @@ const FileSaver = require('file-saver');
     templateUrl: 'gpx.component.html',
     styleUrls: ['./gpx.component.scss']
 })
-
 export class GpxComponent implements OnInit {
-
     raw = new FormControl('');
-    hrData: {time: string, value: number}[];
+    hrData: { time: string; value: number }[];
     downoading = false;
+    hasBaseDropZoneOver = false;
 
     form = this._fb.group({
-        // raw: ['', Validators.required],
         ele: ['320.0'],
-        // date: ['16.03.18 18:18'],
-        // name: ['Test workout'],
         lat: ['48.946966'],
         lon: ['17.662286'],
-        options: ['USE_DEFAULT']
-        // defaultCoordinates: [false]
+        options: ['REMOVE_EMPTY']
     });
 
     stats = [];
 
-    _maxFileSize = 6000000;
     isUploading = false;
 
-    _options: FileUploaderOptions = {
+    private _maxFileSize = 6000000;
+    private _options: FileUploaderOptions = {
         maxFileSize: this._maxFileSize,
         method: 'post',
         removeAfterUpload: true,
@@ -50,21 +45,21 @@ export class GpxComponent implements OnInit {
         this.uploader.onWhenAddingFileFailed = (item, filter, options) => {
             this.isUploading = false;
             if (filter.name === 'fileSize') {
-                console.log('Překročil jsi povolenou maximální velikost souboru ('
-                    + (this._maxFileSize / (1024 * 1024)).toFixed(2)
-                    + 'MB).', 'Soubor je příliš velký!');
+                console.log(
+                    'Překročil jsi povolenou maximální velikost souboru (' + (this._maxFileSize / (1024 * 1024)).toFixed(2) + 'MB).',
+                    'Soubor je příliš velký!'
+                );
             }
         };
 
         this.uploader.onBeforeUploadItem = (fileitem: FileItem) => {
-
             this.isUploading = true;
 
             if (this.form.get('options').value === 'USE_DEFAULT') {
                 this.uploader.options.additionalParameter = {
                     lat: this.form.get('lat').value,
                     lon: this.form.get('lon').value,
-                    ele: this.form.get('ele').value,
+                    ele: this.form.get('ele').value
                 };
             }
         };
@@ -75,24 +70,24 @@ export class GpxComponent implements OnInit {
         };
     }
 
-    ngOnInit() { }
+    ngOnInit() {}
 
     getExportedFile(id: string, name: string) {
         this.downoading = true;
-        this._http
-            .saveFileAs('/resource/csv-to-gpx/gpx?id=' + id)
-            .subscribe(blob => {
+        this._http.saveFileAs('/resource/csv-to-gpx/gpx?id=' + id).subscribe(
+            blob => {
                 const file = new Blob([blob]);
                 FileSaver.saveAs(file, name.replace('.csv', '.gpx'));
                 this.downoading = false;
-            }, () => {
+            },
+            () => {
                 console.warn('Nepodařilo se stáhnout soubor!');
                 this.downoading = false;
-            });
+            }
+        );
     }
 
     fileOverBase(status) {
-
+        this.hasBaseDropZoneOver = status;
     }
-
 }
