@@ -15,6 +15,7 @@ export class MapComponent implements OnInit {
     @Input() coordinates: number[][];
     @Input() lat: number;
     @Input() lon: number;
+    @Input() loading = false;
 
     ngOnInit() {
     }

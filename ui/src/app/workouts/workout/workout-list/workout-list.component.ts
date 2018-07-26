@@ -49,11 +49,10 @@ export class WorkoutListComponent implements OnInit, OnDestroy {
             ? this.range
             : {
                 from: moment().subtract(30, 'day')
-                    .set('hour', 1)
+                    .set('hour', 0)
                     .set('minute', 0)
-                    .format('YYYY-MM-DDThh:mm:ss') + 'Z',
-                to: moment()
-                    .format('YYYY-MM-DDThh:mm:ss') + 'Z'
+                    .format('YYYY-MM-DDTHH:mm:ss') + 'Z',
+                to: null
             };
 
         return this._workouts.workoutsByDateRange(

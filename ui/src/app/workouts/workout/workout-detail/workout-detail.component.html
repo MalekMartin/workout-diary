@@ -1,4 +1,5 @@
 <div class="wrapper" *ngIf="!!workout">
+    <mat-spinner [diameter]="30" *ngIf="loading"></mat-spinner>
     
     <wd-workout-detail-header [workout]="workout"
         [prev]="prev"
@@ -10,30 +11,42 @@
         class="map-content">
         <wd-map [coordinates]="route.coordinates"
             [lat]="route.center.lat"
-            [lon]="route.center.lon"></wd-map>
+            [lon]="route.center.lon"
+            [loading]="loading"></wd-map>
     </mat-card>
 
     <div class="flex">
         <div class="content-50">
-            <mat-card>
-                <wd-workout-detail-numbers [workout]="workout"></wd-workout-detail-numbers>
-            </mat-card>
-            
-            <mat-card>
-                <wd-workout-checkpoint-form
-                    [workoutId]="id"
-                    (saved)="onCheckPointsChanged()"></wd-workout-checkpoint-form>
-
-                    <ng-container *ngIf="!!workoutRoute && !!workoutRoute.length && !checkPointsLoading">
-                        <wd-workout-check-point-table
-                            [data]="workoutRoute"
-                            (deleted)="deleteCheckPoint($event)">
-                        </wd-workout-check-point-table>
-                    </ng-container>
-                    <div *ngIf="!!checkPointsLoading">
-                        Nahrávám...
-                    </div>
-            </mat-card>
+            <mat-tab-group>
+                <mat-tab label="Detaily">
+                    <mat-card class="inside-tab">
+                        <wd-workout-detail-numbers [workout]="workout"></wd-workout-detail-numbers>
+                    </mat-card>
+                </mat-tab>
+                <mat-tab *ngIf="!!workout.log && !!workout.log.id" label="Srdečí frekvence">
+                    <mat-card class="inside-tab">
+                        <wd-workout-detail-hr *ngIf="!!hrAnalyzed" [id]="workout.id" [workout]="workout"
+                            [analyzed]="hrAnalyzed"></wd-workout-detail-hr>
+                    </mat-card>
+                </mat-tab>
+                <mat-tab label="Check pointy">
+                    <mat-card class="inside-tab">
+                        <wd-workout-checkpoint-form
+                            [workoutId]="id"
+                            (saved)="onCheckPointsChanged()"></wd-workout-checkpoint-form>
+        
+                        <ng-container *ngIf="!!workoutRoute && !!workoutRoute.length && !checkPointsLoading">
+                            <wd-workout-check-point-table
+                                [data]="workoutRoute"
+                                (deleted)="deleteCheckPoint($event)">
+                            </wd-workout-check-point-table>
+                        </ng-container>
+                        <div *ngIf="!!checkPointsLoading">
+                            Nahrávám...
+                        </div>
+                    </mat-card>
+                </mat-tab>
+            </mat-tab-group>
         </div>
         <div class="content-50">
             <mat-card *ngIf="!!workout.log.id">

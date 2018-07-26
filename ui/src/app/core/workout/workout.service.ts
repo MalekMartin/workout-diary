@@ -76,4 +76,8 @@ export class WorkoutService {
         const types = localStorage.getItem('wd.filter.types');
         return !!types ? JSON.parse(types) : [];
     }
+
+    analyzeHr(id: string, hrMax: number) {
+        return this._http.get(`/resource/workout/${id}/analyze-hr?max=${hrMax}`);
+    }
 }

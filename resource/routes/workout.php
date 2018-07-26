@@ -161,6 +161,19 @@ $app->get('/resource/workout/{id}/route/coordinates', function (Request $request
     return $response->withJson($one);
 });
 
+$app->get('/resource/workout/{id}/analyze-hr', function (Request $request, Response $response, $args) {
+    $this->logger->addInfo("Get analyzed workout hr");
+    $mapper = new Workout($this->db);
+    if (isset($_REQUEST['max']) && isset($args['id'])) {
+        $one = $mapper->analyzeWorkoutHr($args['id'], $_REQUEST['max']);
+        return $response->withJson($one);
+    } else {
+        return $response->withStatus(400)
+            ->write('Nebylo zadáno SFmax nebo workoutId');
+    }
+    
+});
+
 $app->delete('/resource/workout/{id}/check-point/{cp}/delete', function (Request $request, Response $response, $args) {
     $this->logger->addInfo("Delete check point from workout");
     $mapper = new Workout($this->db);
@@ -189,7 +202,7 @@ $app->get('/resource/csv-to-gpx/gpx', function (Request $request, Response $resp
                         ->withHeader('Content-Type', 'application/download')
                         ->withHeader('Content-Description', 'File Transfer')
                         ->withHeader('Content-Transfer-Encoding', 'binary')
-                        ->withHeader('Content-Disposition', 'attachment; filename="' . basename($file) . '"')
+                        ->withHeader('Content-Disposition', 'attachment; filename="parsed.gpx"')
                         ->withHeader('Expires', '0')
                         ->withHeader('Cache-Control', 'must-revalidate, post-check=0, pre-check=0')
                         ->withHeader('Pragma', 'public')

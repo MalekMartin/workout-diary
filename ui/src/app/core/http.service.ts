@@ -29,7 +29,20 @@ export class HttpService {
     }
 
     saveFileAs(url: string) {
-        return this._http.get(url, this.createHeaders).pipe(map(response => response));
+        return this._http.get(url, {
+                ...this.createHeaders,
+                responseType: 'text'
+            })
+            .pipe(
+                map(response => {
+                        try {
+                            return response;
+                        } catch (error) {
+                            console.log('WD error: ', error);
+                            return response;
+                        }
+                    }
+                ));
     }
 
     get createHeaders() {

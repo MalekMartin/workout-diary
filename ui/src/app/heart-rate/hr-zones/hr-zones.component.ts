@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HrZonesService } from '../../core/heart-rate/hr-zones.service';
+import { FormControl } from '@angular/forms';
 
 @Component({
     selector: 'wd-hr-zones',
@@ -9,9 +10,17 @@ import { HrZonesService } from '../../core/heart-rate/hr-zones.service';
 
 export class HrZonesComponent implements OnInit {
 
+    maxHr = new FormControl(this._zones.hrMax);
+
     zones = this._zones.zones;
 
-    constructor(private _zones: HrZonesService) { }
+    constructor(
+        private _zones: HrZonesService,
+    ) { }
 
     ngOnInit() { }
+
+    save() {
+        this._zones.updateHrMax(this.maxHr.value);
+    }
 }

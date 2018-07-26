@@ -1,0 +1,72 @@
+table {
+    font-size: 12px;
+    width: 100%;
+
+    th {
+        text-align: left;
+    }
+
+    .sf {
+        width: 45px;
+    }
+
+    .time {
+        width: 80px;
+    }
+
+    tbody {
+    }
+}
+
+.hr-values {
+    display: flex;
+    font-size: 16px;
+    margin-bottom: 12px;
+
+    div {
+        // width: 33%;
+        flex-grow: 1;
+        text-align: center;
+
+        .value {
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .note {
+            font-size: 12px;
+            color: #ccc;
+        }
+    }
+}
+
+.bar {
+    height: 8px;
+    border-radius: 4px;
+    background-color: #eee;
+
+    &.b0 {
+        background-color: #0066ff;
+    }
+    &.b1 {
+        background-color: #33ccff;
+    }
+    &.b2 {
+        background-color: #33ccff;
+    }
+    &.b3 {
+        background-color: #66ff66;
+    }
+    &.b4 {
+        background-color: #ccff66;
+    }
+    &.b5 {
+        background-color: #ffcc00;
+    }
+    &.b6 {
+        background-color: #ff6600;
+    }
+    &.b7 {
+        background-color: #ff0000;
+    }
+}

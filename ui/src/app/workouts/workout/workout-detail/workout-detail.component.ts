@@ -1,12 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { WorkoutService } from '../../../core/workout/workout.service';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Workout, WorkoutLogFile, TrackPoints, Activity } from '../../../core/workout/workout.interface';
-import { takeUntil, map } from 'rxjs/operators';
-import { Subject ,  forkJoin } from 'rxjs';
-import { CheckPointService } from '../../../core/check-point/check-point.service';
-import * as moment from 'moment';
-import { ActivitiesService } from '../../../core/activities/activities.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { TrackPoints, Workout, WorkoutLogFile } from '../../../core/workout/workout.interface';
+import { WorkoutService } from '../../../core/workout/workout.service';
+import { HrZonesService } from '../../../core/heart-rate/hr-zones.service';
 
 declare var require: any;
 const FileSaver = require('file-saver');
@@ -14,7 +12,8 @@ const FileSaver = require('file-saver');
 @Component({
     selector: 'wd-workout-detail',
     templateUrl: 'workout-detail.component.html',
-    styleUrls: ['./workout-detail.component.scss']
+    styleUrls: ['./workout-detail.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WorkoutDetailComponent implements OnInit, OnDestroy {
     id: string;
@@ -24,10 +23,12 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
 
     next: string;
     prev: string;
+    hrAnalyzed: any;
 
     workoutRoute: any;
 
     checkPointsLoading = false;
+    loading = false;
 
     private _onDestroy$ = new Subject();
 
@@ -35,7 +36,8 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
         private _workout: WorkoutService,
         private _route: ActivatedRoute,
         private _router: Router,
-        private _activity: ActivitiesService
+        private _cd: ChangeDetectorRef,
+        private _zones: HrZonesService,
     ) {}
 
     ngOnInit() {
@@ -51,6 +53,7 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
     }
 
     findWorkout() {
+        this.loading = true;
         this._workout
             .findOneById(this.id)
             .pipe(takeUntil(this._onDestroy$))
@@ -62,6 +65,9 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
 
                 this.onCheckPointsChanged();
                 this.findNextAndPrev();
+                this.analyzeHr(w.id);
+                this.loading = false;
+                this._cd.markForCheck();
             }, this._onFindWorkoutError);
     }
 
@@ -72,6 +78,7 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
             .subscribe((val: any) => {
                 this.next = val.next;
                 this.prev = val.prev;
+                this._cd.markForCheck();
             });
     }
 
@@ -121,9 +128,11 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
                 (route: any) => {
                     this.workoutRoute = route;
                     this.checkPointsLoading = false;
+                    this._cd.markForCheck();
                 },
                 () => {
                     this.checkPointsLoading = false;
+                    this._cd.markForCheck();
                 }
             );
     }
@@ -158,13 +167,27 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
             );
     }
 
+    analyzeHr(workoutId: string) {
+        this._workout
+            .analyzeHr(workoutId, this._zones.hrMax)
+            .pipe(takeUntil(this._onDestroy$))
+            .subscribe((val: any) => {
+                this.hrAnalyzed = val;
+                this._cd.markForCheck();
+            });
+    }
+
     private _onDeleteCpSuccess = () => {
         this.onCheckPointsChanged();
     }
 
-    private _onDeleteCpError = () => {};
+    private _onDeleteCpError = () => {
+        this._cd.markForCheck();
+    }
 
     private _onFindWorkoutError = (e: any) => {
+        this.loading = false;
+        this._cd.markForCheck();
         if (e.status === 404) {
             this._router.navigate(['/workouts/not-found']);
         } else {

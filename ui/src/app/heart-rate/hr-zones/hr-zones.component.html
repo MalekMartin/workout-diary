@@ -1,31 +1,8 @@
-<table>
-    <thead>
-        <tr>
-            <th>Název</th>
-            <th>Min (bpm)</th>
-            <th>Max (bpm)</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>{{zones.speed.name}}</td>
-            <td>{{zones.speed.min}}</td>
-            <td>{{zones.speed.max}}</td>
-        </tr>
-        <tr>
-            <td>{{zones.economy.name}}</td>
-            <td>{{zones.economy.min}}</td>
-            <td>{{zones.economy.max}}</td>
-        </tr>
-        <tr>
-            <td>{{zones.stamina.name}}</td>
-            <td>{{zones.stamina.min}}</td>
-            <td>{{zones.stamina.max}}</td>
-        </tr>
-        <tr>
-            <td>{{zones.endurance.name}}</td>
-            <td>{{zones.endurance.min}}</td>
-            <td>{{zones.endurance.max}}</td>
-        </tr>
-    </tbody>
-</table>
+<mat-form-field>
+    <input matInput [formControl]="maxHr" placeholder="SF max">
+</mat-form-field>
+<button mat-raised-button color="primary" (click)="save()">Uložit</button>
+
+<div *ngFor="let zone of zones">
+    {{zone.name}} | {{zone.min}} | {{zone.max}}
+</div>

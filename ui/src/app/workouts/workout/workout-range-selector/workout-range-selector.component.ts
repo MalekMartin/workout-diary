@@ -16,7 +16,7 @@ export class WorkoutRangeSelectorComponent implements OnInit, OnDestroy {
     fromDate =
         moment()
             .subtract(30, 'days')
-            .set('hour', 1)
+            .set('hour', 0)
             .set('minute', 0)
             .format('YYYY-MM-DDThh:mm:ss') + 'Z';
 
@@ -29,14 +29,14 @@ export class WorkoutRangeSelectorComponent implements OnInit, OnDestroy {
                 from:
                     moment()
                         .set('date', 1)
-                        .set('hour', 1)
+                        .set('hour', 0)
                         .set('minute', 0)
                         .set('second', 0)
-                        .format('YYYY-MM-DDThh:mm:ss') + 'Z',
+                        .format('YYYY-MM-DDTHH:mm:ss') + 'Z',
                 to:
                     moment()
                         .set('date', moment().daysInMonth())
-                        .format('YYYY-MM-DDThh:mm:ss') + 'Z'
+                        .format('YYYY-MM-DDTHH:mm:ss') + 'Z'
             }
         },
         {
@@ -47,15 +47,15 @@ export class WorkoutRangeSelectorComponent implements OnInit, OnDestroy {
                     moment()
                         .set('date', 1)
                         .set('month', 1)
-                        .set('hour', 1)
+                        .set('hour', 0)
                         .set('minute', 0)
                         .set('second', 0)
-                        .format('YYYY-MM-DDThh:mm:ss') + 'Z',
+                        .format('YYYY-MM-DDTHH:mm:ss') + 'Z',
                 to:
                     moment()
                         .set('date', 31)
                         .set('month', 12)
-                        .format('YYYY-MM-DDThh:mm:ss') + 'Z'
+                        .format('YYYY-MM-DDTHH:mm:ss') + 'Z'
             }
         },
         { id: 4, name: 'Vše', value: { from: null, to: null } }

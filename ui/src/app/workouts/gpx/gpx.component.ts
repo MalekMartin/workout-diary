@@ -80,7 +80,8 @@ export class GpxComponent implements OnInit {
                 FileSaver.saveAs(file, name.replace('.csv', '.gpx'));
                 this.downoading = false;
             },
-            () => {
+            (e) => {
+                console.log(e);
                 console.warn('Nepodařilo se stáhnout soubor!');
                 this.downoading = false;
             }

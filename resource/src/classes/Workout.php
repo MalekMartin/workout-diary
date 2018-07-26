@@ -32,9 +32,10 @@ class Workout {
 
     public function addWorkout($d) {
         $duration = $d->sec + ($d->min * 60) + ($d->hour * 60 * 60);
+        $gear = !!$d->gear ? $d->gear : null;
         $query = $this->db->prepare('INSERT INTO workout (name, activity, `date`, `time`, duration, energy, distance, note, gearId)
             VALUES (?,?,?,?,?,?,?,?,?)');
-        $query->execute(array($d->name, $d->activity, $d->date, $d->time, $duration, $d->energy, $d->distance, $d->note, $d->gear));
+        $query->execute(array($d->name, $d->activity, $d->date, $d->time, $duration, $d->energy, $d->distance, $d->note, $gear));
 
         return $this->db->lastInsertId();
     }
@@ -56,7 +57,7 @@ class Workout {
             avgSpeed, avgCadence, maxSpeed, maxCadence, maxEle, minEle, eleUp, eleDown,
             maxHr, distance, note, log, files.name AS `filename`, files.size, files.type,
             gear.id as gearId, gear.brand, gear.model,
-            a.id as activityId, a.name, a.color, a.icon
+            a.id as activityId, a.name as activityName, a.color, a.icon
             FROM workout
                 LEFT JOIN exported_files AS files ON workout.id = files.workoutId
                 LEFT JOIN gear ON workout.gearId = gear.id
@@ -79,7 +80,7 @@ class Workout {
             avgSpeed, avgCadence, maxSpeed, maxCadence, maxEle, minEle, eleUp, eleDown,
             maxHr, distance, note, files.id AS log, files.name AS `filename`, files.size, files.type,
             gear.id as gearId, gear.brand, gear.model,
-            a.id as activityId, a.name, a.color, a.icon
+            a.id as activityId, a.name as activityName, a.color, a.icon
             FROM workout
                 LEFT JOIN exported_files AS files ON workout.id = files.workoutId
                 LEFT JOIN gear ON workout.gearId = gear.id
@@ -572,13 +573,16 @@ class Workout {
 
             for ($i = 1; $i < count($rows) - 2; $i++) {
                 $row = explode(",", $rows[$i]);
-                $value = floatval($row[$col]);
 
                 if ($i == 1) { $start = floatval($row[$this->columns['TIMESTAMP']]); }
 
+                $hrMultiplier = $this->_correctHrMultiplier($start);
+                $value = ($valueType == 'HR')
+                    ? floatval(($row[$col] * $hrMultiplier))
+                    : floatval($row[$col]);
+                
                 $sum += $value;
                 $c = $row[10];
-                
 
                 $counter += 1;
                 if ($counter >= $aggr) {
@@ -598,7 +602,7 @@ class Workout {
 
             $a = array(
                 'name' => $valueType,
-                'series' => $series
+                'series' => $series,
             );
             $b = array($a);
             return $b;
@@ -639,6 +643,12 @@ class Workout {
         );
         $b = array($a);
         return $b;
+    }
+
+    private function _correctHrMultiplier($timestamp) {
+        $breakpoint = strtotime("2018-05-07 00:00:00");
+        $date = $timestamp / 1000;
+        return $date < $breakpoint ? 60 : 1;
     }
 
     private function _getLogFileByWorkoutId($id) {
@@ -697,19 +707,19 @@ class Workout {
         $firstRow = explode(",", $rows[1]);
 
         $date = date("Y-m-d", floatval($firstRow[0]) / 1000);
+        $hrMultiplier = $this->_correctHrMultiplier($firstRow[0]);
 
         $myfile = fopen("parsed.gpx", "w") or die("Unable to open file!");
 
         fwrite($myfile, $this->_buildHeader($date));
 
         for ($i = 1; $i < count($rows) - 2; $i++) {
-        // for ($i = 1; $i < 30; $i++) {
             $row = explode(",", $rows[$i]);
 
             $lat = $defLat ? $defLat : floatval($row[$this->columns['LAT']]);
             $lon = $defLon ? $defLon : floatval($row[$this->columns['LON']]);
             $ele = $defEle ? $defEle : floatval($row[$this->columns['ELE']] * $this->multiplier['ELE']);
-            $hr = round(floatval($row[$this->columns['HR']] * $this->multiplier['HR']));
+            $hr = round(floatval($row[$this->columns['HR']] * $hrMultiplier));
             $cad = round(floatval($row[$this->columns['CAD']] * $this->multiplier['CAD']));
 
             $time = date('Y-m-d\TH:i:sP', ($row[$this->columns['TIMESTAMP']] / 1000));
@@ -767,7 +777,7 @@ class Workout {
         avgSpeed, avgCadence, maxSpeed, maxCadence, maxEle, minEle, eleUp, eleDown,
         maxHr, distance, note, log, files.name AS `filename`, files.size, files.type,
         gear.id as gearId, gear.brand, gear.model,
-        a.id as activityId, a.name, a.color, a.icon
+        a.id as activityId, a.name as activityName, a.color, a.icon
         FROM workout
             LEFT JOIN exported_files AS files ON workout.id = files.workoutId
             LEFT JOIN gear ON workout.gearId = gear.id
@@ -788,7 +798,7 @@ class Workout {
         avgSpeed, avgCadence, maxSpeed, maxCadence, maxEle, minEle, eleUp, eleDown,
         maxHr, distance, note, log, files.name AS `filename`, files.size, files.type,
         gear.id as gearId, gear.brand, gear.model,
-        a.id as activityId, a.name, a.color, a.icon
+        a.id as activityId, a.name as activityName, a.color, a.icon
         FROM workout
             LEFT JOIN exported_files AS files ON workout.id = files.workoutId
             LEFT JOIN gear ON workout.gearId = gear.id
@@ -808,7 +818,7 @@ class Workout {
         avgSpeed, avgCadence, maxSpeed, maxCadence, maxEle, minEle, eleUp, eleDown,
         maxHr, distance, note, log, files.name AS `filename`, files.size, files.type,
         gear.id as gearId, gear.brand, gear.model,
-        a.id as activityId, a.name, a.color, a.icon
+        a.id as activityId, a.name as activityName, a.color, a.icon
         FROM workout
             LEFT JOIN exported_files AS files ON workout.id = files.workoutId
             LEFT JOIN gear ON workout.gearId = gear.id
@@ -835,5 +845,86 @@ class Workout {
         }
         $sec = $s;
         return ($hod < 10 ? '0'.$hod : $hod) .':'.($min < 10 ? '0'.$min : $min).':'.($sec < 10 ? '0'.$sec : $sec);
+    }
+
+    public function analyzeWorkoutHr($id, $max) {
+        $workout = $this->findOneById($id);
+        $raw = $this->getLogFile($id);
+
+        $rows = explode("\n", $raw);
+        $colsPom = explode(",", $rows[1]);
+        
+        $start = $colsPom[$this->columns['TIMESTAMP']];
+        $multiplier = $this->_correctHrMultiplier($start);
+
+        $ranges = $this->_createHrZonesRanges($max);
+        $res = [];
+
+        $res = array(
+            'rest' => 0,
+            strval(round(0.6 * $max)) => 0,
+            strval(round(0.65 * $max)) => 0,
+            strval(round(0.7 * $max)) => 0,
+            strval(round(0.75 * $max)) => 0,
+            strval(round(0.8 * $max)) => 0,
+            strval(round(0.85 * $max)) => 0,
+            strval(round(0.9 * $max)) => 0,
+            strval(round(0.95 * $max)) => 0,
+        );
+
+        for ($i = 1; $i < count($rows) - 2; $i++) {
+            $cols = explode(",", $rows[$i]);
+            $hr = floatval($cols[$this->columns['HR']]);
+            $hr = round($hr * $multiplier);
+            $added = false;
+
+            if ($cols[$this->columns['ACTIVE']] == 'true') {
+                foreach($ranges as $v) {
+                    if ($this->_isInHrRange($v[0], $v[1], $hr)) {
+                        $res[$v[0]] += 1;
+                        $added = true;
+                        break;
+                    }
+                }
+
+                if ($added == false) {
+                    $res['rest'] += 1;
+                }
+            }
+        }
+
+        $maxDuration = 0;
+        $workoutTime = 0;
+        foreach($res as $ind => $r) {
+            $maxDuration = $r > $maxDuration ? $r : $maxDuration;
+            $workoutTime += $ind != 'rest' ? $r : 0;
+        }
+
+        return array(
+            'zones' => $res,
+            'maxDuration' => $maxDuration,
+            'workoutTime' => $workoutTime,
+            'ranges' => $ranges
+        );
+
+    }
+
+    private function _createHrZonesRanges($max) {
+        $range = [];
+        $i = 60;
+        do {
+            $range[] = [
+                round(($i / 100) * $max),
+                round((($i + 5) / 100) * $max)
+            ];
+            $i += 5;
+        } while ($i < 100);
+        return $range;
+    }
+
+    private function _isInHrRange($from, $to, $hr) {
+        return $hr >= $from && $hr < $to
+            ? true
+            : false;
     }
 }

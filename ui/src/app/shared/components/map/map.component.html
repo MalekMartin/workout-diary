@@ -1,6 +1,7 @@
-<div *ngIf="!!coordinates" class="map-wrapper">
+<div class="map-wrapper">
     <div class="content">
-        <aol-map [width]="'100%'" [height]="'200px'">
+        <aol-map  *ngIf="!!coordinates"
+            [width]="'100%'" [height]="'200px'">
             <aol-view [zoom]="zoom">
                 <aol-coordinate [x]="lon" [y]="lat" [srid]="'EPSG:4326'"></aol-coordinate>
             </aol-view>

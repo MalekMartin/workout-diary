@@ -1,8 +1,9 @@
-import { Component, OnInit, Input, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { WorkoutService } from '../../../../core/workout/workout.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { WorkoutType } from '../../../../core/workout/workout.interface';
+import { ActivatedRoute } from '@angular/router';
 
 
 @Component({
@@ -34,10 +35,19 @@ export class WorkoutDetailGraphComponent implements OnInit, OnDestroy {
 
     private _onDestroy$ = new Subject();
 
-    constructor(private _workouts: WorkoutService) { }
+    constructor(
+        private _workouts: WorkoutService,
+        private _route: ActivatedRoute,
+        private _cd: ChangeDetectorRef,
+    ) { }
 
     ngOnInit() {
-        this.getData(this.types.hr);
+        this._route.params
+            .pipe(takeUntil(this._onDestroy$))
+            .subscribe(p => {
+                this.id = p['id'];
+                this.getData(this.types.hr);
+            });
     }
 
     ngOnDestroy() {
@@ -55,6 +65,7 @@ export class WorkoutDetailGraphComponent implements OnInit, OnDestroy {
                 this.loading = false;
                 this.selected = type;
                 this.xAxisLabel = type.xLabel;
+                this._cd.markForCheck();
             });
     }
 
