@@ -28,24 +28,26 @@
     </div>
 
     <div class="filter-container">
-        <!-- <mat-form-field>
-            <mat-select [formControl]="range" placeholder="Období">
-                <mat-option *ngFor="let r of ranges" [value]="r.id">
-                {{ r.name }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field> -->
+        <div class="view-selector">
+            <i class="icon-list" [class.active]="view === 'list'" (click)="switchView('list')"></i>
+            <i class="icon-table" [class.active]="view === 'table'" (click)="switchView('table')"></i>
+            <i class="icon-calendar" [class.active]="view === 'calendar'" (click)="switchView('calendar')"></i>
+        </div>
         <wd-workout-range-selector
             (changed)="rangeChanged($event)"></wd-workout-range-selector>
     </div>
-    
-    <ng-container *ngIf="!!workouts && !!workouts.length && view === 'calendar'">
-        <wd-workout-calendar [workoutsData]="workouts"></wd-workout-calendar>
-    </ng-container>
 
-    <div *ngIf="view === 'list'" class="workout-list-wrapper">
-        <div *ngFor="let workout of workouts" class="card-wrapper">
-            <wd-workout-list-item [workout]="workout"></wd-workout-list-item>
-        </div>
-    </div>
+    <ng-container [ngSwitch]="view" *ngIf="!!workouts && !!workouts.length">
+        <ng-container *ngSwitchCase="'calendar'">
+            <wd-workout-calendar [workoutsData]="workouts"></wd-workout-calendar>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'list'">
+            <wd-workout-list [workouts]="workouts"></wd-workout-list>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'table'">
+            <wd-workout-table-view [workouts]="workouts"></wd-workout-table-view>
+        </ng-container>
+    </ng-container>
 </div>

@@ -1,5 +1,6 @@
 <?php
 require 'dto/WorkoutDto.php';
+require 'dto/WahooWorkoutRowDto.php';
 
 class Workout {
 
@@ -25,9 +26,13 @@ class Workout {
         'ELE' => 1
     );
 
-    public function __construct($db)
+    public $routeComparer;
+
+    public function __construct($db, $logger)
     {
         $this->db = $db;
+        $this->logger = $logger;
+        $this->routeComparer = new RouteComparer($db, $logger);
     }
 
     public function addWorkout($d) {
@@ -172,43 +177,68 @@ class Workout {
         return [];
     }
 
+    /**
+     * @param string $row add row string
+     * @return object returns parsed row as an object 
+     */
+    private function _parseRow($row) {
+        if (!$row) return null;
+        $r = explode(",", $row);
+
+        return new WahooWorkoutRowDto($r);
+    }
+
     public function getTrackCoordinates($id) {
         $rows = $this->_parseLogFileByWorkoutId($id);
         $series = [];
         $sumLat = 0;
         $sumLon = 0;
+        $segments = [];
+        $active = false;
+        $last = null;
+        $counter = 0;
+        $sum = 0;
+        $c = 0;
 
         if (count($rows) > 0) {
- 
-            // $aggr = count($rows) > 300 ? ceil(count($rows) / 300) : 1;
-            $aggr = 0;
+            for ($i = 1; $i < count($rows); $i++) {
+                $row = $this->_parseRow($rows[$i]);
+                $lat = $row->latitude;
+                $lon = $row->longitude;
+                $active = $row->active;
 
-            $counter = 0;
-            $sum = 0;
-            $c = 0;
-
-            for ($i = 1; $i < count($rows) - 2; $i++) {
-                $row = explode(",", $rows[$i]);
-                $lat = floatval($row[$this->columns['LAT']]);
-                $lon = floatval($row[$this->columns['LON']]);
-
-                $counter += 1;
-                if ($counter >= $aggr && $lat && $lon) {
+                if ($lat && $lon) {
+                    $counter += 1;
                     $series[] = [$lon, $lat];
 
+                    if (!!$last && $last->active != $row->active) {
+                        array_push($segments, array(
+                            'active' => $last->active,
+                            'series' => $series,
+                            'lasttime' => $row->timestamp
+                        ));
+                        $series = [[$lon, $lat]];
+                    }
+
+                    $last = $this->_parseRow($rows[$i]);
                     $sumLat += $lat;
                     $sumLon += $lon;
-                    $counter = 0;
                 }
             }
         }
+        array_push($segments, array(
+            'active' => !!$last ? $last->active : null,
+            'series' => $series,
+            'lasttime' => isset($row) && !!$row ? $row->timestamp : null
+        ));
         
         return array(
             'center' => array(
-                'lat' => $sumLat > 0 ? $sumLat / count($series) : 0,
-                'lon' => $sumLon > 0 ? $sumLon / count($series) : 0
+                'lat' => $sumLat > 0 ? $sumLat / $counter : 0,
+                'lon' => $sumLon > 0 ? $sumLon / $counter : 0,
             ),
-            'coordinates' => $series
+            'count' => $counter,
+            'coordinates' => $segments
         );
     }
 
@@ -661,7 +691,7 @@ class Workout {
     public function getLogFile($id) {
         $file = $this->_getLogFileByWorkoutId($id);
 
-        return $file['content'];
+        return !!$file ? $file['content'] : null;
     }
 
     public function createCsvTempFile() {
@@ -851,61 +881,72 @@ class Workout {
         $workout = $this->findOneById($id);
         $raw = $this->getLogFile($id);
 
-        $rows = explode("\n", $raw);
-        $colsPom = explode(",", $rows[1]);
+        if ($raw) {
+
+            $rows = explode("\n", $raw);
         
-        $start = $colsPom[$this->columns['TIMESTAMP']];
-        $multiplier = $this->_correctHrMultiplier($start);
+            $colsPom = explode(",", $rows[1]);
+            
+            $start = $colsPom[$this->columns['TIMESTAMP']];
+            $multiplier = $this->_correctHrMultiplier($start);
 
-        $ranges = $this->_createHrZonesRanges($max);
-        $res = [];
+            $ranges = $this->_createHrZonesRanges($max);
+            $res = [];
 
-        $res = array(
-            'rest' => 0,
-            strval(round(0.6 * $max)) => 0,
-            strval(round(0.65 * $max)) => 0,
-            strval(round(0.7 * $max)) => 0,
-            strval(round(0.75 * $max)) => 0,
-            strval(round(0.8 * $max)) => 0,
-            strval(round(0.85 * $max)) => 0,
-            strval(round(0.9 * $max)) => 0,
-            strval(round(0.95 * $max)) => 0,
-        );
+            $res = array(
+                'rest' => 0,
+                strval(round(0.6 * $max)) => 0,
+                strval(round(0.65 * $max)) => 0,
+                strval(round(0.7 * $max)) => 0,
+                strval(round(0.75 * $max)) => 0,
+                strval(round(0.8 * $max)) => 0,
+                strval(round(0.85 * $max)) => 0,
+                strval(round(0.9 * $max)) => 0,
+                strval(round(0.95 * $max)) => 0,
+            );
 
-        for ($i = 1; $i < count($rows) - 2; $i++) {
-            $cols = explode(",", $rows[$i]);
-            $hr = floatval($cols[$this->columns['HR']]);
-            $hr = round($hr * $multiplier);
-            $added = false;
+            for ($i = 1; $i < count($rows) - 2; $i++) {
+                $cols = explode(",", $rows[$i]);
+                $hr = floatval($cols[$this->columns['HR']]);
+                $hr = round($hr * $multiplier);
+                $added = false;
 
-            if ($cols[$this->columns['ACTIVE']] == 'true') {
-                foreach($ranges as $v) {
-                    if ($this->_isInHrRange($v[0], $v[1], $hr)) {
-                        $res[$v[0]] += 1;
-                        $added = true;
-                        break;
+                if ($cols[$this->columns['ACTIVE']] == 'true') {
+                    foreach($ranges as $v) {
+                        if ($this->_isInHrRange($v[0], $v[1], $hr)) {
+                            $res[$v[0]] += 1;
+                            $added = true;
+                            break;
+                        }
+                    }
+
+                    if ($added == false) {
+                        $res['rest'] += 1;
                     }
                 }
-
-                if ($added == false) {
-                    $res['rest'] += 1;
-                }
             }
-        }
 
-        $maxDuration = 0;
-        $workoutTime = 0;
-        foreach($res as $ind => $r) {
-            $maxDuration = $r > $maxDuration ? $r : $maxDuration;
-            $workoutTime += $ind != 'rest' ? $r : 0;
-        }
+            $maxDuration = 0;
+            $workoutTime = 0;
+            foreach($res as $ind => $r) {
+                $maxDuration = $r > $maxDuration ? $r : $maxDuration;
+                $workoutTime += $ind != 'rest' ? $r : 0;
+            }
 
-        return array(
-            'zones' => $res,
-            'maxDuration' => $maxDuration,
-            'workoutTime' => $workoutTime,
-            'ranges' => $ranges
-        );
+            return array(
+                'zones' => $res,
+                'maxDuration' => $maxDuration,
+                'workoutTime' => $workoutTime,
+                'ranges' => $ranges
+            );
+        } else {
+            return array(
+                'zones' => null,
+                'maxDuration' => 0,
+                'workoutTime' => 0,
+                'ranges' => null
+            );
+        }
 
     }
 
@@ -926,5 +967,110 @@ class Workout {
         return $hr >= $from && $hr < $to
             ? true
             : false;
+    }
+
+    public function compareRoutes($id1, $id2) {
+        $r1 = $this->getLogFile($id1);
+        $r2 = $this->getLogFile($id2);
+
+        $similarity = $this->routeComparer->compareRoutes($r1, $r2);
+        return array('similarity' => $similarity);
+    }
+
+    public function findSameRoutes($workout) {
+        $r1 = $this->getLogFile($workout->id);
+        $r2 = null;
+        // $r2 = $this->getLogFile($id2);
+        $similarWorkouts = $this->findWorkoutsForComparison($workout);
+
+        $foundWorkouts = [];
+
+        if (!!$similarWorkouts && count($similarWorkouts) > 0) {
+            for ($i = 0; $i < count($similarWorkouts); $i++) {
+                $r2 = $this->getLogFile($similarWorkouts[$i]['id']);
+                $s = $this->routeComparer->compareRoutes($r1, $r2);
+                if ($s['similarity'] > 0.9) {
+                    $foundWorkouts[] = $similarWorkouts[$i]['id'];
+                    // $this->logger->addInfo('similar workout id: '.$similarWorkouts[$i]['id']);
+                }
+            }
+        }
+
+        // $similarity = $this->routeComparer->compareRoutes($r1, $r2);
+        // return array('similarity' => $similarity);
+        if (count($foundWorkouts)) {
+            $this->_insertSameWorkouts($workout->id, $foundWorkouts);
+        }
+        return $foundWorkouts;
+    }
+
+    private function findWorkoutsForComparison($workout) {
+        $minDst = $workout->distance - 1;
+        $maxDst = $workout->distance + 1;
+        $q = $this->db->prepare('SELECT w.id
+            FROM workout AS w
+            INNER JOIN exported_files AS f ON w.id=f.workoutId
+            WHERE w.id != ? AND w.activity = ? AND (w.distance BETWEEN ? AND ?)');
+        $q->execute(array($workout->id, $workout->activity->id, $minDst, $maxDst));
+        return $q->fetchAll();
+    }
+
+    /**
+     * @param workoutId - original workout id
+     * @param foundWorkoutIds - array of found workout ids
+     */
+    private function _insertSameWorkouts($workoutId, $foundWorkoutIds) {
+
+        $values = '';
+        for($i = 0; $i < count($foundWorkoutIds); $i++) {
+            if (!!$values) {
+                $values .= ', ';
+            }
+            $values .= '('.$workoutId.', '.$foundWorkoutIds[$i].')';
+        }
+        $this->logger->addInfo($values);
+        $q = $this->db->prepare('INSERT INTO same_workouts (workoutId, foundWorkoutId) VALUES '.$values);
+        $q->execute(array());
+    }
+
+    public function getSameWorkouts($id) {
+
+        $q = $this->db->prepare('SELECT foundWorkoutId FROM same_workouts WHERE workoutId = ?');
+        $q->execute(array($id));
+        $res = $q->fetchAll();
+        
+        if (!!$res) {
+            $arr = '';
+            for ($i = 0; $i < count($res); $i++) {
+                if ($arr) {
+                    $arr .= ',';
+                }
+                $arr .= $res[$i]['foundWorkoutId'];
+            }
+
+            $query = $this->db->prepare('SELECT workout.id, workout.name, activity, `date`, `time`, duration, energy, avgHr,
+            avgSpeed, avgCadence, maxSpeed, maxCadence, maxEle, minEle, eleUp, eleDown,
+            maxHr, distance, note, log, files.name AS `filename`, files.size, files.type,
+            gear.id as gearId, gear.brand, gear.model,
+            a.id as activityId, a.name as activityName, a.color, a.icon
+            FROM workout
+                LEFT JOIN exported_files AS files ON workout.id = files.workoutId
+                LEFT JOIN gear ON workout.gearId = gear.id
+                LEFT JOIN activity as a ON workout.activity = a.id
+            WHERE workout.id IN ('.$arr.') ORDER BY duration DESC');
+            $query->execute(array());
+            $res = $query->fetchAll();
+    
+            if (!!$res) {
+                $data = [];
+                forEach($res as $r) {
+                    $data[] = new WorkoutDto($r);
+                }
+                return $data;
+            }
+
+        } else {
+            return [];
+        }
     }
 }

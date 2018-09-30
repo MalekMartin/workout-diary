@@ -6,9 +6,9 @@ export class HeartRateService {
 
     constructor(private _http: HttpService) { }
 
-    addRestingHr(bpm: number, date: string, note: string) {
+    addRestingHr(model: {bpm: number, date: string, note: string, activity: string}) {
         return this._http
-            .post('/resource/heart/rest/add', {bpm, date, note});
+            .post('/resource/heart/rest/add', model);
     }
 
     findRestingHrs() {

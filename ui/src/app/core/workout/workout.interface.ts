@@ -49,6 +49,10 @@ export interface Activity {
     name: string;
     icon: string;
     color: string;
+    hr?: boolean;
+    speed?: boolean;
+    elevation?: boolean;
+    cadence?: boolean;
 }
 
 export interface WorkoutLogFile {

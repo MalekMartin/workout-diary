@@ -80,4 +80,12 @@ export class WorkoutService {
     analyzeHr(id: string, hrMax: number) {
         return this._http.get(`/resource/workout/${id}/analyze-hr?max=${hrMax}`);
     }
+
+    findSameRoutes(workout: Workout) {
+        return this._http.post('/resource/workout/find-same-routes', workout);
+    }
+
+    getSameWorkouts(id: string) {
+        return this._http.get(`/resource/workout/${id}/same-workouts`);
+    }
 }

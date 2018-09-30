@@ -1,0 +1,61 @@
+<ng-container *ngIf="!!sameWorkouts && !!sameWorkouts.length">
+    <div class="title">
+        Na stejné trati {{sameWorkouts.length}}
+        <span *ngIf="sameWorkouts.length === 1">trénink</span>
+        <span *ngIf="sameWorkouts.length > 2 && sameWorkouts.length < 5">tréninky</span>
+        <span *ngIf="sameWorkouts.length > 4">tréninků</span>
+    </div>
+
+    <div class="example-container mat-elevation-z8">
+        <mat-table #table [dataSource]="sameWorkouts">
+        
+            <!--- Note that these columns can be defined in any order.
+                The actual rendered columns are set as a property on the row definition" -->
+
+            <ng-container matColumnDef="name">
+                <mat-header-cell *matHeaderCellDef> Název </mat-header-cell>
+                <mat-cell *matCellDef="let element">
+                    <a [routerLink]="['/workouts', element.id]" class="workout-link">{{element.name}}</a>
+                </mat-cell>
+            </ng-container>
+            
+            <ng-container matColumnDef="date">
+                <mat-header-cell *matHeaderCellDef> Datum </mat-header-cell>
+                <mat-cell *matCellDef="let element"> {{element.date | moment}}</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="duration">
+                <mat-header-cell *matHeaderCellDef> Čas </mat-header-cell>
+                <mat-cell *matCellDef="let element"> {{element.duration | secToTime}}</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="distance">
+                <mat-header-cell *matHeaderCellDef> Vzdálenost </mat-header-cell>
+                <mat-cell *matCellDef="let element"> {{element.distance}} km</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="energy">
+                <mat-header-cell *matHeaderCellDef> Energie </mat-header-cell>
+                <mat-cell *matCellDef="let element"> {{element.energy}} kcal</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="avgHr">
+                <mat-header-cell *matHeaderCellDef> Prům.SF </mat-header-cell>
+                <mat-cell *matCellDef="let element"> {{element.avgHr}} bpm</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="avgSpeed">
+                <mat-header-cell *matHeaderCellDef> Prům. rychl. </mat-header-cell>
+                <mat-cell *matCellDef="let element"> {{element.avgSpeed}} km/h</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="avgCadence">
+                <mat-header-cell *matHeaderCellDef> Prům.kadence </mat-header-cell>
+                <mat-cell *matCellDef="let element"> {{element.avgCadence}} rpm</mat-cell>
+            </ng-container>
+
+            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+        </mat-table>
+    </div>
+</ng-container>

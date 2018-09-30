@@ -15,10 +15,12 @@ export class WorkoutDetailHrComponent implements OnInit, OnDestroy {
 
     @Input() id: string;
     @Input() set analyzed(a: any) {
-        this.hrs = a.zones;
-        this.keys = Object.keys(a.zones);
-        this.maxDuration = a.maxDuration;
-        this.workoutTime = a.workoutTime;
+        if (a.zones) {
+            this.hrs = a.zones;
+            this.keys = Object.keys(a.zones);
+            this.maxDuration = a.maxDuration;
+            this.workoutTime = a.workoutTime;
+        }
     }
     @Input() workout: Workout;
 

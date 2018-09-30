@@ -12,7 +12,9 @@ import {
     MatButtonModule,
     MatSelectModule,
     MatTabsModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatTableModule,
+    MatSnackBarModule
 } from '@angular/material';
 import { WorkoutDetailComponent } from './workout-detail.component';
 import { WorkoutCheckPointFormComponent } from './workout-check-point-form/workout-check-point-form.component';
@@ -27,6 +29,7 @@ import { WorkoutDetailNumbersComponent } from './workout-detail-numbers/workout-
 import { WorkoutDetailHeaderComponent } from './workout-detail-header/workout-detail-header.component';
 import { WorkoutDetailHrComponent } from './workout-detail-hr/workout-detail-hr.component';
 import { HrZonesService } from '../../../core/heart-rate/hr-zones.service';
+import { SameWorkoutsComponent } from './same-workouts/same-workouts.component';
 
 @NgModule({
     imports: [
@@ -46,6 +49,8 @@ import { HrZonesService } from '../../../core/heart-rate/hr-zones.service';
         MatSelectModule,
         MatTabsModule,
         MatProgressSpinnerModule,
+        MatTableModule,
+        MatSnackBarModule,
     ],
     exports: [WorkoutDetailComponent],
     declarations: [
@@ -58,6 +63,7 @@ import { HrZonesService } from '../../../core/heart-rate/hr-zones.service';
         WorkoutDetailNumbersComponent,
         WorkoutDetailHeaderComponent,
         WorkoutDetailHrComponent,
+        SameWorkoutsComponent
     ],
     providers: [CheckPointService, HrZonesService]
 })

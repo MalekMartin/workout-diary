@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { WorkoutsComponent } from './workouts.component';
-import { WorkoutListComponent } from './workout/workout-list/workout-list.component';
+import { WorkoutStreamComponent } from './workout/workout-stream/workout-stream.component';
 import { WorkoutDetailComponent } from './workout/workout-detail/workout-detail.component';
 import { WorkoutAddComponent } from './workout/workout-add/workout-add.component';
 import { WorkoutEditComponent } from './workout/workout-edit/workout-edit.component';
@@ -31,7 +31,7 @@ export const workoutsRoutes: Routes = [
             },
             {
                 path: 'all',
-                component: WorkoutListComponent
+                component: WorkoutStreamComponent
             },
             {
                 path: 'not-found',

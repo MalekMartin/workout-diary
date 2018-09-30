@@ -35,7 +35,7 @@ export class WorkoutFormComponent implements OnInit, OnDestroy {
         energy: [0, [Validators.min(0), Validators.max(5000)]],
         distance: [0, Validators.min(0)],
         note: ['', Validators.maxLength(255)],
-        gear: ['']
+        gear: [null]
     });
 
     private _onDestroy$ = new Subject();

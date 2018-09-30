@@ -11,17 +11,22 @@ import {
     MatInputModule,
     MatDatepickerModule,
     MatSnackBarModule,
-    MatTableModule
+    MatTableModule,
+    MatSelectModule
 } from '@angular/material';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { RestingHrComponent } from './resting-hr/resting-hr.component';
 import { HrZonesComponent } from './hr-zones/hr-zones.component';
 import { HrZonesService } from '../core/heart-rate/hr-zones.service';
 import { PipesModule } from '../shared/pipes/pipes.module';
+import { RestingHrTableComponent } from './resting-hr/resting-hr-table/resting-hr-table.component';
+import { RestingHrWeekAvgComponent } from './resting-hr/resting-hr-week-avg/resting-hr-week-avg.component';
 
 const COMPONENTS = [
     RestingHrComponent,
-    HrZonesComponent
+    HrZonesComponent,
+    RestingHrTableComponent,
+    RestingHrWeekAvgComponent,
 ];
 
 @NgModule({
@@ -37,6 +42,7 @@ const COMPONENTS = [
         MatDatepickerModule,
         MatSnackBarModule,
         MatTableModule,
+        MatSelectModule,
 
         NgxChartsModule,
     ],

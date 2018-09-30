@@ -18,12 +18,11 @@ import {
     MatButtonToggleModule
 } from '@angular/material';
 import { WorkoutService } from '../core/workout/workout.service';
-import { WorkoutListComponent } from './workout/workout-list/workout-list.component';
+import { WorkoutStreamComponent } from './workout/workout-stream/workout-stream.component';
 import { PipesModule } from '../shared/pipes/pipes.module';
 import { WorkoutChartComponent } from './workout/workout-chart/workout-chart.component';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { WdFileUploadModule } from '../shared/components/file-upload/file-upload.module';
-import { WorkoutListItemComponent } from './workout/workout-list/workout-list-item/workout-list-item.component';
 import { MatCheckboxModule } from '@angular/material';
 import { WorkoutCalendarComponent } from './workout/workout-calendar/workout-calendar.component';
 import { FileUploadModule } from 'ng2-file-upload';
@@ -35,18 +34,19 @@ import { WorkoutTypesGroupComponent } from './workout/workout-types-group/workou
 import { GearService } from '../core/gear/gear.service';
 import { ActivitiesService } from '../core/activities/activities.service';
 import { WorkoutRangeSelectorComponent } from './workout/workout-range-selector/workout-range-selector.component';
+import { WorkoutTableViewModule } from './workout/workout-table-view/workout-table-view.module';
+import { WorkoutListModule } from './workout/workout-list/workout-list.module';
 
 const COMP = [
     WorkoutFormComponent,
-    WorkoutListComponent,
+    WorkoutStreamComponent,
     WorkoutChartComponent,
-    WorkoutListItemComponent,
     WorkoutCalendarComponent,
     WorkoutAddComponent,
     WorkoutEditComponent,
     WorkoutNotFoundComponent,
     WorkoutTypesGroupComponent,
-    WorkoutRangeSelectorComponent,
+    WorkoutRangeSelectorComponent
 ];
 
 @NgModule({
@@ -75,7 +75,9 @@ const COMP = [
         WdFileUploadModule,
         FileUploadModule,
 
-        WorkoutDetailModule
+        WorkoutDetailModule,
+        WorkoutTableViewModule,
+        WorkoutListModule
     ],
     exports: [WorkoutsComponent],
     declarations: [WorkoutsComponent, ...COMP],

@@ -5,6 +5,7 @@ import { HeartRateService } from '../../core/heart-rate/heart-rate.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material';
+import { HR_ACTIVITIES } from './resting-hr-table/resting-hr-table.component';
 
 @Component({
     selector: 'wd-resting-hr',
@@ -17,16 +18,19 @@ export class RestingHrComponent implements OnInit, OnDestroy {
     form = this._fb.group({
         date: [new Date() , Validators.required],
         bpm: [60, [Validators.required, Validators.min(40), Validators.max(250)]],
-        note: ['', Validators.maxLength(255)]
+        note: ['', Validators.maxLength(255)],
+        activity: ['']
     });
 
     colorScheme = {
         domain: ['#c71639', '#00b0bd', '#70b600', '#e6cb00', '#b000d3', '#001fce', '#919191']
     };
 
+    activities = HR_ACTIVITIES;
+
     data: any;
-    tableSource: any[];
-    displayedColumns = ['date', 'bpm', 'note'];
+
+    restingHrData: any;
 
     minHr = {name: '', value: 300};
     maxHr = {name: '', value: 0};
@@ -55,33 +59,16 @@ export class RestingHrComponent implements OnInit, OnDestroy {
     addHr() {
         this.savingData = true;
         this._hr.addRestingHr(
-                this.form.get('bpm').value,
-                this.form.get('date').value,
-                this.form.get('note').value
-            )
+            this.form.value
+        )
             .pipe(takeUntil(this._onDestroy$))
             .subscribe(this._saveSuccess, this._saveError);
     }
 
     findAll() {
         this.graphLoading = true;
-        this._hr.findWeeklyAverages()
-            .pipe(takeUntil(this._onDestroy$))
-            .subscribe(d => {
-                console.log(d);
-            });
         this._hr.findRestingHrs()
             .pipe(takeUntil(this._onDestroy$))
-            // .subscribe((res: any) => {
-            //     this.data = [
-            //         {
-            //             name: 'Klidova SF',
-            //             series: this._prepareAllRestHrs(res.hr)
-            //         }
-            //     ];
-            //     console.log(this.data);
-            //     this.graphLoading = false;
-            // });
             .subscribe((res: any) => {
                 const hr = this._replaceData(res.hr);
                 const run = this._replaceWorkoutdata(res.workouts.run);
@@ -137,14 +124,9 @@ export class RestingHrComponent implements OnInit, OnDestroy {
                     }
                 ];
 
+                this.restingHrData = res.hr;
+
                 this.graphLoading = false;
-                this.tableSource = res.hr.map(r => {
-                    return {
-                        date: moment(r.date).format('DD.MM.YYYY'),
-                        bpm: r.bpm,
-                        note: r.note
-                    };
-                }).reverse();
             }, () => {
                 this.graphLoading = false;
             });
@@ -161,31 +143,6 @@ export class RestingHrComponent implements OnInit, OnDestroy {
 
 
         return data;
-    }
-
-    private _prepareAllRestHrs(data: any) {
-        const arr = [];
-        let sumHr = 0;
-
-        for (let i = 0; i < data.length; i++) {
-            sumHr += data[i].bpm;
-
-            this.minHr = data.bpm < this.minHr.value
-                ? {name: moment(data[i].date).format('DD.MM.YYYY'), value: data[i].bpm}
-                : this.minHr;
-            this.maxHr = data[i].bpm > this.maxHr.value
-                ? {name: moment(data[i].date).format('DD.MM.YYYY'), value: data[i].bpm}
-                : this.maxHr;
-
-            arr.push({
-                name: moment(data[i].date).format('DD.MM.YYYY'),
-                value: data[i].bpm
-            });
-        }
-
-        this.avgHr = data.length > 0 ? Math.ceil(sumHr / data.length) : 0;
-        this.refLine = {name: 'Průměrná klidová SF', value: this.avgHr};
-        return arr;
     }
 
     private _replaceData(d) {
@@ -232,11 +189,15 @@ export class RestingHrComponent implements OnInit, OnDestroy {
 
         let newArr = [];
         emptyData.forEach((i: any) => {
-            const item = d.find(f => moment(f.date).format('DD.MM.YYYY') === i);
+            const items = d.filter(f => moment(f.date).format('DD.MM.YYYY') === i);
+            let duration = 0;
+            items.forEach(w => {
+                duration += w.duration;
+            });
 
             newArr = [...newArr, {
                 name: i,
-                value: item ? item.duration : 0,
+                value: duration
             }];
         });
 

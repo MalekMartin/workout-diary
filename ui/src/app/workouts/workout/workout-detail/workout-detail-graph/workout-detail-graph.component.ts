@@ -2,8 +2,9 @@ import { Component, OnInit, Input, OnDestroy, ChangeDetectorRef } from '@angular
 import { WorkoutService } from '../../../../core/workout/workout.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
-import { WorkoutType } from '../../../../core/workout/workout.interface';
+import { WorkoutType, Activity } from '../../../../core/workout/workout.interface';
 import { ActivatedRoute } from '@angular/router';
+import { ActivitiesService } from '../../../../core/activities/activities.service';
 
 
 @Component({
@@ -15,6 +16,7 @@ import { ActivatedRoute } from '@angular/router';
 export class WorkoutDetailGraphComponent implements OnInit, OnDestroy {
 
     @Input() id;
+    @Input() activity: Activity;
 
     source = null;
     units: string;
@@ -22,11 +24,16 @@ export class WorkoutDetailGraphComponent implements OnInit, OnDestroy {
     selected = null;
     xAxisLabel: string;
 
+    showHr = false;
+    showSpeed = false;
+    showCad = false;
+    showEle = false;
+
     types = {
         hr: {id: 'HR', name: 'Srdeční frekvence', units: 'bpm', xLabel: 'Čas'},
         speed: {id: 'SPEED', name: 'Rychlost', units: 'km/h', xLabel: 'Čas'},
         cad: {id: 'CAD', name: 'Kadence', units: 'rpm', xLabel: 'Čas'},
-        ele: {id: 'ELE', name: 'Výškový profil', units: 'm.n.m.', xLabel: 'Vzdálenost [m]'}
+        ele: {id: 'ELE', name: 'Výškový profil', units: 'Nadmořská výška [m]', xLabel: 'Vzdálenost [m]'}
     };
 
     colorScheme = {
@@ -39,6 +46,7 @@ export class WorkoutDetailGraphComponent implements OnInit, OnDestroy {
         private _workouts: WorkoutService,
         private _route: ActivatedRoute,
         private _cd: ChangeDetectorRef,
+        private _activityService: ActivitiesService,
     ) { }
 
     ngOnInit() {
@@ -47,6 +55,19 @@ export class WorkoutDetailGraphComponent implements OnInit, OnDestroy {
             .subscribe(p => {
                 this.id = p['id'];
                 this.getData(this.types.hr);
+            });
+
+        this._activityService.activityStream
+            .pipe(takeUntil(this._onDestroy$))
+            .subscribe(activity => {
+                const match = activity.find(a => {
+                    return a.id === this.activity.id;
+                });
+
+                this.showHr = match.hr;
+                this.showCad = match.cadence;
+                this.showEle = match.elevation;
+                this.showSpeed = match.speed;
             });
     }
 

@@ -29,7 +29,7 @@
         <tr>
             <td>{{keys[7]}}</td>
             <td>{{hrs[keys[7]] | secToTime}}</td>
-            <td>{{hrs[keys[7]] | percentage: workoutTime}}</td>
+            <td>{{hrs[keys[7]] | percentage: workout.duration}}</td>
             <td>
                 <div class="bar b7" [style.width]="getWidth(hrs[keys[7]])"></div>
             </td>
@@ -37,7 +37,7 @@
         <tr>
             <td>{{keys[6]}}</td>
             <td>{{hrs[keys[6]] | secToTime}}</td>
-            <td>{{hrs[keys[6]] | percentage: workoutTime}}</td>
+            <td>{{hrs[keys[6]] | percentage: workout.duration}}</td>
             <td>
                 <div class="bar b6" [style.width]="getWidth(hrs[keys[6]])"></div>
             </td>
@@ -45,7 +45,7 @@
         <tr>
             <td>{{keys[5]}}</td>
             <td>{{hrs[keys[5]] | secToTime}}</td>
-            <td>{{hrs[keys[5]] | percentage: workoutTime}}</td>
+            <td>{{hrs[keys[5]] | percentage: workout.duration}}</td>
             <td>
                 <div class="bar b5" [style.width]="getWidth(hrs[keys[5]])"></div>
             </td>
@@ -53,7 +53,7 @@
         <tr>
             <td>{{keys[4]}}</td>
             <td>{{hrs[keys[4]] | secToTime}}</td>
-            <td>{{hrs[keys[4]] | percentage: workoutTime}}</td>
+            <td>{{hrs[keys[4]] | percentage: workout.duration}}</td>
             <td>
                 <div class="bar  b4" [style.width]="getWidth(hrs[keys[4]])"></div>
             </td>
@@ -61,7 +61,7 @@
         <tr>
             <td>{{keys[3]}}</td>
             <td>{{hrs[keys[3]] | secToTime}}</td>
-            <td>{{hrs[keys[3]] | percentage: workoutTime}}</td>
+            <td>{{hrs[keys[3]] | percentage: workout.duration}}</td>
             <td>
                 <div class="bar b3" [style.width]="getWidth(hrs[keys[3]])"></div>
             </td>
@@ -69,7 +69,7 @@
         <tr>
             <td>{{keys[2]}}</td>
             <td>{{hrs[keys[2]] | secToTime}}</td>
-            <td>{{hrs[keys[2]] | percentage: workoutTime}}</td>
+            <td>{{hrs[keys[2]] | percentage: workout.duration}}</td>
             <td>
                 <div class="bar b2" [style.width]="getWidth(hrs[keys[2]])"></div>
             </td>
@@ -77,7 +77,7 @@
         <tr>
             <td>{{keys[1]}}</td>
             <td>{{hrs[keys[1]] | secToTime}}</td>
-            <td>{{hrs[keys[1]] | percentage: workoutTime}}</td>
+            <td>{{hrs[keys[1]] | percentage: workout.duration}}</td>
             <td>
                 <div class="bar b1" [style.width]="getWidth(hrs[keys[1]])"></div>
             </td>
@@ -85,7 +85,7 @@
         <tr>
             <td>{{keys[0]}}</td>
             <td>{{hrs[keys[0]] | secToTime}}</td>
-            <td>{{hrs[keys[0]] | percentage: workoutTime}}</td>
+            <td>{{hrs[keys[0]] | percentage: workout.duration}}</td>
             <td>
                 <div class="bar b0" [style.width]="getWidth(hrs[keys[0]])"></div>
             </td>
@@ -93,7 +93,7 @@
         <tr>
             <td>Rest</td>
             <td>{{hrs.rest | secToTime}}</td>
-            <td>{{hrs.rest | percentage: workoutTime}}</td>
+            <td>{{hrs.rest | percentage: workout.duration}}</td>
             <td>
                 <div class="bar" [style.width]="getWidth(hrs.rest)"></div>
             </td>

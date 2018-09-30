@@ -5,6 +5,7 @@ import { takeUntil } from 'rxjs/operators';
 import { TrackPoints, Workout, WorkoutLogFile } from '../../../core/workout/workout.interface';
 import { WorkoutService } from '../../../core/workout/workout.service';
 import { HrZonesService } from '../../../core/heart-rate/hr-zones.service';
+import { MatSnackBar } from '@angular/material';
 
 declare var require: any;
 const FileSaver = require('file-saver');
@@ -30,6 +31,8 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
     checkPointsLoading = false;
     loading = false;
 
+    sameWorkouts =  null;
+
     private _onDestroy$ = new Subject();
 
     constructor(
@@ -38,13 +41,13 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
         private _router: Router,
         private _cd: ChangeDetectorRef,
         private _zones: HrZonesService,
+        private _snackBar: MatSnackBar,
     ) {}
 
     ngOnInit() {
         this._route.params.pipe(takeUntil(this._onDestroy$)).subscribe(p => {
             this.id = p['id'];
             this.findWorkout();
-            this.getCoordinates();
         });
     }
 
@@ -63,9 +66,13 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
                 const a = w.activity.id;
                 this.id = w.id;
 
-                this.onCheckPointsChanged();
+                if (!!w.log && !!w.log.id) {
+                    this.onCheckPointsChanged();
+                    this.analyzeHr(w.id);
+                    this.getCoordinates();
+                }
                 this.findNextAndPrev();
-                this.analyzeHr(w.id);
+
                 this.loading = false;
                 this._cd.markForCheck();
             }, this._onFindWorkoutError);
@@ -147,6 +154,7 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this._onDestroy$))
             .subscribe((data: TrackPoints) => {
                 this.route = data;
+                this._cd.markForCheck();
             });
     }
 
@@ -175,6 +183,24 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
                 this.hrAnalyzed = val;
                 this._cd.markForCheck();
             });
+    }
+
+    findSame() {
+        this._workout.findSameRoutes(this.workout)
+        .pipe(takeUntil(this._onDestroy$))
+        .subscribe((res: any[]) => {
+            if (!!res && !!res.length) {
+                this.openSnackBar('Nalezeno ' + res.length + ' tréninků', '');
+            } else {
+                this.openSnackBar('Nalezeno 0 tréninků', '');
+            }
+        });
+    }
+
+    openSnackBar(message: string, action: string) {
+        this._snackBar.open(message, action, {
+            duration: 2000,
+        });
     }
 
     private _onDeleteCpSuccess = () => {

@@ -10,8 +10,8 @@ class HeartRate {
     }
 
     public function addRestingHr($d) {
-        $query = $this->db->prepare('INSERT INTO rest_hr (`date`, bpm, note) VALUES (?,?, ?)');
-        $query->execute(array($d->date, $d->bpm, $d->note));
+        $query = $this->db->prepare('INSERT INTO rest_hr (`date`, bpm, note, activity) VALUES (?,?,?,?)');
+        $query->execute(array($d->date, $d->bpm, $d->note, $d->activity));
         return new RestHrDto($this->_getLastRestHr());
     }
 
@@ -20,7 +20,7 @@ class HeartRate {
         $newdate = strtotime ( '-30 day' , strtotime ( $date ) ) ;
         $newdate = date ( 'Y-m-d\TH:i:sP' , $newdate );
 
-        $query = $this->db->prepare('SELECT id, `date`, bpm, note FROM rest_hr
+        $query = $this->db->prepare('SELECT id, `date`, bpm, note, activity FROM rest_hr
         WHERE `date` >= ?
         ORDER BY `date` ASC LIMIT 60');
         $query->execute(array($newdate));
@@ -71,7 +71,7 @@ class HeartRate {
     }
 
     private function _findAllRecords($sort = 'ASC') {
-        $query = $this->db->prepare('SELECT id, `date`, bpm, note FROM rest_hr
+        $query = $this->db->prepare('SELECT id, `date`, bpm, note, activity FROM rest_hr
         ORDER BY `date` ' . $sort);
         $query->execute(array());
 
@@ -83,7 +83,7 @@ class HeartRate {
     }
 
     private function _findRestingHrById($id) {
-        $query = $this->db->prepare('SELECT id, `date`, bpm, note FROM rest_hr WHERE id = ?');
+        $query = $this->db->prepare('SELECT id, `date`, bpm, note, activity FROM rest_hr WHERE id = ?');
         $query->execute(array($id)); 
         return $query->fetch();
     } 

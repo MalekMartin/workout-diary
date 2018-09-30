@@ -5,9 +5,10 @@
         [prev]="prev"
         [next]="next"
         (delete)="delete($event)"
-        (edit)="goToEdit()"></wd-workout-detail-header>
+        (edit)="goToEdit()"
+        (findSame)="findSame()"></wd-workout-detail-header>
 
-    <mat-card *ngIf="!!route && !!route.coordinates && !!route.coordinates.length"
+    <mat-card *ngIf="!!route && !!route.coordinates && !!route.count && !!route.coordinates.length"
         class="map-content">
         <wd-map [coordinates]="route.coordinates"
             [lat]="route.center.lat"
@@ -17,6 +18,8 @@
 
     <div class="flex">
         <div class="content-50">
+            <wd-same-workouts [workout]="workout"></wd-same-workouts>
+
             <mat-tab-group>
                 <mat-tab label="Detaily">
                     <mat-card class="inside-tab">
@@ -29,7 +32,7 @@
                             [analyzed]="hrAnalyzed"></wd-workout-detail-hr>
                     </mat-card>
                 </mat-tab>
-                <mat-tab label="Check pointy">
+                <mat-tab *ngIf="!!workout.log && !!workout.log.id" label="Check pointy">
                     <mat-card class="inside-tab">
                         <wd-workout-checkpoint-form
                             [workoutId]="id"
@@ -50,7 +53,7 @@
         </div>
         <div class="content-50">
             <mat-card *ngIf="!!workout.log.id">
-                <wd-workout-detail-graph *ngIf="id" [id]="id"></wd-workout-detail-graph>
+                <wd-workout-detail-graph *ngIf="id" [id]="id" [activity]="workout.activity"></wd-workout-detail-graph>
             </mat-card>
             
             <mat-card *ngIf="workout.log.id">

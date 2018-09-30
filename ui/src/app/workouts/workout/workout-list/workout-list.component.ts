@@ -1,104 +1,57 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { WorkoutService } from '../../../core/workout/workout.service';
-import { Subject } from 'rxjs';
-import { takeUntil, debounceTime, switchMap } from 'rxjs/operators';
+import { Component, Input } from '@angular/core';
+import { Workout } from '../../../core/workout/workout.interface';
 import * as moment from 'moment';
-import { FormControl } from '@angular/forms';
-import { ActivitiesService } from '../../../core/activities/activities.service';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'wd-workout-list',
-    templateUrl: 'workout-list.component.html',
-    styleUrls: ['./workout-list.component.scss']
+    styleUrls: ['./workout-list.component.scss'],
+    template: `
+    <ng-container *ngIf="!!grouped && !!grouped.length">
+        <div class="group-wrapper" *ngFor="let group of grouped">
+            <div class="group-name">{{group.name}}</div>
+            <div class="workout-list-wrapper">
+                <div *ngFor="let workout of group.workouts" class="card-wrapper">
+                    <wd-workout-list-item [workout]="workout"></wd-workout-list-item>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+    `
 })
-export class WorkoutListComponent implements OnInit, OnDestroy {
-    workouts;
-    totalDuration = 0;
-    totalDistance = 0;
-    types: any[];
+export class WorkoutListComponent {
+    @Input() set workouts(workouts: Workout[]) {
+        this.data = workouts;
+        this.grouped = [];
+        this.groupByDate();
+    }
 
-    isLoading = false;
+    data: Workout[];
+    grouped = [];
 
-    view: 'calendar' | 'list' = 'list';
-    range = null;
+    groupByDate() {
+        const months = this._getMonths();
 
-    private _onDestroy$ = new Subject();
+        months.forEach(m => {
+            const workouts = this.data.filter(w => {
+                return moment(w.date).format('MMMM YYYY') === m;
+            });
 
-    constructor(private _workouts: WorkoutService, private _cd: ChangeDetectorRef, private _activities: ActivitiesService) {}
+            this.grouped.push({
+                name: m,
+                workouts
+            });
+        });
+    }
 
-    ngOnInit() {
-        this._activities.activityStream.pipe(takeUntil(this._onDestroy$)).subscribe(a => {
-            this.types = a;
+    private _getMonths() {
+        const months = [];
+        this.data.map(w => {
+            months.push(moment(w.date).format('MMMM YYYY'));
         });
 
-        this.findWorkouts()
-            .pipe(takeUntil(this._onDestroy$))
-            .subscribe(this._onWorkoutsSuccess);
+        return _.uniq(months);
     }
 
-    ngOnDestroy() {
-        this._onDestroy$.next();
-    }
 
-    trackByFn = (item, i) => item.id;
-
-    findWorkouts() {
-        const types = this._typesFromLocalStorage();
-        this.isLoading = true;
-        const range = !!this.range
-            ? this.range
-            : {
-                from: moment().subtract(30, 'day')
-                    .set('hour', 0)
-                    .set('minute', 0)
-                    .format('YYYY-MM-DDTHH:mm:ss') + 'Z',
-                to: null
-            };
-
-        return this._workouts.workoutsByDateRange(
-            range.from,
-            range.to,
-            types
-        );
-    }
-
-    typesChanged() {
-        this.findWorkouts()
-            .pipe(takeUntil(this._onDestroy$))
-            .subscribe(this._onWorkoutsSuccess);
-    }
-
-    rangeChanged(val) {
-        this.range = val;
-        this.findWorkouts()
-            .pipe(takeUntil(this._onDestroy$))
-            .subscribe(this._onWorkoutsSuccess);
-    }
-
-    toggleView(value: 'calendar' | 'list') {
-        this.view = value;
-    }
-
-    private _getTotalValues() {
-        let duration = 0;
-        let distance = 0;
-        for (let i = 0; i < this.workouts.length; i++) {
-            duration += this.workouts[i].duration;
-            distance += this.workouts[i].distance;
-        }
-        this.totalDuration = duration;
-        this.totalDistance = distance;
-    }
-
-    private _typesFromLocalStorage() {
-        const types = localStorage.getItem('wd.filter.types');
-        return !!types ? JSON.parse(types) : [];
-    }
-
-    private _onWorkoutsSuccess = w => {
-        this.workouts = w;
-        this._getTotalValues();
-        this.isLoading = false;
-        this._cd.markForCheck();
-    }
 }
