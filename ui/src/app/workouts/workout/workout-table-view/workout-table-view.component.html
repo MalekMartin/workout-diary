@@ -14,7 +14,7 @@
                 <mat-cell *matCellDef="let element">
                     <i class="material-icons"
                         [style.backgroundColor]="element.activity.color">{{element.activity.icon}}</i>
-                    <a [routerLink]="['/workouts', element.id]">{{element.name}}</a>
+                    <a [routerLink]="['/workouts', element.id]" class="workout-link">{{element.name}}</a>
                 </mat-cell>
             </ng-container>
 

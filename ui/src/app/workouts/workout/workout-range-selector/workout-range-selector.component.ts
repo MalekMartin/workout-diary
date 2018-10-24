@@ -1,17 +1,21 @@
-import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, EventEmitter, forwardRef } from '@angular/core';
 import * as moment from 'moment';
-import { FormControl } from '@angular/forms';
+import { FormControl, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { takeUntil, debounceTime } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 
+export const CUSTOM_INPUT_CONTROL_VALUE_ACCESSOR: any = {
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(() => WorkoutRangeSelectorComponent),
+    multi: true
+};
+
 @Component({
     selector: 'wd-workout-range-selector',
-    templateUrl: 'workout-range-selector.component.html'
+    templateUrl: 'workout-range-selector.component.html',
+    providers: [CUSTOM_INPUT_CONTROL_VALUE_ACCESSOR]
 })
-
-export class WorkoutRangeSelectorComponent implements OnInit, OnDestroy {
-
-    @Output() changed = new EventEmitter();
+export class WorkoutRangeSelectorComponent implements OnInit, OnDestroy, ControlValueAccessor {
 
     fromDate =
         moment()
@@ -21,9 +25,9 @@ export class WorkoutRangeSelectorComponent implements OnInit, OnDestroy {
             .format('YYYY-MM-DDThh:mm:ss') + 'Z';
 
     ranges = [
-        { id: 1, name: 'Posledních 30 dní', value: { from: this.fromDate, to: null } },
+        { id: '30_DAYS', name: 'Posledních 30 dní', value: { from: this.fromDate, to: null } },
         {
-            id: 2,
+            id: 'THIS_MONTH',
             name: 'Tento měsíc',
             value: {
                 from:
@@ -40,7 +44,7 @@ export class WorkoutRangeSelectorComponent implements OnInit, OnDestroy {
             }
         },
         {
-            id: 3,
+            id: 'THIS_YEAR',
             name: 'Tento rok',
             value: {
                 from:
@@ -58,30 +62,40 @@ export class WorkoutRangeSelectorComponent implements OnInit, OnDestroy {
                         .format('YYYY-MM-DDTHH:mm:ss') + 'Z'
             }
         },
-        { id: 4, name: 'Vše', value: { from: null, to: null } }
+        { id: 'ALL', name: 'Vše', value: { from: null, to: null } }
     ];
 
     range = new FormControl(this.ranges[0].id);
 
     private _onDestroy$ = new Subject();
 
-    constructor() { }
+    constructor() {}
 
     ngOnInit() {
         this.range.valueChanges
             .pipe(takeUntil(this._onDestroy$))
-            .pipe(
-                takeUntil(this._onDestroy$),
-                debounceTime(300),
-            )
+            .pipe(takeUntil(this._onDestroy$))
             .subscribe(val => {
-                this.changed.emit(
-                    this.ranges.find(r => r.id === val).value
-                );
+                this._onChange(this.ranges.find(r => r.id === val).value);
             });
     }
 
     ngOnDestroy() {
         this._onDestroy$.next();
     }
+
+    writeValue(value) {
+        this.range.setValue(this.ranges.find(r => r.id === value).value, { emitEvent: false });
+    }
+
+    registerOnChange(fn: (_: any) => void): void {
+        this._onChange = fn;
+    }
+
+    registerOnTouched(fn: any): void {
+        this._onTouched = fn;
+    }
+
+    private _onTouched: () => void = () => {};
+    private _onChange: (_: any) => void = () => {};
 }

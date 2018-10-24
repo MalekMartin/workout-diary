@@ -1,0 +1,16 @@
+<ng-container *ngIf="!!grouped && !!grouped.length">
+    <mat-expansion-panel class="group-wrapper" *ngFor="let group of grouped; let i = index;" [expanded]="i === 0">
+
+        <mat-expansion-panel-header>
+            <mat-panel-title>
+                <div class="group-name">{{group.name}} <span>{{group.workouts.length}}</span></div>
+            </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="workout-list-wrapper">
+            <div *ngFor="let workout of group.workouts" class="card-wrapper">
+                <wd-workout-list-item [workout]="workout"></wd-workout-list-item>
+            </div>
+        </div>
+    </mat-expansion-panel>
+</ng-container>

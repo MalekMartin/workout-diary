@@ -36,6 +36,7 @@ import { ActivitiesService } from '../core/activities/activities.service';
 import { WorkoutRangeSelectorComponent } from './workout/workout-range-selector/workout-range-selector.component';
 import { WorkoutTableViewModule } from './workout/workout-table-view/workout-table-view.module';
 import { WorkoutListModule } from './workout/workout-list/workout-list.module';
+import { WorkoutViewSelectorModule } from './workout/workout-view-selector/workout-view-selector.module';
 
 const COMP = [
     WorkoutFormComponent,
@@ -77,7 +78,8 @@ const COMP = [
 
         WorkoutDetailModule,
         WorkoutTableViewModule,
-        WorkoutListModule
+        WorkoutListModule,
+        WorkoutViewSelectorModule,
     ],
     exports: [WorkoutsComponent],
     declarations: [WorkoutsComponent, ...COMP],

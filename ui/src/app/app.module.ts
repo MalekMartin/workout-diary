@@ -20,7 +20,7 @@ import { HttpClientModule } from '@angular/common/http';
         CoreModule.forRoot(),
         WorkoutsModule,
         HttpClientModule,
-        MatNativeDateModule
+        MatNativeDateModule,
     ],
     providers: [],
     bootstrap: [AppComponent]

@@ -1,0 +1,22 @@
+.view-selector {
+    display: inline-block;
+    margin-right: 12px;
+
+    i {
+        margin-right: 6px;
+        cursor: pointer;
+        display: inline-block;
+        font-size: 13px;
+        width: 20px;
+        height: 20px;
+        border-radius: 3px;
+        text-align: center;
+        line-height: 20px;
+
+        &.active {
+            // color: #70b600;
+            background-color: #70b600;
+            color: white;
+        }
+    }
+}

@@ -1020,6 +1020,8 @@ class Workout {
      * @param foundWorkoutIds - array of found workout ids
      */
     private function _insertSameWorkouts($workoutId, $foundWorkoutIds) {
+        // Delete existing references before inserting the new ones
+        $this->_deleteSameWorkouts($workoutId);
 
         $values = '';
         for($i = 0; $i < count($foundWorkoutIds); $i++) {
@@ -1031,6 +1033,11 @@ class Workout {
         $this->logger->addInfo($values);
         $q = $this->db->prepare('INSERT INTO same_workouts (workoutId, foundWorkoutId) VALUES '.$values);
         $q->execute(array());
+    }
+
+    private function _deleteSameWorkouts($id) {
+        $q = $this->db->prepare('DELETE FROM same_workouts WHERE workoutId = ?');
+        $q->execute(array($id));
     }
 
     public function getSameWorkouts($id) {
