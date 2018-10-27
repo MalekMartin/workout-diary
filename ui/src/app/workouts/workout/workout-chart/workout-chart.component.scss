@@ -3,6 +3,14 @@
     height: 145px;
     width: 700px;
     margin: 0 auto 16px auto;
+    position: relative;
+
+    .hour {
+        position: absolute;
+        height: 1px;
+        width: 100%;
+        background-color: #ccc;
+    }
 
     .item {
         flex-grow: 1;

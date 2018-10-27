@@ -28,11 +28,11 @@
     </div>
 
     <form [formGroup]="form" class="filter-container">
-        <wd-workout-view-selector formControlName="view" ngDefaultControl></wd-workout-view-selector>
+        <wd-workout-view-selector [formControl]="view" ngDefaultControl></wd-workout-view-selector>
         <wd-workout-range-selector formControlName="range" ngDefaultControl></wd-workout-range-selector>
     </form>
 
-    <ng-container [ngSwitch]="form.get('view').value" *ngIf="!!workouts && !!workouts.length">
+    <ng-container [ngSwitch]="view.value" *ngIf="!!workouts && !!workouts.length">
         <ng-container *ngSwitchCase="'calendar'">
             <wd-workout-calendar [workoutsData]="workouts"></wd-workout-calendar>
         </ng-container>

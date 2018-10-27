@@ -1,5 +1,6 @@
 <div>
     <div class="chart-wrapper">
+        <div class="hour" [style.bottom.px]="columnHeigh(3600) + 18" matTooltip="1 hodina"></div>
         <div class="item" *ngFor="let item of data">
             <div class="workout-icons">
                 <!-- <div *ngFor="let workout of item.workouts" class="workouts-cell">

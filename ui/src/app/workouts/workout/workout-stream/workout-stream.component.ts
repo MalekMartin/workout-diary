@@ -16,16 +16,14 @@ export class WorkoutStreamComponent implements OnInit, OnDestroy {
     totalDuration = 0;
     totalDistance = 0;
     types: any[];
-
     isLoading = false;
-
-    view: WorkoutListViewType = 'list';
     range = null;
 
     form = this._fb.group({
-        view: ['list'],
         range: ['30_DAYS']
     });
+
+    view = new FormControl(JSON.parse(localStorage.getItem('wd.workouts.view')) || 'list');
 
     private _onDestroy$ = new Subject();
 
@@ -54,14 +52,16 @@ export class WorkoutStreamComponent implements OnInit, OnDestroy {
             }
         });
 
-        this.form.valueChanges
-            .pipe(takeUntil(this._onDestroy$))
-            .subscribe(val => {
-                this.range = val.range;
-                this.findWorkouts()
-                    .pipe(takeUntil(this._onDestroy$))
-                    .subscribe(this._onWorkoutsSuccess);
-            });
+        this.form.valueChanges.pipe(takeUntil(this._onDestroy$)).subscribe(val => {
+            this.range = val.range;
+            this.findWorkouts()
+                .pipe(takeUntil(this._onDestroy$))
+                .subscribe(this._onWorkoutsSuccess);
+        });
+
+        this.view.valueChanges.pipe(takeUntil(this._onDestroy$)).subscribe(val => {
+            localStorage.setItem('wd.workouts.view', JSON.stringify(val));
+        });
     }
 
     ngOnDestroy() {
@@ -122,7 +122,7 @@ export class WorkoutStreamComponent implements OnInit, OnDestroy {
         this._getTotalValues();
         this.isLoading = false;
         this._cd.markForCheck();
-    }
+    };
 }
 
 export type WorkoutListViewType = 'list' | 'table' | 'calendar';
