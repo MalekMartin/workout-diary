@@ -4,8 +4,9 @@ import * as moment from 'moment';
 import { HeartRateService } from '../../core/heart-rate/heart-rate.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar, MatDialog } from '@angular/material';
 import { HR_ACTIVITIES } from './resting-hr-table/resting-hr-table.component';
+import { RestingHrDeleteComponent } from './resting-hr-delete/resting-hr-delete.component';
 
 @Component({
     selector: 'wd-resting-hr',
@@ -46,7 +47,8 @@ export class RestingHrComponent implements OnInit, OnDestroy {
 
     constructor(private _hr: HeartRateService,
                 private _fb: FormBuilder,
-                private _snackBar: MatSnackBar) { }
+                private _snackBar: MatSnackBar,
+                private _dialog: MatDialog) { }
 
     ngOnInit() {
         this.findAll();
@@ -58,9 +60,10 @@ export class RestingHrComponent implements OnInit, OnDestroy {
 
     addHr() {
         this.savingData = true;
-        this._hr.addRestingHr(
-            this.form.value
-        )
+        this._hr.addRestingHr({
+            ...this.form.value,
+            date: moment(this.form.get('date').value).format('YYYY-MM-DD\THH:mm:ss.000') + 'Z'
+        })
             .pipe(takeUntil(this._onDestroy$))
             .subscribe(this._saveSuccess, this._saveError);
     }
@@ -130,6 +133,17 @@ export class RestingHrComponent implements OnInit, OnDestroy {
             }, () => {
                 this.graphLoading = false;
             });
+    }
+
+    onDelete(value) {
+        this._dialog.open(RestingHrDeleteComponent, {
+            data: value
+        }).afterClosed()
+        .subscribe((v) => {
+            if (v === 'DELETED') {
+                this.findAll();
+            }
+        });
     }
 
     private _createRange() {

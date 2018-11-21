@@ -1,0 +1,11 @@
+<h1 mat-dialog-title>Přidat záznam</h1>
+<div mat-dialog-content class="content">
+    <wd-illness-form #form></wd-illness-form>
+</div>
+<div mat-dialog-actions class="actions" align="end">
+    <button mat-button color="primary"
+        mat-dialog-close>Zrušit</button>
+    <button mat-raised-button color="primary"
+        [disabled]="!form.form.valid"
+        [mat-dialog-close]="form.form.value">Uložit</button>
+</div>

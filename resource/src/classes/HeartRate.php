@@ -70,6 +70,11 @@ class HeartRate {
         return array_reverse($data);
     }
 
+    function deleteHRrecord($id) {
+        $query = $this->db->prepare('DELETE FROM rest_hr WHERE id = ?');
+        $query->execute(array($id));
+    }
+
     private function _findAllRecords($sort = 'ASC') {
         $query = $this->db->prepare('SELECT id, `date`, bpm, note, activity FROM rest_hr
         ORDER BY `date` ' . $sort);

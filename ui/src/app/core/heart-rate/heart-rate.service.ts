@@ -20,4 +20,9 @@ export class HeartRateService {
         return this._http
             .get('/resource/heart/rest/weekly-avg');
     }
+
+    deleteHRrecord(id: string) {
+        return this._http
+            .delete(`/resource/heart/rest/${id}/delete`);
+    }
 }

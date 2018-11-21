@@ -39,31 +39,18 @@ export class WorkoutCalendarComponent implements OnInit, OnDestroy {
 
     constructor(private _workouts: WorkoutService) { }
 
-    ngOnInit() {
-
-
-        // this.findWorkouts([1], this.from, this.to);
-    }
+    ngOnInit() {}
 
     ngOnDestroy() {
         this._onDestroy$.next();
     }
-
-    // findWorkouts(types: number[], from: string, to: string) {
-    //     this._workouts.workoutsByDateRange(from, to, types)
-    //         .pipe(takeUntil(this._onDestroy$))
-    //         .subscribe(w => {
-    //             this.workouts = w;
-    //             this._createRangeArray();
-    //         });
-    // }
 
     private _createRangeArray() {
         const today = moment().hour(0).minute(0).second(0);
         this._firstDateOfRange();
         this._lastDateOfRange();
         const arr = [];
-        const diff = this.lastDate.diff(this.firstDate) / (60 * 60 * 24 * 1000);
+        const diff = Math.floor(this.lastDate.diff(this.firstDate) / (60 * 60 * 24 * 1000));
         const current = this.firstDate.subtract(1, 'days');
         for (let i = 0; i < diff; i++) {
             arr.push({
@@ -77,7 +64,6 @@ export class WorkoutCalendarComponent implements OnInit, OnDestroy {
             });
         }
         const toWeeks = this._splitDaysIntoWeeks(arr);
-        console.log(toWeeks);
         this.data = toWeeks;
     }
 
@@ -94,11 +80,8 @@ export class WorkoutCalendarComponent implements OnInit, OnDestroy {
     }
 
     private _firstDateOfRange() {
-        // const date = moment().subtract(30, 'days').hours(0)
-        //     .minutes(0)
-        //     .seconds(0);
         const date = moment(this.from).hours(0).minutes(0).seconds(0);
-        const d = date.day();
+        const d = date.isoWeekday();
         const dayOfWeek = d === 0 ? 7 : d - 1;
 
         const firstDate = dayOfWeek > 1 ? date.subtract(dayOfWeek, 'days') : date;
@@ -106,11 +89,8 @@ export class WorkoutCalendarComponent implements OnInit, OnDestroy {
     }
 
     private _lastDateOfRange() {
-        // const date = moment().hours(23)
-        //     .minutes(59)
-        //     .seconds(59);
         const date = moment(this.to).hours(23).minutes(59).seconds(59);
-        const d = date.day();
+        const d = date.isoWeekday();
         const dayOfWeek = d === 0 ? 7 : d - 1;
 
         const lastDate = dayOfWeek < 7 ? date.add(7 - (dayOfWeek + 1), 'days') : date;

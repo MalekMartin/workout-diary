@@ -34,3 +34,10 @@ $app->get('/resource/heart/rest/weekly-avg', function (Request $request, Respons
     $hr = $mapper->getWeekAverages();
     return $response->withJson($hr);
 });
+
+$app->delete('/resource/heart/rest/{id}/delete', function (Request $request, Response $response, $args) {
+    $this->logger->addInfo("HR - delete");
+    $mapper = new HeartRate($this->db);
+    $hr = $mapper->deleteHRrecord($args['id']);
+    return $response->withJson($hr);
+});

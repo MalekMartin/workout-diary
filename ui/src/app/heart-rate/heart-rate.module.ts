@@ -21,12 +21,15 @@ import { HrZonesService } from '../core/heart-rate/hr-zones.service';
 import { PipesModule } from '../shared/pipes/pipes.module';
 import { RestingHrTableComponent } from './resting-hr/resting-hr-table/resting-hr-table.component';
 import { RestingHrWeekAvgComponent } from './resting-hr/resting-hr-week-avg/resting-hr-week-avg.component';
+import { MatDialogModule } from '@angular/material';
+import { RestingHrDeleteComponent } from './resting-hr/resting-hr-delete/resting-hr-delete.component';
 
 const COMPONENTS = [
     RestingHrComponent,
     HrZonesComponent,
     RestingHrTableComponent,
     RestingHrWeekAvgComponent,
+    RestingHrDeleteComponent
 ];
 
 @NgModule({
@@ -43,6 +46,7 @@ const COMPONENTS = [
         MatSnackBarModule,
         MatTableModule,
         MatSelectModule,
+        MatDialogModule,
 
         NgxChartsModule,
     ],
@@ -51,6 +55,7 @@ const COMPONENTS = [
         HeartRateComponent,
         ...COMPONENTS
     ],
+    entryComponents: [RestingHrDeleteComponent],
     providers: [HeartRateService, HrZonesService],
 })
 export class HeartRateModule { }

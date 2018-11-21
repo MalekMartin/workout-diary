@@ -102,5 +102,6 @@
 </div>
 
 <div *ngIf="!!restingHrData && !!restingHrData.length">
-    <wd-resting-hr-table [data]="restingHrData"></wd-resting-hr-table>
+    <wd-resting-hr-table [data]="restingHrData"
+        (delete)="onDelete($event)"></wd-resting-hr-table>
 </div>

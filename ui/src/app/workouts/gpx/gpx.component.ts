@@ -3,6 +3,9 @@ import { FormControl, FormBuilder, Validators } from '@angular/forms';
 import * as moment from 'moment';
 import { FileUploader, FileItem, FileUploaderOptions } from 'ng2-file-upload';
 import { HttpService } from '../../core/http.service';
+import { GpxCoordinates, GpxService } from '../../core/gpx/gpx.service';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 declare var require: any;
 const FileSaver = require('file-saver');
@@ -17,13 +20,15 @@ export class GpxComponent implements OnInit {
     hrData: { time: string; value: number }[];
     downoading = false;
     hasBaseDropZoneOver = false;
+    coordinates: GpxCoordinates[] = [];
+    showForm = false;
 
     form = this._fb.group({
-        ele: ['320.0'],
-        lat: ['48.946966'],
-        lon: ['17.662286'],
+        coordinates: [null],
         options: ['REMOVE_EMPTY']
     });
+
+    coordinate = new FormControl('');
 
     stats = [];
 
@@ -39,9 +44,11 @@ export class GpxComponent implements OnInit {
         queueLimit: 1
     };
 
+    private _onDestroy$ = new Subject();
+
     uploader = new FileUploader(this._options);
 
-    constructor(private _fb: FormBuilder, private _http: HttpService) {
+    constructor(private _fb: FormBuilder, private _http: HttpService, private _gpxService: GpxService) {
         this.uploader.onWhenAddingFileFailed = (item, filter, options) => {
             this.isUploading = false;
             if (filter.name === 'fileSize') {
@@ -56,11 +63,19 @@ export class GpxComponent implements OnInit {
             this.isUploading = true;
 
             if (this.form.get('options').value === 'USE_DEFAULT') {
+                const coor = this.getCoordinatesById(
+                    this.form.get('coordinates').value
+                );
                 this.uploader.options.additionalParameter = {
-                    lat: this.form.get('lat').value,
-                    lon: this.form.get('lon').value,
-                    ele: this.form.get('ele').value
+                    lat: coor.lat,
+                    lon: coor.lon,
+                    ele: coor.ele
                 };
+                // this.uploader.options.additionalParameter = {
+                //     lat: this.form.get('lat').value,
+                //     lon: this.form.get('lon').value,
+                //     ele: this.form.get('ele').value
+                // };
             }
         };
 
@@ -70,7 +85,9 @@ export class GpxComponent implements OnInit {
         };
     }
 
-    ngOnInit() {}
+    ngOnInit() {
+        this.getCoordinates();
+    }
 
     getExportedFile(id: string, name: string) {
         this.downoading = true;
@@ -88,7 +105,33 @@ export class GpxComponent implements OnInit {
         );
     }
 
+    getCoordinatesById(id: string) {
+        return this.coordinates.find(c => id === c.id);
+    }
+
     fileOverBase(status) {
         this.hasBaseDropZoneOver = status;
     }
+
+    getCoordinates() {
+        this._gpxService.findCoordinates()
+            .pipe(takeUntil(this._onDestroy$))
+            .subscribe((c: GpxCoordinates[]) => {
+                this.coordinates = c;
+            });
+    }
+
+    saveCoordinates(coordinates: GpxCoordinates) {
+        this._gpxService.saveCoordinates(coordinates)
+            .pipe(takeUntil(this._onDestroy$))
+            .subscribe(() => {
+                this.getCoordinates();
+            });
+    }
+
+    toggleForm() {
+        this.showForm = !this.showForm;
+    }
 }
+
+

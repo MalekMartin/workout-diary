@@ -1,0 +1,27 @@
+<form [formGroup]="form">
+    <div class="inputs">
+        <div>
+            <mat-form-field>
+                <input matInput formControlName="name" placeholder="Název">
+            </mat-form-field>
+        </div>
+        <div>
+            <mat-form-field>
+                <input matInput formControlName="ele" placeholder="Nadmořská výška">
+            </mat-form-field>
+        </div>
+
+        <div>
+            <mat-form-field>
+                <input matInput formControlName="lat" placeholder="Latitude">
+            </mat-form-field>
+        </div>
+
+        <div>
+            <mat-form-field>
+                <input matInput formControlName="lon" placeholder="Longitude">
+            </mat-form-field>
+        </div>
+    </div>
+    <button mat-raised-button color="primary" (click)="save()" [disabled]="!form.valid">Uložit</button>
+</form>

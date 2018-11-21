@@ -1,24 +1,19 @@
 <div class="wrapper">
     <form [formGroup]="form">
-        <div class="inputs">
-            <div>
-                <mat-form-field>
-                    <input matInput formControlName="ele" placeholder="Nadmořská výška">
-                </mat-form-field>
-            </div>
-
-            <div>
-                <mat-form-field>
-                    <input matInput formControlName="lat" placeholder="Latitude">
-                </mat-form-field>
-            </div>
-
-            <div>
-                <mat-form-field>
-                    <input matInput formControlName="lon" placeholder="Longitude">
-                </mat-form-field>
-            </div>
+        <wd-gpx-form (saved)="saveCoordinates($event)" *ngIf="showForm"></wd-gpx-form>
+        <div>
+            <button mat-button color="primary" (click)="toggleForm()">
+                {{showForm ? 'Skrýt formulář' : 'Přidat souřadnice'}}
+            </button>
         </div>
+
+        <mat-form-field>
+            <mat-select formControlName="coordinates" placeholder="Vyber souřadnice">
+                <mat-option *ngFor="let item of coordinates" [value]="item.id">
+                {{ item.name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
         <div>
             <!-- <mat-checkbox formControlName="defaultCoordinates">použít zadané souřadnice</mat-checkbox> -->
             <mat-radio-group formControlName="options">
@@ -46,7 +41,7 @@
     </div>
 
     <div class="upload-button-div">
-        <button mat-raised-button color="primary" (click)="uploader.uploadAll()" [disabled]="!uploader.getNotUploadedItems().length">
+        <button mat-raised-button color="primary" (click)="uploader.uploadAll()" [disabled]="!form.valid || !uploader.getNotUploadedItems().length">
             Nahrát
         </button>
     </div>

@@ -29,11 +29,11 @@ export class WorkoutFormComponent implements OnInit, OnDestroy {
         activity: ['', Validators.required],
         date: [new Date(), Validators.required],
         time: ['12:00', [Validators.maxLength(5), Validators.minLength(5)]],
-        hour: [0, [Validators.min(0), Validators.max(24)]],
-        min: [0, [Validators.min(0), Validators.max(59)]],
-        sec: [0, [Validators.min(0), Validators.max(59)]],
-        energy: [0, [Validators.min(0), Validators.max(5000)]],
-        distance: [0, Validators.min(0)],
+        hour: ['', [Validators.min(0), Validators.max(24)]],
+        min: ['', [Validators.min(0), Validators.max(59)]],
+        sec: ['', [Validators.min(0), Validators.max(59)]],
+        energy: ['', [Validators.min(0), Validators.max(5000)]],
+        distance: ['', Validators.min(0)],
         note: ['', Validators.maxLength(255)],
         gear: [null]
     });
@@ -104,7 +104,7 @@ export class WorkoutFormComponent implements OnInit, OnDestroy {
             energy: this.workout.energy,
             distance: this.workout.distance,
             note: this.workout.note,
-            gear: this.workout.gear
+            gear: this.workout.gear.id
         });
     }
 
