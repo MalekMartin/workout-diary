@@ -16,7 +16,7 @@ export class SMapComponent implements OnInit, OnDestroy {
                 this._route = r;
             } else {
                 this._route = r;
-                this.drawRoute(this.routeLayer, this._route.coordinates, this.options);
+                this._drawRoute(this._route.coordinates, this.options);
             }
         }
     }
@@ -25,6 +25,8 @@ export class SMapComponent implements OnInit, OnDestroy {
 
     mapa;
     routeLayer;
+
+    expanded = false;
 
     private _route: TrackPoints;
     private _onLoaderLoaded$ = new Subject();
@@ -54,18 +56,30 @@ export class SMapComponent implements OnInit, OnDestroy {
     loadMap = () => {
         const stred = SMap.Coords.fromWGS84(this._route.center.lon, this._route.center.lat);
         this.mapa = new SMap(JAK.gel('mapa'), stred, 12);
-        // Pridani vrstev s ruznyma mapovyma podkladama
+        /**
+         * Pokud chci pouzit prepinac vrstev, pridam do mapy mapove podklady ktere chci
+         */
         const layers = {};
         layers[SMap.DEF_BASE] = this.mapa.addDefaultLayer(SMap.DEF_BASE);
         layers[SMap.DEF_OPHOTO] = this.mapa.addDefaultLayer(SMap.DEF_OPHOTO);
         // layers[SMap.DEF_HYBRID] = mapa.addDefaultLayer(SMap.DEF_HYBRID);
         layers[SMap.DEF_TURIST] = this.mapa.addDefaultLayer(SMap.DEF_TURIST);
         layers[SMap.DEF_BASE].enable();
-        // mapa.addLayer(SMap.DEF_OPHOTO);
 
-        // pridani vychozich ovladacich prvku
+        /**
+         * Pokud nepotrebuju prepinac vrstev staci jedna vychozi mapa:
+         * mapa.addDefaultLayer(SMap.DEF_OPHOTO);
+         */
+
+        // Add default controls for map (zoom, move, etc.)
         this.mapa.addDefaultControls();
 
+        this._addLayerControl();
+
+        this._drawRoute(this._route.coordinates, this.options);
+    }
+
+    private _addLayerControl() {
         // Pridani tlacitka pro vyber mapy
         const c = new SMap.Control.Layer();
         c.addDefaultLayer(SMap.DEF_BASE);
@@ -73,29 +87,28 @@ export class SMapComponent implements OnInit, OnDestroy {
         // c.addLayer(SMap.DEF_HYBRID, 'Hybridní', '', 'Hybridní');
         c.addLayer(SMap.DEF_TURIST, 'Turistická', '', 'Turistická');
         this.mapa.addControl(c, { left: '8px', top: '9px' });
-
-        this.routeLayer = new SMap.Layer.Geometry();
-        this.mapa.addLayer(this.routeLayer);
-        this.routeLayer.enable();
-
-        this.drawRoute(this.routeLayer, this._route.coordinates, this.options);
     }
 
-    drawRoute(layer: any, data: TrackPoint[], options: { color: string; width: number }) {
-        layer.removeAll();
-        const points = _.flatten(this._prepareData(data));
-        const polyline = new SMap.Geometry(SMap.GEOMETRY_POLYLINE, null, points, options);
-        layer.addGeometry(polyline);
-        layer.redraw();
-        this.mapa.setCenter(SMap.Coords.fromWGS84(this._route.center.lon, this._route.center.lat), true);
-
-    }
-
-    private _prepareData(data: TrackPoint[]) {
+    private _prepareVectorPoint(data: TrackPoint[]) {
         return data.map(d => {
             return d.series.map(s => {
                 return SMap.Coords.fromWGS84(s[0], s[1]);
             });
         });
+    }
+
+    private _drawRoute(data: TrackPoint[], options: { color: string; width: number }) {
+        if (!this.routeLayer) {
+            this.routeLayer = new SMap.Layer.Geometry();
+            this.mapa.addLayer(this.routeLayer);
+            this.routeLayer.enable();
+        }
+
+        this.routeLayer.removeAll();
+        const points = _.flatten(this._prepareVectorPoint(data));
+        const polyline = new SMap.Geometry(SMap.GEOMETRY_POLYLINE, null, points, options);
+        this.routeLayer.addGeometry(polyline);
+        this.routeLayer.redraw();
+        this.mapa.setCenter(SMap.Coords.fromWGS84(this._route.center.lon, this._route.center.lat), true);
     }
 }
