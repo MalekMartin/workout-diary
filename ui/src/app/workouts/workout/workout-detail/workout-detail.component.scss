@@ -3,6 +3,32 @@
     padding: 10px;
 }
 
+wd-smap {
+    opacity: 1;
+    transition: opacity 0.4s;
+    display: block;
+
+    &.loading {
+        opacity: 0.6;
+    }
+}
+
+mat-spinner {
+    position: fixed;
+    top: calc(50% - 25px);
+    left: calc(50% - 25px);
+    z-index: 999;
+}
+
+.wrapper {
+    opacity: 1;
+    transition: opacity .4s;
+
+    &.loading {
+        opacity: 0.6;
+    }
+}
+
 mat-card {
     margin-bottom: 10px;
 

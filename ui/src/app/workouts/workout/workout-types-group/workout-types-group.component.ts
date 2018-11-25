@@ -7,17 +7,16 @@ import { Subject } from 'rxjs';
     selector: 'wd-workout-types-group',
     styleUrls: ['./workout-types-group.component.scss'],
     template: `
-    <form [formGroup]="form" *ngIf="types">
-        <ul formArrayName="items">
-            <li *ngFor="let item of types; index as i; trackBy: trackByFn">
-                <mat-checkbox [formControlName]="i">{{item.name}}</mat-checkbox>
-            </li>
-        </ul>
-    </form>`
+        <form [formGroup]="form" *ngIf="types">
+            <ul formArrayName="items">
+                <li *ngFor="let item of types; index as i">
+                    <mat-checkbox [formControlName]="i">{{ item.name }}</mat-checkbox>
+                </li>
+            </ul>
+        </form>
+    `
 })
-
 export class WorkoutTypesGroupComponent implements OnInit, OnDestroy {
-
     @Input() types: any[];
 
     @Output() changed = new EventEmitter();
@@ -30,9 +29,7 @@ export class WorkoutTypesGroupComponent implements OnInit, OnDestroy {
 
     private _onDestroy$ = new Subject();
 
-    constructor(
-        private _fb: FormBuilder,
-    ) { }
+    constructor(private _fb: FormBuilder) {}
 
     ngOnInit() {
         this.prepareArray();
@@ -41,10 +38,12 @@ export class WorkoutTypesGroupComponent implements OnInit, OnDestroy {
         this.form.valueChanges
             .pipe(
                 debounceTime(300),
-                takeUntil(this._onDestroy$),
+                takeUntil(this._onDestroy$)
             )
             .subscribe(value => {
-                const types = value.items.map((i, index) => (i ? this.types[index].id : false)).filter(i => !!i);
+                const types = value.items
+                    .map((i, index) => (i ? this.types[index].id : false))
+                    .filter(i => !!i);
                 this._typesToLocalStorage(types);
                 this.changed.emit();
             });
@@ -64,9 +63,7 @@ export class WorkoutTypesGroupComponent implements OnInit, OnDestroy {
         this.types.forEach((item, index) => {
             const found = types.find(i => i === item.id);
             if (this.formItems.at(index)) {
-                this.formItems
-                    .at(index)
-                    .setValue(!!found, { emitEvent: false });
+                this.formItems.at(index).setValue(!!found, { emitEvent: false });
             }
         });
     }
@@ -77,8 +74,6 @@ export class WorkoutTypesGroupComponent implements OnInit, OnDestroy {
 
     private _typesFromLocalStorage() {
         const types = localStorage.getItem('wd.filter.types');
-        return !!types
-            ? JSON.parse(types)
-            : [];
+        return !!types ? JSON.parse(types) : [];
     }
 }

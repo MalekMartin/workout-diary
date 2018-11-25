@@ -46,8 +46,12 @@ export class WorkoutStreamComponent implements OnInit, OnDestroy {
         moment.locale('cz');
         moment.updateLocale('cz', {
             months: {
-                format: 'ledna_února_března_dubna_května_června_července_sprna_září_října_listopadu_prosince'.split('_'),
-                standalone: 'Leden_Únor_Březen_Duben_Květen_Červen_Červenec_Srpen_Září_Říjen_Listopad_Prosinec'.split('_'),
+                format: 'ledna_února_března_dubna_května_června_července_sprna_září_října_listopadu_prosince'.split(
+                    '_'
+                ),
+                standalone: 'Leden_Únor_Březen_Duben_Květen_Červen_Červenec_Srpen_Září_Říjen_Listopad_Prosinec'.split(
+                    '_'
+                ),
                 isFormat: /D[oD]?(\[[^\[\]]*\]|\s+)+MMMM?|MMMM?(\[[^\[\]]*\]|\s+)+D[oD]?/ // from 2.14.0
             }
         });
@@ -122,7 +126,7 @@ export class WorkoutStreamComponent implements OnInit, OnDestroy {
         this._getTotalValues();
         this.isLoading = false;
         this._cd.markForCheck();
-    };
+    }
 }
 
 export type WorkoutListViewType = 'list' | 'table' | 'calendar';

@@ -33,7 +33,9 @@ import { WorkoutNotFoundComponent } from './workout/workout-not-found/workout-no
 import { WorkoutTypesGroupComponent } from './workout/workout-types-group/workout-types-group.component';
 import { GearService } from '../core/gear/gear.service';
 import { ActivitiesService } from '../core/activities/activities.service';
-import { WorkoutRangeSelectorComponent } from './workout/workout-range-selector/workout-range-selector.component';
+import {
+    WorkoutRangeSelectorComponent
+} from './workout/workout-range-selector/workout-range-selector.component';
 import { WorkoutTableViewModule } from './workout/workout-table-view/workout-table-view.module';
 import { WorkoutListModule } from './workout/workout-list/workout-list.module';
 import { WorkoutViewSelectorModule } from './workout/workout-view-selector/workout-view-selector.module';

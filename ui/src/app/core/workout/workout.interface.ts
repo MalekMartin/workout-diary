@@ -73,5 +73,11 @@ export interface Coordinate {
 
 export interface TrackPoints {
     center: Coordinate;
-    coordinates: number[][];
+    coordinates: TrackPoint[];
+    count: number;
+}
+
+export interface TrackPoint {
+    active: boolean;
+    series: number[][];
 }

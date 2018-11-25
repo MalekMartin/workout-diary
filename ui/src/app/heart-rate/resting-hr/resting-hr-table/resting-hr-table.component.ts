@@ -2,6 +2,13 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import * as moment from 'moment';
 import { HeartRateService } from '../../../core/heart-rate/heart-rate.service';
 
+export const HR_ACTIVITIES = [
+    { id: 'ILLNESS', name: 'Nemoc' },
+    { id: 'ALCOHOL', name: 'Alkohol' },
+    { id: 'WORK', name: 'Těžká práce' },
+    { id: 'DIARRHEA', name: 'Břuch' }
+];
+
 @Component({
     selector: 'wd-resting-hr-table',
     templateUrl: 'resting-hr-table.component.html',
@@ -44,10 +51,3 @@ export class RestingHrTableComponent implements OnInit {
         this.delete.emit(value);
     }
 }
-
-export const HR_ACTIVITIES = [
-    { id: 'ILLNESS', name: 'Nemoc' },
-    { id: 'ALCOHOL', name: 'Alkohol' },
-    { id: 'WORK', name: 'Těžká práce' },
-    { id: 'DIARRHEA', name: 'Břuch' }
-];

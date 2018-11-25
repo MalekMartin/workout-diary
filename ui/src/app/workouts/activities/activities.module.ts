@@ -10,7 +10,14 @@ import { ActivitiesService } from '../../core/activities/activities.service';
 import { ActivityLisComponent } from './activity-list/activity-list.component';
 
 @NgModule({
-    imports: [CommonModule, ReactiveFormsModule, MatInputModule, MatButtonModule, MatIconModule, RouterModule.forChild(activitiesRoutes)],
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatInputModule,
+        MatButtonModule,
+        MatIconModule,
+        RouterModule.forChild(activitiesRoutes)
+    ],
     exports: [ActivitiesComponent],
     declarations: [ActivitiesComponent, ActivityFormComponent, ActivityLisComponent],
     providers: [ActivitiesService]

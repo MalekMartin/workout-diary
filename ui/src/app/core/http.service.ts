@@ -8,7 +8,9 @@ export class HttpService {
     constructor(private _http: HttpClient) {}
 
     post<IN, OUT>(url: string, body: IN): Observable<OUT> {
-        return this._http.post(this.buildUrl(url), JSON.stringify(body), this.createHeaders).pipe(map(response => <OUT>response));
+        return this._http
+            .post(this.buildUrl(url), JSON.stringify(body), this.createHeaders)
+            .pipe(map(response => <OUT>response));
     }
 
     get<T>(url: string): Observable<T> {
@@ -29,20 +31,21 @@ export class HttpService {
     }
 
     saveFileAs(url: string) {
-        return this._http.get(url, {
+        return this._http
+            .get(url, {
                 ...this.createHeaders,
                 responseType: 'text'
             })
             .pipe(
                 map(response => {
-                        try {
-                            return response;
-                        } catch (error) {
-                            console.log('WD error: ', error);
-                            return response;
-                        }
+                    try {
+                        return response;
+                    } catch (error) {
+                        console.log('WD error: ', error);
+                        return response;
                     }
-                ));
+                })
+            );
     }
 
     get createHeaders() {

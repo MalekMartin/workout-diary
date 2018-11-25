@@ -1,6 +1,7 @@
-<div class="wrapper" *ngIf="!!workout">
-    <mat-spinner [diameter]="30" *ngIf="loading"></mat-spinner>
-    
+<mat-spinner [diameter]="50" *ngIf="loading"></mat-spinner>
+
+<div class="wrapper" [class.loading]="loading" *ngIf="!!workout">
+
     <wd-workout-detail-header [workout]="workout"
         [prev]="prev"
         [next]="next"
@@ -10,10 +11,12 @@
 
     <mat-card *ngIf="!!route && !!route.coordinates && !!route.count && !!route.coordinates.length"
         class="map-content">
-        <wd-map [coordinates]="route.coordinates"
+        <wd-smap [class.loading]="loadingCoords"
+            [route]="route"></wd-smap>
+        <!-- <wd-map [coordinates]="route.coordinates"
             [lat]="route.center.lat"
             [lon]="route.center.lon"
-            [loading]="loading"></wd-map>
+            [loading]="loading"></wd-map> -->
     </mat-card>
 
     <div class="flex">

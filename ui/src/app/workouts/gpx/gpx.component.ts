@@ -1,11 +1,10 @@
-import { Component, OnInit, EventEmitter } from '@angular/core';
-import { FormControl, FormBuilder, Validators } from '@angular/forms';
-import * as moment from 'moment';
-import { FileUploader, FileItem, FileUploaderOptions } from 'ng2-file-upload';
-import { HttpService } from '../../core/http.service';
-import { GpxCoordinates, GpxService } from '../../core/gpx/gpx.service';
-import { takeUntil } from 'rxjs/operators';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormControl } from '@angular/forms';
+import { FileItem, FileUploader, FileUploaderOptions } from 'ng2-file-upload';
 import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { GpxCoordinates, GpxService } from '../../core/gpx/gpx.service';
+import { HttpService } from '../../core/http.service';
 
 declare var require: any;
 const FileSaver = require('file-saver');
@@ -53,7 +52,9 @@ export class GpxComponent implements OnInit {
             this.isUploading = false;
             if (filter.name === 'fileSize') {
                 console.log(
-                    'Překročil jsi povolenou maximální velikost souboru (' + (this._maxFileSize / (1024 * 1024)).toFixed(2) + 'MB).',
+                    'Překročil jsi povolenou maximální velikost souboru (' +
+                        (this._maxFileSize / (1024 * 1024)).toFixed(2) +
+                        'MB).',
                     'Soubor je příliš velký!'
                 );
             }
@@ -63,9 +64,7 @@ export class GpxComponent implements OnInit {
             this.isUploading = true;
 
             if (this.form.get('options').value === 'USE_DEFAULT') {
-                const coor = this.getCoordinatesById(
-                    this.form.get('coordinates').value
-                );
+                const coor = this.getCoordinatesById(this.form.get('coordinates').value);
                 this.uploader.options.additionalParameter = {
                     lat: coor.lat,
                     lon: coor.lon,
@@ -97,7 +96,7 @@ export class GpxComponent implements OnInit {
                 FileSaver.saveAs(file, name.replace('.csv', '.gpx'));
                 this.downoading = false;
             },
-            (e) => {
+            e => {
                 console.log(e);
                 console.warn('Nepodařilo se stáhnout soubor!');
                 this.downoading = false;
@@ -114,7 +113,8 @@ export class GpxComponent implements OnInit {
     }
 
     getCoordinates() {
-        this._gpxService.findCoordinates()
+        this._gpxService
+            .findCoordinates()
             .pipe(takeUntil(this._onDestroy$))
             .subscribe((c: GpxCoordinates[]) => {
                 this.coordinates = c;
@@ -122,7 +122,8 @@ export class GpxComponent implements OnInit {
     }
 
     saveCoordinates(coordinates: GpxCoordinates) {
-        this._gpxService.saveCoordinates(coordinates)
+        this._gpxService
+            .saveCoordinates(coordinates)
             .pipe(takeUntil(this._onDestroy$))
             .subscribe(() => {
                 this.getCoordinates();
@@ -133,5 +134,3 @@ export class GpxComponent implements OnInit {
         this.showForm = !this.showForm;
     }
 }
-
-

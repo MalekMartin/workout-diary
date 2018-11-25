@@ -17,9 +17,15 @@ import {
     MatSnackBarModule
 } from '@angular/material';
 import { WorkoutDetailComponent } from './workout-detail.component';
-import { WorkoutCheckPointFormComponent } from './workout-check-point-form/workout-check-point-form.component';
-import { WorkoutCheckPointTableComponent } from './workout-check-point-table/workout-check-point-table.component';
-import { WorkoutCheckPointRowComponent } from './workout-check-point-table/workout-check-point-row/workout-check-point-row.component';
+import {
+    WorkoutCheckPointFormComponent
+} from './workout-check-point-form/workout-check-point-form.component';
+import {
+    WorkoutCheckPointTableComponent
+} from './workout-check-point-table/workout-check-point-table.component';
+import {
+    WorkoutCheckPointRowComponent
+} from './workout-check-point-table/workout-check-point-row/workout-check-point-row.component';
 import { DetailNumberCellComponent } from './detail-number-cell/detail-number-cell.component';
 import { WorkoutDetailGraphComponent } from './workout-detail-graph/workout-detail-graph.component';
 import { CheckPointService } from '../../../core/check-point/check-point.service';
@@ -30,6 +36,7 @@ import { WorkoutDetailHeaderComponent } from './workout-detail-header/workout-de
 import { WorkoutDetailHrComponent } from './workout-detail-hr/workout-detail-hr.component';
 import { HrZonesService } from '../../../core/heart-rate/hr-zones.service';
 import { SameWorkoutsComponent } from './same-workouts/same-workouts.component';
+import { SMapModule } from '../../../shared/components/smap/smap.module';
 
 @NgModule({
     imports: [
@@ -40,6 +47,7 @@ import { SameWorkoutsComponent } from './same-workouts/same-workouts.component';
         NgxChartsModule,
         PipesModule,
         WdFileUploadModule,
+        SMapModule,
 
         MatMenuModule,
         MatIconModule,
@@ -50,7 +58,7 @@ import { SameWorkoutsComponent } from './same-workouts/same-workouts.component';
         MatTabsModule,
         MatProgressSpinnerModule,
         MatTableModule,
-        MatSnackBarModule,
+        MatSnackBarModule
     ],
     exports: [WorkoutDetailComponent],
     declarations: [

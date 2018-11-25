@@ -1,4 +1,11 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    OnDestroy,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    ViewChild
+} from '@angular/core';
 import { Activity } from '../../core/workout/workout.interface';
 import { ActivitiesService } from '../../core/activities/activities.service';
 import { Subject } from 'rxjs';

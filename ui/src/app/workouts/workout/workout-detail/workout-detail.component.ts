@@ -30,8 +30,9 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
 
     checkPointsLoading = false;
     loading = false;
+    loadingCoords = false;
 
-    sameWorkouts =  null;
+    sameWorkouts = null;
 
     private _onDestroy$ = new Subject();
 
@@ -41,7 +42,7 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
         private _router: Router,
         private _cd: ChangeDetectorRef,
         private _zones: HrZonesService,
-        private _snackBar: MatSnackBar,
+        private _snackBar: MatSnackBar
     ) {}
 
     ngOnInit() {
@@ -149,11 +150,13 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
     }
 
     getCoordinates() {
+        this.loadingCoords = true;
         this._workout
             .getRouteCoordinates(this.id)
             .pipe(takeUntil(this._onDestroy$))
             .subscribe((data: TrackPoints) => {
                 this.route = data;
+                this.loadingCoords = false;
                 this._cd.markForCheck();
             });
     }
@@ -186,20 +189,21 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
     }
 
     findSame() {
-        this._workout.findSameRoutes(this.workout)
-        .pipe(takeUntil(this._onDestroy$))
-        .subscribe((res: any[]) => {
-            if (!!res && !!res.length) {
-                this.openSnackBar('Nalezeno ' + res.length + ' tréninků', '');
-            } else {
-                this.openSnackBar('Nalezeno 0 tréninků', '');
-            }
-        });
+        this._workout
+            .findSameRoutes(this.workout)
+            .pipe(takeUntil(this._onDestroy$))
+            .subscribe((res: any[]) => {
+                if (!!res && !!res.length) {
+                    this.openSnackBar('Nalezeno ' + res.length + ' tréninků', '');
+                } else {
+                    this.openSnackBar('Nalezeno 0 tréninků', '');
+                }
+            });
     }
 
     openSnackBar(message: string, action: string) {
         this._snackBar.open(message, action, {
-            duration: 2000,
+            duration: 2000
         });
     }
 
