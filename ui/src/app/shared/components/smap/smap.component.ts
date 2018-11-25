@@ -31,6 +31,7 @@ export class SMapComponent implements OnInit, OnDestroy {
     private _route: TrackPoints;
     private _onLoaderLoaded$ = new Subject();
     private _onDestroy$ = new Subject();
+    private _defaultZoom = 12;
 
     constructor(private _cd: ChangeDetectorRef) {}
 
@@ -55,7 +56,7 @@ export class SMapComponent implements OnInit, OnDestroy {
 
     loadMap = () => {
         const stred = SMap.Coords.fromWGS84(this._route.center.lon, this._route.center.lat);
-        this.mapa = new SMap(JAK.gel('mapa'), stred, 12);
+        this.mapa = new SMap(JAK.gel('mapa'), stred, this._defaultZoom);
         /**
          * Pokud chci pouzit prepinac vrstev, pridam do mapy mapove podklady ktere chci
          */
@@ -109,6 +110,10 @@ export class SMapComponent implements OnInit, OnDestroy {
         const polyline = new SMap.Geometry(SMap.GEOMETRY_POLYLINE, null, points, options);
         this.routeLayer.addGeometry(polyline);
         this.routeLayer.redraw();
-        this.mapa.setCenter(SMap.Coords.fromWGS84(this._route.center.lon, this._route.center.lat), true);
+        this.mapa.setCenterZoom(
+            SMap.Coords.fromWGS84(this._route.center.lon, this._route.center.lat),
+            this._defaultZoom,
+            true
+        );
     }
 }

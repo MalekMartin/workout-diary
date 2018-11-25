@@ -71,6 +71,8 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
                     this.onCheckPointsChanged();
                     this.analyzeHr(w.id);
                     this.getCoordinates();
+                } else {
+                    this.route = null;
                 }
                 this.findNextAndPrev();
 
