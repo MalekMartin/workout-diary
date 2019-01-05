@@ -6,7 +6,6 @@ import { Component, OnInit } from '@angular/core';
     template: `
         <div class="submenu">
             <a [routerLink]="['/workouts/all']">Přehled</a>
-            <a [routerLink]="['/workouts/new']">Nový</a>
             <a [routerLink]="['/workouts/spinning']">Spinning</a>
             <a [routerLink]="['/workouts/activities']">Aktivity</a>
         </div>

@@ -1,31 +1,30 @@
 import { NgModule } from '@angular/core';
-import { IllnessFormComponent } from './illness-form.component';
+import { WorkoutFormComponent } from './workout-form.component';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import {
-    MatInputModule,
     MatFormFieldModule,
+    MatInputModule,
     MatSelectModule,
     MatOptionModule,
     MatDatepickerModule,
-    MatButtonModule,
-    MatDialogModule
+    MatButtonModule
 } from '@angular/material';
 
 @NgModule({
     imports: [
         CommonModule,
         ReactiveFormsModule,
-        MatInputModule,
+        FormsModule,
         MatFormFieldModule,
+        MatInputModule,
         MatSelectModule,
         MatOptionModule,
         MatDatepickerModule,
-        MatButtonModule,
-        MatDialogModule
+        MatButtonModule
     ],
-    exports: [IllnessFormComponent],
-    declarations: [IllnessFormComponent],
+    exports: [WorkoutFormComponent],
+    declarations: [WorkoutFormComponent],
     providers: []
 })
-export class IllnessFormModule {}
+export class WorkoutFormModule {}

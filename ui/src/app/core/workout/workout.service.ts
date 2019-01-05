@@ -88,4 +88,9 @@ export class WorkoutService {
     getSameWorkouts(id: string) {
         return this._http.get(`/resource/workout/${id}/same-workouts`);
     }
+
+    // One time operation to export all files form DB
+    // saveAllFiles() {
+    //     return this._http.get('/resource/csv/save-all');
+    // }
 }

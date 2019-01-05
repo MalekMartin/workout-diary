@@ -1,6 +1,9 @@
 <div *ngIf="isLoading" class="loading">
-    Nahrávám...
+    <mat-spinner [diameter]="40"></mat-spinner>
 </div>
+
+<button class="add" mat-mini-fab (click)="addWorkout()">+</button>
+
 <div *ngIf="workouts">
     <div>
         <wd-workout-chart [workouts]="workouts"></wd-workout-chart>
@@ -19,6 +22,10 @@
             <div class="value">{{totalDistance.toFixed(2)}} km</div>
             <div class="name">Celková vzdálenost</div>
         </div>
+        <div class="item">
+            <div class="value">{{totalCalories}} kcal</div>
+            <div class="name">Spálené kalorie</div>
+        </div>
     </div>
 
     <div class="filter-container" *ngIf="!!types">
@@ -28,8 +35,8 @@
     </div>
 
     <form [formGroup]="form" class="filter-container">
-        <wd-workout-view-selector [formControl]="view" ngDefaultControl></wd-workout-view-selector>
         <wd-workout-range-selector formControlName="range" ngDefaultControl></wd-workout-range-selector>
+        <wd-workout-view-selector [formControl]="view" ngDefaultControl></wd-workout-view-selector>
     </form>
 
     <ng-container [ngSwitch]="view.value" *ngIf="!!workouts && !!workouts.length">

@@ -20,9 +20,6 @@ import { Component, OnInit } from '@angular/core';
         <li>
             <a [routerLink]="['/gear']" routerLinkActive="active">Vybavení</a>
         </li>
-        <li>
-            <a [routerLink]="['/health']" routerLinkActive="active">Zdraví</a>
-        </li>
     </ul>
     `
 })

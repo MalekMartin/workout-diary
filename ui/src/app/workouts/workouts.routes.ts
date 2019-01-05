@@ -25,21 +25,12 @@ export const workoutsRoutes: Routes = [
                 loadChildren: 'app/workouts/activities/activities.module#ActivitiesModule'
             },
             {
-                path: 'new',
-                component: WorkoutAddComponent
-
-            },
-            {
                 path: 'all',
                 component: WorkoutStreamComponent
             },
             {
                 path: 'not-found',
                 component: WorkoutNotFoundComponent
-            },
-            {
-                path: ':id/edit',
-                component: WorkoutEditComponent
             },
             {
                 path: ':id',

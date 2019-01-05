@@ -1,6 +1,5 @@
-import { Component, Output, EventEmitter, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { WorkoutService } from '../../../core/workout/workout.service';
 import { Workout, Activity } from '../../../core/workout/workout.interface';
 import { SecToTimePipe } from '../../../shared/pipes/sec-to-time.pipe';
 import * as moment from 'moment';
@@ -17,7 +16,6 @@ import { ActivitiesService } from '../../../core/activities/activities.service';
 })
 export class WorkoutFormComponent implements OnInit, OnDestroy {
     @Input() workout: Workout;
-    @Output() saved = new EventEmitter();
 
     pipe: SecToTimePipe;
 
@@ -42,9 +40,8 @@ export class WorkoutFormComponent implements OnInit, OnDestroy {
 
     constructor(
         private _fb: FormBuilder,
-        private _workout: WorkoutService,
         private _gearService: GearService,
-        private _activities: ActivitiesService
+        private _activities: ActivitiesService,
     ) {
         this.pipe = new SecToTimePipe();
     }
@@ -55,10 +52,6 @@ export class WorkoutFormComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this._onDestroy$.next();
-    }
-
-    save() {
-        this.saved.emit(this.form.value);
     }
 
     prepareData() {

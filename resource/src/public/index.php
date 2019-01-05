@@ -53,7 +53,6 @@ require "../../routes/csvFile.php";
 require "../../routes/gear.php";
 require "../../routes/activity.php";
 require "../../routes/gpx.php";
-require "../../routes/health.php";
 // $app->get('/resource/heart/rest/add', function (Request $request, Response $response, $args) {
 //     $this->logger->addInfo("test ");
 //     $mapper = new HeartRate($this->db);

@@ -1,10 +1,12 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { WorkoutService } from '../../../core/workout/workout.service';
 import { Subject } from 'rxjs';
-import { takeUntil, debounceTime, switchMap } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 import * as moment from 'moment';
 import { FormControl, FormBuilder } from '@angular/forms';
 import { ActivitiesService } from '../../../core/activities/activities.service';
+import { MatDialog } from '@angular/material';
+import { WorkoutAddComponent } from '../workout-add/workout-add.component';
 
 @Component({
     selector: 'wd-workout-stream',
@@ -15,6 +17,7 @@ export class WorkoutStreamComponent implements OnInit, OnDestroy {
     workouts;
     totalDuration = 0;
     totalDistance = 0;
+    totalCalories = 0;
     types: any[];
     isLoading = false;
     range = null;
@@ -31,7 +34,8 @@ export class WorkoutStreamComponent implements OnInit, OnDestroy {
         private _workouts: WorkoutService,
         private _cd: ChangeDetectorRef,
         private _activities: ActivitiesService,
-        private _fb: FormBuilder
+        private _fb: FormBuilder,
+        public dialog: MatDialog
     ) {}
 
     ngOnInit() {
@@ -46,12 +50,34 @@ export class WorkoutStreamComponent implements OnInit, OnDestroy {
         moment.locale('cz');
         moment.updateLocale('cz', {
             months: {
-                format: 'ledna_února_března_dubna_května_června_července_sprna_září_října_listopadu_prosince'.split(
-                    '_'
-                ),
-                standalone: 'Leden_Únor_Březen_Duben_Květen_Červen_Červenec_Srpen_Září_Říjen_Listopad_Prosinec'.split(
-                    '_'
-                ),
+                format: [
+                    'ledna',
+                    'února',
+                    'března',
+                    'dubna',
+                    'května',
+                    'června',
+                    'července',
+                    'sprna',
+                    'září',
+                    'října',
+                    'listopadu',
+                    'prosince'
+                ],
+                standalone: [
+                    'Leden',
+                    'Únor',
+                    'Březen',
+                    'Duben',
+                    'Květen',
+                    'Červen',
+                    'Červenec',
+                    'Srpen',
+                    'Září',
+                    'Říjen',
+                    'Listopad',
+                    'Prosinec'
+                ],
                 isFormat: /D[oD]?(\[[^\[\]]*\]|\s+)+MMMM?|MMMM?(\[[^\[\]]*\]|\s+)+D[oD]?/ // from 2.14.0
             }
         });
@@ -98,22 +124,24 @@ export class WorkoutStreamComponent implements OnInit, OnDestroy {
             .subscribe(this._onWorkoutsSuccess);
     }
 
-    // rangeChanged(val) {
-    //     this.range = val;
-    //     this.findWorkouts()
-    //         .pipe(takeUntil(this._onDestroy$))
-    //         .subscribe(this._onWorkoutsSuccess);
-    // }
+    addWorkout() {
+        this.dialog.open(WorkoutAddComponent, {
+            width: '500px'
+        });
+    }
 
     private _getTotalValues() {
         let duration = 0;
         let distance = 0;
+        let calories = 0;
         for (let i = 0; i < this.workouts.length; i++) {
             duration += this.workouts[i].duration;
             distance += this.workouts[i].distance;
+            calories += this.workouts[i].energy;
         }
         this.totalDuration = duration;
         this.totalDistance = distance;
+        this.totalCalories = calories;
     }
 
     private _typesFromLocalStorage() {

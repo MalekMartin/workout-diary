@@ -49,7 +49,7 @@ export class WorkoutRangeSelectorComponent implements OnInit, OnDestroy, Control
                 from:
                     moment()
                         .set('date', 1)
-                        .set('month', 1)
+                        .set('month', 0 )
                         .set('hour', 0)
                         .set('minute', 0)
                         .set('second', 0)
@@ -57,7 +57,28 @@ export class WorkoutRangeSelectorComponent implements OnInit, OnDestroy, Control
                 to:
                     moment()
                         .set('date', 31)
-                        .set('month', 12)
+                        .set('month', 11)
+                        .format('YYYY-MM-DDTHH:mm:ss') + 'Z'
+            }
+        },
+        {
+            id: 'LAST_YEAR',
+            name: 'Minulý rok',
+            value: {
+                from:
+                    moment()
+                        .subtract(1, 'year')
+                        .set('date', 1)
+                        .set('month', 0 )
+                        .set('hour', 0)
+                        .set('minute', 0)
+                        .set('second', 0)
+                        .format('YYYY-MM-DDTHH:mm:ss') + 'Z',
+                to:
+                    moment()
+                        .subtract(1, 'year')
+                        .set('date', 31)
+                        .set('month', 11)
                         .format('YYYY-MM-DDTHH:mm:ss') + 'Z'
             }
         },
@@ -84,7 +105,7 @@ export class WorkoutRangeSelectorComponent implements OnInit, OnDestroy, Control
     }
 
     writeValue(value) {
-        this.range.setValue(this.ranges.find(r => r.id === value).value, { emitEvent: false });
+        this.range.setValue(this.ranges.find(r => r.id === value).id, { emitEvent: false });
     }
 
     registerOnChange(fn: (_: any) => void): void {

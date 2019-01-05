@@ -23,10 +23,15 @@ export class WorkoutChartComponent implements OnInit {
         this.data = this.build(w);
     }
 
-    colMaxHeight = 100;
+    colMaxHeight = 126;
     maxDuration = 0;
 
     data;
+    source;
+
+    colorScheme = {
+        domain: ['#5AA454']
+    };
 
     constructor() {}
 
@@ -34,6 +39,7 @@ export class WorkoutChartComponent implements OnInit {
 
     build(w: Workout[]) {
         const range = [];
+        const ngxRange = [];
 
         const date = moment();
 
@@ -61,14 +67,24 @@ export class WorkoutChartComponent implements OnInit {
                 totalCalories,
                 color: !!workouts && !!workouts.length ? workouts[0].activity.color : ''
             });
+            ngxRange.push({
+                name: date.format('DD MMM'),
+                value: totalDuration / 60
+            });
             date.subtract(1, 'days');
         }
 
         range.reverse();
+        ngxRange.reverse();
+        this.source = ngxRange;
         return range;
     }
 
     columnHeigh(duration: number) {
-        return Math.ceil((duration / this.maxDuration) * this.colMaxHeight);
+        const max = 2.25 * 60 * 60; // max displayed value is 2:15
+
+        if (duration >= max) { return this.colMaxHeight; }
+
+        return Math.ceil((duration / max) * this.colMaxHeight);
     }
 }

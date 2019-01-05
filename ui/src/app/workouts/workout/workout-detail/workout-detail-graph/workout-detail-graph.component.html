@@ -1,9 +1,11 @@
 <!-- <h3>{{!!type ? type.name : 'Graf'}}</h3> -->
 <div class="switch-graph">
-    <span *ngIf="showHr" (click)="getData(types.hr)" [class.active]="!!selected && types.hr.id === selected.id">Srdeční frekvence</span>
+    <!-- <span *ngIf="showHr" (click)="getData(types.hr)" [class.active]="!!selected && types.hr.id === selected.id">Srdeční frekvence</span>
     <span *ngIf="showSpeed" (click)="getData(types.speed)" [class.active]="!!selected && types.speed.id === selected.id">Rychlost</span>
     <span *ngIf="showCad" (click)="getData(types.cad)" [class.active]="!!selected && types.cad.id === selected.id">Kadence</span>
-    <span *ngIf="showEle" (click)="getData(types.ele)" [class.active]="!!selected && types.ele.id === selected.id">Výškový profil</span>
+    <span *ngIf="showEle" (click)="getData(types.ele)" [class.active]="!!selected && types.ele.id === selected.id">Výškový profil</span> -->
+    <span (click)="switchData('ALL')">Naměřená data</span>
+    <span *ngIf="showEle" (click)="switchData('ELE')">Výškový profil</span>
 </div>
 
 <div style="width: 100%; height: 300px; position: relative">

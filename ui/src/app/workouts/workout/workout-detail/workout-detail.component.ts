@@ -5,7 +5,8 @@ import { takeUntil } from 'rxjs/operators';
 import { TrackPoints, Workout, WorkoutLogFile } from '../../../core/workout/workout.interface';
 import { WorkoutService } from '../../../core/workout/workout.service';
 import { HrZonesService } from '../../../core/heart-rate/hr-zones.service';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar, MatDialog } from '@angular/material';
+import { WorkoutEditComponent } from '../workout-edit/workout-edit.component';
 
 declare var require: any;
 const FileSaver = require('file-saver');
@@ -42,7 +43,8 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
         private _router: Router,
         private _cd: ChangeDetectorRef,
         private _zones: HrZonesService,
-        private _snackBar: MatSnackBar
+        private _snackBar: MatSnackBar,
+        private _dialog: MatDialog
     ) {}
 
     ngOnInit() {
@@ -93,7 +95,19 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
     }
 
     goToEdit() {
-        this._router.navigate(['/workouts', this.workout.id, 'edit']);
+        this._dialog
+            .open(WorkoutEditComponent, {
+                width: '500px',
+                data: this.workout
+            })
+            .afterClosed()
+            .pipe(takeUntil(this._onDestroy$))
+            .subscribe(res => {
+                if (!!res) {
+                    this.workout = res;
+                    this.findWorkout();
+                }
+            });
     }
 
     delete(id: string) {

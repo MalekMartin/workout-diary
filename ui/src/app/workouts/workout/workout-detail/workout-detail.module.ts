@@ -37,6 +37,7 @@ import { WorkoutDetailHrComponent } from './workout-detail-hr/workout-detail-hr.
 import { HrZonesService } from '../../../core/heart-rate/hr-zones.service';
 import { SameWorkoutsComponent } from './same-workouts/same-workouts.component';
 import { SMapModule } from '../../../shared/components/smap/smap.module';
+import { WorkoutEditModule } from '../workout-edit/workout-edit.module';
 
 @NgModule({
     imports: [
@@ -48,6 +49,7 @@ import { SMapModule } from '../../../shared/components/smap/smap.module';
         PipesModule,
         WdFileUploadModule,
         SMapModule,
+        WorkoutEditModule,
 
         MatMenuModule,
         MatIconModule,

@@ -6,14 +6,11 @@
     -moz-osx-font-smoothing: grayscale;
 }
 
-// .card-wrapper {
-//     margin-bottom: 5px;
-// }
-
-// .workout-list-wrapper {
-//     width: 640px;
-//     margin: 0 auto;
-// }
+.add {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+}
 
 .summaries {
     text-align: center;
@@ -42,16 +39,8 @@
     text-align: center;
 }
 
-// form {
-//     ul {
-//         li {
-//             list-style-type: none;
-//             display: inline-block;
-//             margin-right: 12px;
-//         }
-//     }
-// }
-
 .loading {
     position: absolute;
+    top: 150px;
+    left: 50%;
 }
