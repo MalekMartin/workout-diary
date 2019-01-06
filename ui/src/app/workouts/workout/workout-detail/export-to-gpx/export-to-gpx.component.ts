@@ -65,6 +65,7 @@ export class ExportToGpxComponent implements OnInit, OnDestroy {
                     const file = new Blob([blob]);
                     FileSaver.saveAs(file, this.workout.log.name.replace('.csv', '.gpx'));
                     this.downloading = false;
+                    this._dialogRef.close();
                 },
                 () => {
                     console.warn('Nepodařilo se stáhnout soubor!');
