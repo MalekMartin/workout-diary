@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { ActivitiesService } from '../activities/activities.service';
 import { HttpService } from '../http.service';
 import { Workout, WorkoutType } from './workout.interface';
+import { GpxExportParams } from '../gpx/gpx.interface';
 
 @Injectable()
 export class WorkoutService {
@@ -68,8 +69,17 @@ export class WorkoutService {
         return this._http.get(`/resource/workout/${id}/route/coordinates`);
     }
 
-    convertWorkoutCsvToGpx(id: string) {
-        return this._http.saveFileAs('/resource/csv/to-gpx?id=' + id);
+    convertWorkoutCsvToGpx(id: string, opt: GpxExportParams) {
+        let params = 'id=' + id;
+        params += '&action=' + opt.action;
+
+        if (opt.action === 'USE_DEFAULT') {
+            params += '&lat=' + opt.lat;
+            params += '&lon=' + opt.lon;
+            params += '&ele=' + opt.ele;
+        }
+
+        return this._http.saveFileAs('/resource/csv/to-gpx?' + params);
     }
 
     getTypesFromLocalStorage() {

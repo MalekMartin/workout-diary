@@ -8,6 +8,7 @@ import { HrZonesService } from '../../../core/heart-rate/hr-zones.service';
 import { MatSnackBar, MatDialog } from '@angular/material';
 import { WorkoutEditComponent } from '../workout-edit/workout-edit.component';
 import { DeleteFileConfirmComponent } from './delete-file-confirm/delete-file-confirm.component';
+import { ExportToGpxComponent } from './export-to-gpx/export-to-gpx.component';
 
 declare var require: any;
 const FileSaver = require('file-saver');
@@ -134,7 +135,7 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
         this.findWorkout();
     }
 
-    export($event: MouseEvent) {
+    download($event: MouseEvent) {
         if (!this.downoading) {
             this.downoading = true;
             this._workout.getLogFile(this.id).subscribe(
@@ -186,20 +187,10 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
     }
 
     convertWorkoutToGpx() {
-        this._workout
-            .convertWorkoutCsvToGpx(this.workout.id)
-            .pipe(takeUntil(this._onDestroy$))
-            .subscribe(
-                blob => {
-                    const file = new Blob([blob]);
-                    FileSaver.saveAs(file, this.workout.log.name.replace('.csv', '.gpx'));
-                    this.downoading = false;
-                },
-                () => {
-                    console.warn('Nepodařilo se stáhnout soubor!');
-                    this.downoading = false;
-                }
-            );
+        this._dialog.open(ExportToGpxComponent, {
+            width: '400px',
+            data: this.workout
+        });
     }
 
     analyzeHr(workoutId: string) {

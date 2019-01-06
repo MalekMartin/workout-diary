@@ -61,7 +61,7 @@
             
             <mat-card *ngIf="workout.log.id">
                 <div class="file-wrapper">
-                    <span class="file-name" (click)="export()">{{workout.log.name}}</span>
+                    <span class="file-name" (click)="download()">{{workout.log.name}}</span>
                     <span class="file-size">{{workout.log.size | fileSize}}</span>
                     <span class="file-actions">
                         <a (click)="convertWorkoutToGpx()">GPX</a>
