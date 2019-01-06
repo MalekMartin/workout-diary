@@ -104,13 +104,22 @@ class Workout {
     }
 
     public function deleteWorkout($id) {
-        $this->_deleteWorkoutFile($id);
+        $this->_deleteWorkoutFileByWorkoutId($id);
         $itemQuery = $this->db->prepare('DELETE FROM workout WHERE id = ?');
         $itemQuery->execute(array($id));
     }
 
-    private function _deleteWorkoutFile($id) {
+    private function _deleteWorkoutFileByWorkoutId($id) {
         $query = $this->db->prepare('SELECT name FROM exported_files WHERE workoutId = ?');
+        $query->execute(array($id));
+        $file = $query->fetch();
+        if (!!$file) {
+            unlink($this->path.'/'.$file['name']);
+        }
+    }
+
+    private function _deleteWorkoutFileById($id) {
+        $query = $this->db->prepare('SELECT name FROM exported_files WHERE id = ?');
         $query->execute(array($id));
         $file = $query->fetch();
         if (!!$file) {
@@ -125,7 +134,7 @@ class Workout {
     }
 
     public function deleteWorkoutFileLog($id) {
-        $this->_deleteWorkoutFile($id);
+        $this->_deleteWorkoutFileById($id);
         $fileDelete = $this->db->prepare('DELETE FROM exported_files WHERE id = ?');
         $fileDelete->execute(array($id));
     }
@@ -147,7 +156,7 @@ class Workout {
 
         if (!file_exists($fileName)) {
             $new = fopen($fileName, 'w');
-            fwrite($new, $f['content']);
+            fwrite($new, $raw);
             fclose($new);;
             $new = null;
 
@@ -159,7 +168,13 @@ class Workout {
                 
                 $log = $this->_parseBasicInfoFromLogFile($raw);
                 $this->updateWorkoutWithFileLog($id, $log, $insertedId);
-                return 200;
+                return array(
+                    'id' => $insertedId,
+                    'name' => $name,
+                    'type' => $type,
+                    'size' => $size
+                );
+                   
             } else {
                 return 400;
             }

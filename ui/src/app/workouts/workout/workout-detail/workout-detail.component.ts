@@ -7,6 +7,7 @@ import { WorkoutService } from '../../../core/workout/workout.service';
 import { HrZonesService } from '../../../core/heart-rate/hr-zones.service';
 import { MatSnackBar, MatDialog } from '@angular/material';
 import { WorkoutEditComponent } from '../workout-edit/workout-edit.component';
+import { DeleteFileConfirmComponent } from './delete-file-confirm/delete-file-confirm.component';
 
 declare var require: any;
 const FileSaver = require('file-saver');
@@ -116,9 +117,16 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
         });
     }
 
-    deleteFileLog() {
-        this._workout.deleteWorkoutFileLog(this.workout.log.id).subscribe(() => {
-            this.workout.log.id = null;
+    deleteFile() {
+        this._dialog.open(DeleteFileConfirmComponent, {
+            width: '300px',
+            data: this.workout
+        }).afterClosed()
+        .pipe(takeUntil(this._onDestroy$))
+        .subscribe(r => {
+            if (!!r) {
+                this.findWorkout();
+            }
         });
     }
 

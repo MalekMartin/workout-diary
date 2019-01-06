@@ -7,6 +7,8 @@ import { takeUntil } from 'rxjs/operators';
 import { MatSnackBar, MatDialog } from '@angular/material';
 import { HR_ACTIVITIES } from './resting-hr-table/resting-hr-table.component';
 import { RestingHrDeleteComponent } from './resting-hr-delete/resting-hr-delete.component';
+import { HeartRate } from '../../core/heart-rate/hr.interface';
+import { RestingHrEditComponent } from './resting-hr-edit/resting-hr-edit.component';
 
 @Component({
     selector: 'wd-resting-hr',
@@ -29,7 +31,7 @@ export class RestingHrComponent implements OnInit, OnDestroy {
 
     data: any;
 
-    restingHrData: any;
+    restingHrData: HeartRate[];
 
     minHr = { name: '', value: 300 };
     maxHr = { name: '', value: 0 };
@@ -77,58 +79,76 @@ export class RestingHrComponent implements OnInit, OnDestroy {
             .subscribe(
                 (res: any) => {
                     const hr = this._replaceData(res.hr);
-                    const run = this._replaceWorkoutdata(res.workouts.run);
-                    const cicle = this._replaceWorkoutdata(res.workouts.cicle);
-                    const spin = this._replaceWorkoutdata(res.workouts.spin);
-                    const moto = this._replaceWorkoutdata(res.workouts.moto);
-                    const walk = this._replaceWorkoutdata(res.workouts.walk);
-                    const gym = this._replaceWorkoutdata(res.workouts.gym);
-                    const football = this._replaceWorkoutdata(res.workouts.football);
-                    const rollers = this._replaceWorkoutdata(res.workouts.rollerskates);
-                    const other = this._replaceWorkoutdata(res.workouts.other);
+                    const data = [];
+                    data.push({
+                        name: 'Klidová SF',
+                        series: hr.reverse()
+                    });
 
-                    this.data = [
-                        {
-                            name: 'Klidová SF',
-                            series: hr.reverse()
-                        },
-                        {
+                    if (!!res.workouts.run) {
+                        const run = this._replaceWorkoutdata(res.workouts.run);
+                        data.push({
                             name: 'Běh [min]',
                             series: run.reverse()
-                        },
-                        {
+                        });
+                    }
+                    if (!!res.workouts.cicle) {
+                        const cycle = this._replaceWorkoutdata(res.workouts.cicle);
+                        data.push({
                             name: 'Kolo [min]',
-                            series: cicle.reverse()
-                        },
-                        {
+                            series: cycle.reverse()
+                        });
+                    }
+                    if (!!res.workouts.spin) {
+                        const spin = this._replaceWorkoutdata(res.workouts.spin);
+                        data.push({
                             name: 'Spinning [min]',
                             series: spin.reverse()
-                        },
-                        {
+                        });
+                    }
+                    if (!!res.workouts.moto) {
+                        const moto = this._replaceWorkoutdata(res.workouts.moto);
+                        data.push({
                             name: 'Motorka [min]',
                             series: moto.reverse()
-                        },
-                        {
+                        });
+                    }
+                    if (!!res.workouts.walk) {
+                        const walk = this._replaceWorkoutdata(res.workouts.walk);
+                        data.push({
                             name: 'Chůze [min]',
                             series: walk.reverse()
-                        },
-                        {
-                            name: 'Ostatní [min]',
-                            series: other.reverse()
-                        },
-                        {
+                        });
+                    }
+                    if (!!res.workouts.gym) {
+                        const gym = this._replaceWorkoutdata(res.workouts.gym);
+                        data.push({
                             name: 'Posilování [min]',
                             series: gym.reverse()
-                        },
-                        {
+                        });
+                    }
+                    if (!!res.workouts.football) {
+                        const football = this._replaceWorkoutdata(res.workouts.football);
+                        data.push({
                             name: 'Fotbal [min]',
                             series: football.reverse()
-                        },
-                        {
+                        });
+                    }
+                    if (!!res.workouts.rollerskates) {
+                        const rollers = this._replaceWorkoutdata(res.workouts.rollerskates);
+                        data.push({
                             name: 'Kolečkové [min]',
                             series: rollers.reverse()
-                        }
-                    ];
+                        });
+                    }
+                    if (!!res.workouts.other) {
+                        const other = this._replaceWorkoutdata(res.workouts.other);
+                        data.push({
+                            name: 'Ostatní [min]',
+                            series: other.reverse()
+                        });
+                    }
+                    this.data = data;
 
                     this.restingHrData = res.hr;
 
@@ -140,7 +160,7 @@ export class RestingHrComponent implements OnInit, OnDestroy {
             );
     }
 
-    onDelete(value) {
+    onDelete(value: HeartRate) {
         this._dialog
             .open(RestingHrDeleteComponent, {
                 data: value
@@ -148,6 +168,21 @@ export class RestingHrComponent implements OnInit, OnDestroy {
             .afterClosed()
             .subscribe(v => {
                 if (v === 'DELETED') {
+                    this.findAll();
+                }
+            });
+    }
+
+    onEdit(value: HeartRate) {
+        this._dialog
+            .open(RestingHrEditComponent, {
+                data: value,
+                width: '300px'
+            })
+            .afterClosed()
+            .pipe(takeUntil(this._onDestroy$))
+            .subscribe(v => {
+                if (v === 'EDITED') {
                     this.findAll();
                 }
             });
@@ -212,6 +247,8 @@ export class RestingHrComponent implements OnInit, OnDestroy {
     private _replaceWorkoutdata(d: { date: string; duration: number }[]) {
         const emptyData = this._createRange();
 
+        let maxDuration = 0;
+
         let newArr = [];
         emptyData.forEach((i: any) => {
             const items = d.filter(f => moment(f.date).format('DD.MM.YYYY') === i);
@@ -220,6 +257,7 @@ export class RestingHrComponent implements OnInit, OnDestroy {
                 duration += w.duration;
             });
 
+            maxDuration = duration > maxDuration ? duration : maxDuration;
             newArr = [
                 ...newArr,
                 {
@@ -229,7 +267,7 @@ export class RestingHrComponent implements OnInit, OnDestroy {
             ];
         });
 
-        return newArr;
+        return maxDuration > 0 ? newArr : null;
     }
 
     private _saveSuccess = (res: any) => {
@@ -239,12 +277,12 @@ export class RestingHrComponent implements OnInit, OnDestroy {
             bpm: 60
         });
         this.findAll();
-    };
+    }
 
     private _saveError = () => {
         this.savingData = false;
         this._openSnackBar('Nepodařilo se uložit data!');
-    };
+    }
 
     private _openSnackBar(message: string, action = '') {
         this._snackBar.open(message, action, {

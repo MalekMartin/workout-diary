@@ -82,7 +82,7 @@
     <ngx-charts-line-chart
         [scheme]="colorScheme"
         [results]="data"
-        [gradient]="gradient"
+        [gradient]="false"
         [xAxis]="true"
         [yAxis]="true"
         [legend]="true"
@@ -91,8 +91,7 @@
         xAxisLabel="Datum"
         yAxisLabel="BPM"
         [showRefLines]="true"
-        [referenceLines]="[refLine]"
-        (select)="onSelect($event)">
+        [referenceLines]="[refLine]">
     </ngx-charts-line-chart>
 </div>
 <div *ngIf="graphLoading">Načítám data...</div>
@@ -103,5 +102,6 @@
 
 <div *ngIf="!!restingHrData && !!restingHrData.length">
     <wd-resting-hr-table [data]="restingHrData"
+        (edit)="onEdit($event)"
         (delete)="onDelete($event)"></wd-resting-hr-table>
 </div>

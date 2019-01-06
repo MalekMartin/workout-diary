@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpService } from '../http.service';
+import { HeartRate } from './hr.interface';
 
 @Injectable()
 export class HeartRateService {
@@ -13,7 +14,7 @@ export class HeartRateService {
 
     findRestingHrs() {
         return this._http
-            .get('/resource/heart/rest/all');
+            .get('/resource/heart/rest/30');
     }
 
     findWeeklyAverages() {
@@ -24,5 +25,10 @@ export class HeartRateService {
     deleteHRrecord(id: string) {
         return this._http
             .delete(`/resource/heart/rest/${id}/delete`);
+    }
+
+    updateHRRecord(value: HeartRate) {
+        return this._http
+            .post('/resource/heart/rest/update', value);
     }
 }

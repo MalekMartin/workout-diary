@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import { HeartRateService } from '../../../core/heart-rate/heart-rate.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
+import { HeartRate } from '../../../core/heart-rate/hr.interface';
 
 @Component({
     selector: 'wd-resting-hr-delete',
@@ -36,12 +37,11 @@ import { Subject } from 'rxjs';
     `
 })
 export class RestingHrDeleteComponent implements OnInit, OnDestroy {
-    record;
 
     private _onDestroy$ = new Subject();
 
     constructor(
-        @Inject(MAT_DIALOG_DATA) public data: any,
+        @Inject(MAT_DIALOG_DATA) public data: HeartRate,
         private _dialogRef: MatDialogRef<RestingHrDeleteComponent>,
         private _hrService: HeartRateService
     ) {}

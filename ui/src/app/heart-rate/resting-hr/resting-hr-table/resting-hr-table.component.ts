@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import * as moment from 'moment';
 import { HeartRateService } from '../../../core/heart-rate/heart-rate.service';
+import { HeartRateBase, HeartRate } from '../../../core/heart-rate/hr.interface';
 
 export const HR_ACTIVITIES = [
     { id: 'ILLNESS', name: 'Nemoc' },
@@ -16,7 +17,7 @@ export const HR_ACTIVITIES = [
 })
 export class RestingHrTableComponent implements OnInit {
     @Input()
-    set data(data: any) {
+    set data(data: HeartRateBase[]) {
         this.tableSource = data
             .map(r => {
                 return {
@@ -43,11 +44,11 @@ export class RestingHrTableComponent implements OnInit {
 
     ngOnInit() {}
 
-    onEdit(value: any) {
+    onEdit(value: HeartRate) {
         this.edit.emit(value);
     }
 
-    onDelete(value: any) {
+    onDelete(value: HeartRate) {
         this.delete.emit(value);
     }
 }

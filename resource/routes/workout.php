@@ -48,12 +48,14 @@ $app->delete('/resource/workout/{id}/delete', function (Request $request, Respon
 $app->post('/resource/workout/{id}/file', function (Request $request, Response $response, $args) {
     $this->logger->addInfo("File add");
     $mapper = new Workout($this->db, $this->logger);
-    $status = $mapper->uploadLogFile($args['id']);
+    $file = $mapper->uploadLogFile($args['id']);
 
-    if (!!$status) {
-        return $response->withStatus($status);
+    if ($file === 400) {
+        return $response->withStatus(400);
+    } else if ($file === 409) {
+        return $response->withStatus(409);
     } else {
-        return $response->withStatus(500);
+        return $response->withJson($file);
     }
 });
 

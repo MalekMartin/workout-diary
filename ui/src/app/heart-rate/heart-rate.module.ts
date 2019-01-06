@@ -23,13 +23,15 @@ import { RestingHrTableComponent } from './resting-hr/resting-hr-table/resting-h
 import { RestingHrWeekAvgComponent } from './resting-hr/resting-hr-week-avg/resting-hr-week-avg.component';
 import { MatDialogModule } from '@angular/material';
 import { RestingHrDeleteComponent } from './resting-hr/resting-hr-delete/resting-hr-delete.component';
+import { RestingHrEditComponent } from './resting-hr/resting-hr-edit/resting-hr-edit.component';
 
 const COMPONENTS = [
     RestingHrComponent,
     HrZonesComponent,
     RestingHrTableComponent,
     RestingHrWeekAvgComponent,
-    RestingHrDeleteComponent
+    RestingHrDeleteComponent,
+    RestingHrEditComponent
 ];
 
 @NgModule({
@@ -55,7 +57,7 @@ const COMPONENTS = [
         HeartRateComponent,
         ...COMPONENTS
     ],
-    entryComponents: [RestingHrDeleteComponent],
+    entryComponents: [RestingHrDeleteComponent, RestingHrEditComponent],
     providers: [HeartRateService, HrZonesService],
 })
 export class HeartRateModule { }

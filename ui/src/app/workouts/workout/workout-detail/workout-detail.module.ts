@@ -14,7 +14,8 @@ import {
     MatTabsModule,
     MatProgressSpinnerModule,
     MatTableModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatDialogModule
 } from '@angular/material';
 import { WorkoutDetailComponent } from './workout-detail.component';
 import {
@@ -38,6 +39,7 @@ import { HrZonesService } from '../../../core/heart-rate/hr-zones.service';
 import { SameWorkoutsComponent } from './same-workouts/same-workouts.component';
 import { SMapModule } from '../../../shared/components/smap/smap.module';
 import { WorkoutEditModule } from '../workout-edit/workout-edit.module';
+import { DeleteFileConfirmComponent } from './delete-file-confirm/delete-file-confirm.component';
 
 @NgModule({
     imports: [
@@ -60,7 +62,8 @@ import { WorkoutEditModule } from '../workout-edit/workout-edit.module';
         MatTabsModule,
         MatProgressSpinnerModule,
         MatTableModule,
-        MatSnackBarModule
+        MatSnackBarModule,
+        MatDialogModule
     ],
     exports: [WorkoutDetailComponent],
     declarations: [
@@ -73,8 +76,10 @@ import { WorkoutEditModule } from '../workout-edit/workout-edit.module';
         WorkoutDetailNumbersComponent,
         WorkoutDetailHeaderComponent,
         WorkoutDetailHrComponent,
-        SameWorkoutsComponent
+        SameWorkoutsComponent,
+        DeleteFileConfirmComponent
     ],
-    providers: [CheckPointService, HrZonesService]
+    providers: [CheckPointService, HrZonesService],
+    entryComponents: [DeleteFileConfirmComponent]
 })
 export class WorkoutDetailModule {}
