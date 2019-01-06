@@ -3,11 +3,11 @@ import { Pipe, PipeTransform } from '@angular/core';
 @Pipe({
     name: 'secToTime'
 })
-
 export class SecToTimePipe implements PipeTransform {
     transform(s: number): string {
-
-        if (typeof s !== 'number') { return '--:--'; }
+        if (typeof s !== 'number') {
+            return '--:--';
+        }
 
         let hod = 0;
         let min = 0;
@@ -15,14 +15,20 @@ export class SecToTimePipe implements PipeTransform {
 
         if (s >= 3600) {
             hod = Math.floor(s / 3600);
-            s -= (hod * 3600);
+            s -= hod * 3600;
         }
         if (s >= 60) {
             min = Math.floor(s / 60);
             s -= min * 60;
         }
         sec = s;
-        return (hod < 10 ? '0' + hod : hod) + ':' + (min < 10 ? '0' + min : min) + ':' + (sec < 10 ? '0' + sec : sec);
+        return (
+            (hod < 10 ? '0' + hod : hod) +
+            ':' +
+            (min < 10 ? '0' + min : min) +
+            ':' +
+            (sec < 10 ? '0' + sec : sec)
+        );
 
         // const hou = Math.floor(value / 3600);
         // const minPom = hou > 0 ? value - (3600 * hou) : 0;

@@ -16,6 +16,14 @@
                 </mat-form-field>
             <!-- </div> -->
 
+            <mat-form-field>
+                <mat-select formControlName="activity" placeholder="Vyber aktivitu">
+                    <mat-option *ngFor="let item of activities" [value]="item.id">
+                    {{ item.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
             <!-- <div> -->
                 <mat-form-field>
                     <textarea matInput formControlName="note" placeholder="Poznámka" matTextareaAutosize matAutosizeMinRows="2"
@@ -74,7 +82,7 @@
     <ngx-charts-line-chart
         [scheme]="colorScheme"
         [results]="data"
-        [gradient]="gradient"
+        [gradient]="false"
         [xAxis]="true"
         [yAxis]="true"
         [legend]="true"
@@ -83,39 +91,17 @@
         xAxisLabel="Datum"
         yAxisLabel="BPM"
         [showRefLines]="true"
-        [referenceLines]="[refLine]"
-        (select)="onSelect($event)">
+        [referenceLines]="[refLine]">
     </ngx-charts-line-chart>
 </div>
 <div *ngIf="graphLoading">Načítám data...</div>
 
-<div *ngIf="!!tableSource1 && !!tableSource.length">
-    <div class="example-container mat-elevation-z8">
-        <mat-table #table [dataSource]="tableSource">
-        
-            <!--- Note that these columns can be defined in any order.
-                The actual rendered columns are set as a property on the row definition" -->
-        
-            <!-- Position Column -->
-            <ng-container matColumnDef="date">
-                <mat-header-cell *matHeaderCellDef> Datum </mat-header-cell>
-                <mat-cell *matCellDef="let element"> {{element.date}} </mat-cell>
-            </ng-container>
-        
-            <!-- Name Column -->
-            <ng-container matColumnDef="bpm">
-                <mat-header-cell *matHeaderCellDef> Bpm </mat-header-cell>
-                <mat-cell *matCellDef="let element"> {{element.bpm}} </mat-cell>
-            </ng-container>
-        
-            <!-- Weight Column -->
-            <ng-container matColumnDef="note">
-                <mat-header-cell *matHeaderCellDef> Poznámka </mat-header-cell>
-                <mat-cell *matCellDef="let element"> {{element.note}} </mat-cell>
-            </ng-container>
-        
-            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-            <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-        </mat-table>
-    </div>
+<div>
+    <wd-resting-hr-week-avg></wd-resting-hr-week-avg>
+</div>
+
+<div *ngIf="!!restingHrData && !!restingHrData.length">
+    <wd-resting-hr-table [data]="restingHrData"
+        (edit)="onEdit($event)"
+        (delete)="onDelete($event)"></wd-resting-hr-table>
 </div>

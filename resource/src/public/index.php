@@ -52,6 +52,7 @@ require "../../routes/checkPoints.php";
 require "../../routes/csvFile.php";
 require "../../routes/gear.php";
 require "../../routes/activity.php";
+require "../../routes/gpx.php";
 // $app->get('/resource/heart/rest/add', function (Request $request, Response $response, $args) {
 //     $this->logger->addInfo("test ");
 //     $mapper = new HeartRate($this->db);

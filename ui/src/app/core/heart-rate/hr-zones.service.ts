@@ -3,48 +3,38 @@ import { Injectable } from '@angular/core';
 @Injectable()
 export class HrZonesService {
 
-    private _max = 184;
+    private _max: number;
 
-    zones = {
-        endurance: {
-            name: 'Základní vytrvalost (< 75%)',
-            min: 0,
-            max: 0,
-        },
-        stamina: {
-            name: 'Tempová vytrvalost (75% - 85%)',
-            min: 0,
-            max: 0,
-        },
-        economy: {
-            name: 'Speciální vytrvalost (85% - 95%)',
-            min: 0,
-            max: 0,
-        },
-        speed: {
-            name: 'Rychlostní vytrvalost (> 95%)',
-            min: 0,
-            max: 0,
-        }
-    };
+    zones = [];
 
     constructor() {
+        this._max = Number(this._getHrMaxFromLocalStorage()) || 190;
         this.recalculate();
+    }
+    get hrMax() {
+        return this._max;
     }
 
     recalculate(max?: number) {
-        if (!!max) { this._max = max; }
+        let startHr = 60;
+        do {
+            this.zones.push({
+                name: startHr + '% - ' + (startHr + 5) + '%',
+                min: this._max * (startHr / 100),
+                max: this._max * ((startHr + 5) / 100)
+            });
+            startHr += 5;
+        }
+        while (startHr < 100);
+        this.zones.reverse();
+    }
 
-        this.zones.endurance.min = Math.round(this._max * 0.6);
-        this.zones.endurance.max = Math.round(this._max * 0.75);
+    updateHrMax(max: number) {
+        this._max = max;
+        localStorage.setItem('wd.hr.max', max.toString());
+    }
 
-        this.zones.stamina.min = Math.round(this._max * 0.75) + 1;
-        this.zones.stamina.max = Math.round(this._max * 0.85);
-
-        this.zones.economy.min = Math.round(this._max * 0.85) + 1;
-        this.zones.economy.max = Math.round(this._max * 0.95);
-
-        this.zones.speed.min = Math.round(this._max * 0.95) + 1;
-        this.zones.speed.max = Math.round(this._max);
+    private _getHrMaxFromLocalStorage() {
+        return JSON.parse(localStorage.getItem('wd.hr.max'));
     }
 }

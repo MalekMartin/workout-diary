@@ -16,6 +16,8 @@ class CsvFile {
         'POWER' => 11   // 11 Power (watts)
     );
 
+    public $path = '../../files';
+
     public function __construct($db)
     {
         $this->db = $db;
@@ -23,11 +25,19 @@ class CsvFile {
 
     public function convertToGpx($id) {
 
-        $raw = $this->_getLogFileByWorkoutId($id);
+        $fileName = $this->_getLogFileByWorkoutId($id);
 
-        if (!isset($file)) {
+        if (!$fileName) {
             return 'NO_FILE';
-        } else if (!!$file && !isset($file['content'])) {
+        }
+
+        try {
+            $raw = file_get_contents($this->path.'/'.$fileName);
+        } catch (Exception $e) {
+            return 'NO_CONTENT';
+        }
+
+        if (!$raw || strLen($raw) <= 0) {
             return 'NO_CONTENT';
         }
         
@@ -38,6 +48,8 @@ class CsvFile {
         $myfile = fopen("parsed.gpx", "w") or die("Unable to open file!");
 
         fwrite($myfile, $this->_buildGpxHeader($date));
+
+        $text = '';
 
         for ($i = 1; $i < count($rows) - 2; $i++) {
             $gpxBody .= $i . ', ';
@@ -51,39 +63,51 @@ class CsvFile {
 
             $time = date('Y-m-d\TH:i:sP', ($row[$this->columns['TIMESTAMP']] / 1000));
 
-            fwrite($myfile, '<trkpt lat="'.$lat.'" lon="'.$lon.'">');
-            fwrite($myfile, '<ele>'.$ele.'</ele>');
-            fwrite($myfile, '<time>'.$time.'</time>');
-            fwrite($myfile, '<extensions>');
-            fwrite($myfile, '<gpxtpx:TrackPointExtension>');
-            fwrite($myfile, '<gpxtpx:hr>'.$hr.'</gpxtpx:hr>');
-            fwrite($myfile, '<gpxtpx:cad>'.$cad.'</gpxtpx:cad>');
-            fwrite($myfile, '</gpxtpx:TrackPointExtension>');
-            fwrite($myfile, '</extensions>');
-            fwrite($myfile, '</trkpt>');
+            $text .= '<trkpt lat="'.$lat.'" lon="'.$lon.'">';
+            $text .= '<ele>'.$ele.'</ele>';
+            $text .= '<time>'.$time.'</time>';
+            $text .= '<extensions>';
+            $text .= '<gpxtpx:TrackPointExtension>';
+            $text .= '<gpxtpx:hr>'.$hr.'</gpxtpx:hr>';
+            $text .= '<gpxtpx:cad>'.$cad.'</gpxtpx:cad>';
+            $text .= '</gpxtpx:TrackPointExtension>';
+            $text .= '</extensions>';
+            $text .= '</trkpt>';
         }
 
-        fwrite($myfile, '</trkseg></trk></gpx>');
+        fwrite($myfile, $text.'</trkseg></trk></gpx>');
         fclose($myfile);
 
         return 'exported';
     }
 
+    // Used as a one time function to export all files from DB
+    // function saveAllFiles() {
+    //     $query = $this->db->prepare('SELECT name, content FROM exported_files ef');
+    //     $query->execute(array());
+    //     $files = $query->fetchAll();
+
+    //     $path = '../../files';
+
+    //     try {
+    //         mkdir($path, 0777);
+    //     } catch (Exception  $e) {
+    //         echo 'Directory cannot be created' . $e->getMessage() . '\n';
+    //     }
+    //     foreach($files as $f) {
+    //         $new = fopen($path.'/'.$f['name'], 'w');
+    //         fwrite($new, $f['content']);
+    //         fclose($new);;
+    //         $new = null;
+    //     }
+    // }
+
     private function _getLogFileByWorkoutId($id) {
-        $query = $this->db->prepare('SELECT files.id, files.name, `type`, size, content
-            FROM exported_files AS files WHERE files.workoutId = ?');
+        $query = $this->db->prepare('SELECT name
+            FROM exported_files WHERE workoutId = ?');
         $query->execute(array($id));
         $file = $query->fetch();
-        return !!$file && isset($file['content']) ? $file['content'] : null;
-    }
-
-    private function _parseLogFileByWorkoutId($id) {
-        $file = $this->_getLogFileByWorkoutId($id);
-        $raw = $file['content'];
-        $rows = explode("\n", $raw);
-        unset($rows[0]);
-        unset($rows[count($rows) -1]);
-        return $rows;
+        return !!$file && isset($file['name']) ? $file['name'] : null;
     }
 
     private function _buildGpxHeader($date) {

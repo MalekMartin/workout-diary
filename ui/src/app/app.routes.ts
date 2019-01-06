@@ -14,5 +14,5 @@ export const ROUTES: Routes = [
     {
         path: 'gear',
         loadChildren: 'app/gear/gear.module#GearModule'
-    },
+    }
 ];

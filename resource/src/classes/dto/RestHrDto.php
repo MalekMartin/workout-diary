@@ -5,12 +5,14 @@ class RestHrDto
     public $date;
     public $bpm;
     public $note;
+    public $activity;
 
     public function __construct($v) {
         $this->id = $v['id'];
         $this->date = $v['date'];
         $this->bpm = intval($v['bpm']);
         $this->note = $v['note'];
+        $this->activity = $v['activity'];
     }
 
     public function getId() { return $this->id; }

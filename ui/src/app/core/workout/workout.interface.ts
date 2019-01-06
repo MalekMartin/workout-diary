@@ -11,6 +11,10 @@ export interface Workout {
     maxHr: number;
     maxSpeed: number;
     maxCadence: number;
+    maxEle: number;
+    minEle: number;
+    eleUp: number;
+    eleDown: number;
     note: string;
     id: string;
     date: string;
@@ -45,6 +49,10 @@ export interface Activity {
     name: string;
     icon: string;
     color: string;
+    hr?: boolean;
+    speed?: boolean;
+    elevation?: boolean;
+    cadence?: boolean;
 }
 
 export interface WorkoutLogFile {
@@ -65,5 +73,11 @@ export interface Coordinate {
 
 export interface TrackPoints {
     center: Coordinate;
-    coordinates: number[][];
+    coordinates: TrackPoint[];
+    count: number;
+}
+
+export interface TrackPoint {
+    active: boolean;
+    series: number[][];
 }

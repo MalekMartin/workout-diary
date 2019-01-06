@@ -1,6 +1,7 @@
-<div *ngIf="!!coordinates" class="map-wrapper">
+<div class="map-wrapper">
     <div class="content">
-        <aol-map [width]="'100%'" [height]="'200px'">
+        <aol-map  *ngIf="!!coordinates"
+            [width]="'100%'" [height]="'200px'">
             <aol-view [zoom]="zoom">
                 <aol-coordinate [x]="lon" [y]="lat" [srid]="'EPSG:4326'"></aol-coordinate>
             </aol-view>
@@ -9,16 +10,15 @@
             </aol-layer-tile>
             <aol-layer-vector [opacity]="opacity">
                 <aol-source-vector>
-                    <aol-feature>
+                    <aol-feature *ngFor="let item of coordinates">
                         <aol-geometry-linestring>
                             <aol-collection-coordinates
-                                [coordinates]="coordinates"
+                                [coordinates]="item.series"
                                 [srid]="'EPSG:4326'">
                             </aol-collection-coordinates>
                         </aol-geometry-linestring>
                         <aol-style>
-                            <!-- path style -->
-                            <aol-style-stroke [color]="'red'" [width]="2"></aol-style-stroke>
+                            <aol-style-stroke [color]="item.active ? 'green' : 'red'" width="3"></aol-style-stroke>
                         </aol-style>
                     </aol-feature>
                 </aol-source-vector>

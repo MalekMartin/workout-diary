@@ -23,7 +23,7 @@ $app->get('/resource/csv/to-gpx', function (Request $request, Response $response
 
         $fh = fopen("parsed.gpx", 'rb');
         $stream = new \Slim\Http\Stream($fh); // create a stream instance for the response body
-
+        $fileContent = file_get_contents('parsed.gpx');
 
         return $response->withHeader('Content-Type', 'application/force-download')
                         ->withHeader('Content-Type', 'application/octet-stream')
@@ -40,3 +40,11 @@ $app->get('/resource/csv/to-gpx', function (Request $request, Response $response
             ->write('No file id was received!');
     }
 });
+
+// One time operation to export all files from DB
+// $app->get('/resource/csv/save-all', function (Request $request, Response $response, $args) {
+//     $this->logger->addInfo("Save all files");
+//     $mapper = new CsvFile($this->db);
+//     $id = $mapper->saveAllFiles();
+//     return $response->withStatus(200);
+// });

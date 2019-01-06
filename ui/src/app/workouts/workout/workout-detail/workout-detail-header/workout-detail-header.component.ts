@@ -16,6 +16,7 @@ export class WorkoutDetailHeaderComponent implements OnInit {
 
     @Output() edit = new EventEmitter<string>();
     @Output() delete = new EventEmitter<string>();
+    @Output() findSame = new EventEmitter();
 
     constructor(
         private _router: Router,

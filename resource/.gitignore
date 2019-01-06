@@ -6,3 +6,6 @@ src/logs/*
 
 # .htaccess configuration
 .htaccess
+
+# Workout files
+files/*

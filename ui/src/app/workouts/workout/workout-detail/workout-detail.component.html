@@ -1,43 +1,62 @@
-<div class="wrapper" *ngIf="!!workout">
-    
+<mat-spinner [diameter]="50" *ngIf="loading"></mat-spinner>
+
+<div class="wrapper" [class.loading]="loading" *ngIf="!!workout">
+
     <wd-workout-detail-header [workout]="workout"
         [prev]="prev"
         [next]="next"
         (delete)="delete($event)"
-        (edit)="goToEdit()"></wd-workout-detail-header>
+        (edit)="goToEdit()"
+        (findSame)="findSame()"></wd-workout-detail-header>
 
-    <mat-card *ngIf="!!route && !!route.coordinates && !!route.coordinates.length"
+    <mat-card *ngIf="!!route && !!route.coordinates && !!route.count && !!route.coordinates.length"
         class="map-content">
-        <wd-map [coordinates]="route.coordinates"
+        <wd-smap [class.loading]="loadingCoords"
+            [route]="route"></wd-smap>
+        <!-- <wd-map [coordinates]="route.coordinates"
             [lat]="route.center.lat"
-            [lon]="route.center.lon"></wd-map>
+            [lon]="route.center.lon"
+            [loading]="loading"></wd-map> -->
     </mat-card>
 
     <div class="flex">
         <div class="content-50">
-            <mat-card>
-                <wd-workout-detail-numbers [workout]="workout"></wd-workout-detail-numbers>
-            </mat-card>
-            
-            <mat-card>
-                <wd-workout-checkpoint-form
-                    [workoutId]="id"
-                    (saved)="onCheckPointsChanged()"></wd-workout-checkpoint-form>
+            <wd-same-workouts [workout]="workout"></wd-same-workouts>
 
-                    <ng-container *ngIf="!!workoutRoute && !!workoutRoute.length && !checkPointsLoading">
-                        <wd-workout-check-point-table
-                            [data]="workoutRoute"
-                            (deleted)="deleteCheckPoint($event)">
-                        </wd-workout-check-point-table>
-                    </ng-container>
-                    <div *ngIf="!!checkPointsLoading">
-                        Nahrávám...
-                    </div>
-            </mat-card>
+            <mat-tab-group>
+                <mat-tab label="Detaily">
+                    <mat-card class="inside-tab">
+                        <wd-workout-detail-numbers [workout]="workout"></wd-workout-detail-numbers>
+                    </mat-card>
+                </mat-tab>
+                <mat-tab *ngIf="!!workout.log && !!workout.log.id" label="Srdečí frekvence">
+                    <mat-card class="inside-tab">
+                        <wd-workout-detail-hr *ngIf="!!hrAnalyzed" [id]="workout.id" [workout]="workout"
+                            [analyzed]="hrAnalyzed"></wd-workout-detail-hr>
+                    </mat-card>
+                </mat-tab>
+                <mat-tab *ngIf="!!workout.log && !!workout.log.id" label="Check pointy">
+                    <mat-card class="inside-tab">
+                        <wd-workout-checkpoint-form
+                            [workoutId]="id"
+                            (saved)="onCheckPointsChanged()"></wd-workout-checkpoint-form>
+        
+                        <ng-container *ngIf="!!workoutRoute && !!workoutRoute.length && !checkPointsLoading">
+                            <wd-workout-check-point-table
+                                [data]="workoutRoute"
+                                (deleted)="deleteCheckPoint($event)">
+                            </wd-workout-check-point-table>
+                        </ng-container>
+                        <div *ngIf="!!checkPointsLoading">
+                            Nahrávám...
+                        </div>
+                    </mat-card>
+                </mat-tab>
+            </mat-tab-group>
         </div>
         <div class="content-50">
             <mat-card *ngIf="!!workout.log.id">
-                <wd-workout-detail-graph *ngIf="id" [id]="id"></wd-workout-detail-graph>
+                <wd-workout-detail-graph *ngIf="id" [id]="id" [activity]="workout.activity"></wd-workout-detail-graph>
             </mat-card>
             
             <mat-card *ngIf="workout.log.id">
@@ -46,7 +65,7 @@
                     <span class="file-size">{{workout.log.size | fileSize}}</span>
                     <span class="file-actions">
                         <a (click)="convertWorkoutToGpx()">GPX</a>
-                        <i class="material-icons" (click)="deleteFileLog()">delete</i>
+                        <i class="material-icons" (click)="deleteFile()">delete</i>
                     </span>
                 </div>
             </mat-card>

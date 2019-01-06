@@ -1,12 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { SpinningWorkout, SpinningSection } from '../../../core/spinning-workout/spinning-workout.interface';
 import { ActivatedRoute } from '@angular/router';
-import { Subject } from 'rxjs/Subject';
+import { Subject ,  interval ,  Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { SpinningWorkoutService } from '../../../core/spinning-workout/spinning-workout.service';
-import { interval } from 'rxjs/observable/interval';
 import * as _ from 'lodash';
-import { Subscription } from 'rxjs/Subscription';
 
 @Component({
     selector: 'wd-spinning-work',

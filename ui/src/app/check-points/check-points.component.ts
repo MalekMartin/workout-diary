@@ -1,9 +1,16 @@
-import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    ViewChild,
+    OnDestroy,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef
+} from '@angular/core';
 import { CheckPoint } from '../core/check-point/check-point.interface';
 import { CheckPointService } from '../core/check-point/check-point.service';
 import { CheckPointFormComponent } from './check-point-form/check-point-form.component';
 import { takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 
 @Component({
     selector: 'wd-check-points',
@@ -12,17 +19,13 @@ import { Subject } from 'rxjs/Subject';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CheckPointsComponent implements OnInit, OnDestroy {
-
     @ViewChild(CheckPointFormComponent) checkPointForm: CheckPointFormComponent;
 
     checkPoints: CheckPoint[];
 
     private _onDestroy$ = new Subject();
 
-    constructor(
-        private _checkpointService: CheckPointService,
-        private _cd: ChangeDetectorRef,
-    ) { }
+    constructor(private _checkpointService: CheckPointService, private _cd: ChangeDetectorRef) {}
 
     ngOnInit() {
         this.getAllCheckPoints();
@@ -33,7 +36,8 @@ export class CheckPointsComponent implements OnInit, OnDestroy {
     }
 
     save(model: CheckPoint) {
-        this._checkpointService.newCheckpoint(model)
+        this._checkpointService
+            .newCheckpoint(model)
             .subscribe(this._onCheckpointAddSuccess, this._onCheckpointAddError);
     }
 
@@ -68,15 +72,11 @@ export class CheckPointsComponent implements OnInit, OnDestroy {
         this.getAllCheckPoints();
     }
 
-    private _onCheckpointAddError = () => {
-
-    }
+    private _onCheckpointAddError = () => {};
 
     private _onDeleteSuccess = () => {
         this.getAllCheckPoints();
     }
 
-    private _onDeleteError = () => {
-
-    }
+    private _onDeleteError = () => {};
 }

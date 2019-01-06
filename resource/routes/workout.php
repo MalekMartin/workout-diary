@@ -5,7 +5,7 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 $app->post('/resource/workout/add', function (Request $request, Response $response, $args) {
     $this->logger->addInfo("add workout");
-    $mapper = new Workout($this->db);
+    $mapper = new Workout($this->db, $this->logger);
     $d = json_decode(file_get_contents('php://input'));
     if (isset($d)) {
         $id = $mapper->addWorkout($d);
@@ -18,7 +18,7 @@ $app->post('/resource/workout/add', function (Request $request, Response $respon
 
 $app->post('/resource/workout/{id}/update', function (Request $request, Response $response, $args) {
     $this->logger->addInfo("update workout");
-    $mapper = new Workout($this->db);
+    $mapper = new Workout($this->db, $this->logger);
     $d = json_decode(file_get_contents('php://input'));
     $id = $args['id'];
     if (isset($d) && !!$id) {
@@ -36,7 +36,7 @@ $app->post('/resource/workout/{id}/update', function (Request $request, Response
 
 $app->delete('/resource/workout/{id}/delete', function (Request $request, Response $response, $args) {
     $this->logger->addInfo("delete workout");
-    $mapper = new Workout($this->db);
+    $mapper = new Workout($this->db, $this->logger);
     if (isset($args['id'])) {
         $one = $mapper->deleteWorkout($args['id']);
         return $response->withJson($args['id']);
@@ -47,11 +47,13 @@ $app->delete('/resource/workout/{id}/delete', function (Request $request, Respon
 
 $app->post('/resource/workout/{id}/file', function (Request $request, Response $response, $args) {
     $this->logger->addInfo("File add");
-    $mapper = new Workout($this->db);
+    $mapper = new Workout($this->db, $this->logger);
     $file = $mapper->uploadLogFile($args['id']);
 
     if ($file === 400) {
         return $response->withStatus(400);
+    } else if ($file === 409) {
+        return $response->withStatus(409);
     } else {
         return $response->withJson($file);
     }
@@ -59,7 +61,7 @@ $app->post('/resource/workout/{id}/file', function (Request $request, Response $
 
 $app->post('/resource/workout/{id}/next-prev', function (Request $request, Response $response, $args) {
     $this->logger->addInfo("Find prev and next id of given workout");
-    $mapper = new Workout($this->db);
+    $mapper = new Workout($this->db, $this->logger);
     $filter = json_decode(file_get_contents('php://input'));
 
     if (isset($args['id'])) {
@@ -72,7 +74,7 @@ $app->post('/resource/workout/{id}/next-prev', function (Request $request, Respo
 
 $app->get('/resource/workout/all', function (Request $request, Response $response, $args) {
     $this->logger->addInfo("all workouts");
-    $mapper = new Workout($this->db);
+    $mapper = new Workout($this->db, $this->logger);
     $d = json_decode(file_get_contents('php://input'));
     $all = $mapper->findAll();
     return $response->withJson($all);
@@ -80,7 +82,7 @@ $app->get('/resource/workout/all', function (Request $request, Response $respons
 
 $app->post('/resource/workouts/range', function (Request $request, Response $response, $args) {
     $this->logger->addInfo("all workouts by date range");
-    $mapper = new Workout($this->db);
+    $mapper = new Workout($this->db, $this->logger);
     $from = isset($_GET['from']) ? $_GET['from'] : NULL;
     $to = isset($_GET['to']) ? $_GET['to'] : NULL;
     $types = json_decode(file_get_contents('php://input'));
@@ -90,7 +92,7 @@ $app->post('/resource/workouts/range', function (Request $request, Response $res
 
 $app->get('/resource/workout/{id}', function (Request $request, Response $response, $args) {
     $this->logger->addInfo("workout " . $args['id']);
-    $mapper = new Workout($this->db);
+    $mapper = new Workout($this->db, $this->logger);
     $one = $mapper->findOneById($args['id']);
 
     return !!$one
@@ -102,31 +104,23 @@ $app->get('/resource/workout/{id}', function (Request $request, Response $respon
 
 $app->get('/resource/workout/{id}/graph', function (Request $request, Response $response, $args) {
     $this->logger->addInfo("workout graph data " . $args['id']);
-    $mapper = new Workout($this->db);
+    $mapper = new Workout($this->db, $this->logger);
     $data = $mapper->getGraphData($args['id'], $_GET['type']);
-    // return $response->withJson($data);
-    // $fh = fopen("graphfile.txt", "r");
-    // $stream = new \Slim\Http\Stream($fh); // create a stream instance for the response body
     $json = json_encode($data);
     $length = strlen($json);
 
-        return $response->withHeader('Content-Type', 'application/force-download')
-                        ->withHeader('Content-Type', 'application/octet-stream')
-                        // ->withHeader('Content-Type', 'application/download')
-                        // ->withHeader('Content-Description', 'File Transfer')
-                        // ->withHeader('Content-Transfer-Encoding', 'binary')
-                        // ->withHeader('Content-Disposition', 'attachment; filename="' . basename($file) . '"')
-                        ->withHeader('Content-Length', $length)
-                        ->withHeader('Expires', '0')
-                        ->withHeader('Cache-Control', 'must-revalidate, post-check=0, pre-check=0')
-                        ->withHeader('Pragma', 'public')
-                        // ->withBody($stream);
-                        ->withJson($data);
+    return $response->withHeader('Content-Type', 'application/force-download')
+                    ->withHeader('Content-Type', 'application/octet-stream')
+                    ->withHeader('Content-Length', $length)
+                    ->withHeader('Expires', '0')
+                    ->withHeader('Cache-Control', 'must-revalidate, post-check=0, pre-check=0')
+                    ->withHeader('Pragma', 'public')
+                    ->withJson($data);
 });
 
 $app->get('/resource/workout/{id}/logfile', function (Request $request, Response $response, $args) {
     $this->logger->addInfo("workout log file " . $args['id']);
-    $mapper = new Workout($this->db);
+    $mapper = new Workout($this->db, $this->logger);
     $data = $mapper->getLogFile($args['id']);
     $body = $response->getBody();
     $body->write($data);
@@ -135,49 +129,86 @@ $app->get('/resource/workout/{id}/logfile', function (Request $request, Response
 
 $app->delete('/resource/workout/file/{id}', function (Request $request, Response $response, $args) {
     $this->logger->addInfo("delete workout file log " . $args['id']);
-    $mapper = new Workout($this->db);
+    $mapper = new Workout($this->db, $this->logger);
     $one = $mapper->deleteWorkoutFileLog($args['id']);
     return $response->withJson($args['id']);
 });
 
 $app->get('/resource/workout/{id}/check-point/{cp}/add', function (Request $request, Response $response, $args) {
     $this->logger->addInfo("Add check point to workout");
-    $mapper = new Workout($this->db);
+    $mapper = new Workout($this->db, $this->logger);
     $one = $mapper->addWorkoutCheckPoint($args['id'], $args['cp']);
     return $response->withJson($one);
 });
 
 $app->get('/resource/workout/{id}/route', function (Request $request, Response $response, $args) {
     $this->logger->addInfo("Get workout check points");
-    $mapper = new Workout($this->db);
+    $mapper = new Workout($this->db, $this->logger);
     $one = $mapper->getRouteCheckPoints($args['id']);
     return $response->withJson($one);
 });
 
 $app->get('/resource/workout/{id}/route/coordinates', function (Request $request, Response $response, $args) {
     $this->logger->addInfo("Get workout route");
-    $mapper = new Workout($this->db);
+    $mapper = new Workout($this->db, $this->logger);
     $one = $mapper->getTrackCoordinates($args['id']);
+    return $response->withJson($one);
+});
+
+$app->get('/resource/workout/{id}/analyze-hr', function (Request $request, Response $response, $args) {
+    $this->logger->addInfo("Get analyzed workout hr");
+    $mapper = new Workout($this->db, $this->logger);
+    if (isset($_REQUEST['max']) && isset($args['id'])) {
+        $one = $mapper->analyzeWorkoutHr($args['id'], $_REQUEST['max']);
+        return $response->withJson($one);
+    } else {
+        return $response->withStatus(400)
+            ->write('Nebylo zadáno SFmax nebo workoutId');
+    }
+});
+
+$app->get('/resource/workout/{id}/same-workouts', function (Request $request, Response $response, $args) {
+    $this->logger->addInfo("Get same workouts");
+    $mapper = new Workout($this->db, $this->logger);
+    $one = $mapper->getSameWorkouts($args['id']);
     return $response->withJson($one);
 });
 
 $app->delete('/resource/workout/{id}/check-point/{cp}/delete', function (Request $request, Response $response, $args) {
     $this->logger->addInfo("Delete check point from workout");
-    $mapper = new Workout($this->db);
+    $mapper = new Workout($this->db, $this->logger);
     $one = $mapper->deleteWorkoutCheckPoint($args['id'], $args['cp']);
     return $response->withJson($one);
 });
 
 $app->post('/resource/csv-to-gpx', function (Request $request, Response $response, $args) {
     $this->logger->addInfo("Upload CSV to be parsed to GPX");
-    $mapper = new Workout($this->db);
+    $mapper = new Workout($this->db, $this->logger);
     $file = $mapper->createCsvTempFile();
     return $response->withJson($file);
 });
 
+$app->post('/resource/workout/find-same-routes', function (Request $request, Response $response, $args) {
+    $d = json_decode(file_get_contents('php://input'));
+    $this->logger->addInfo("Find same routes for " . $d->id);
+    $mapper = new Workout($this->db, $this->logger);
+    $similarity = $mapper->findSameRoutes($d);
+
+    return $response->withJson($similarity);
+});
+
+$app->post('/resource/workout/compare_routes', function (Request $request, Response $response, $args) {
+    $this->logger->addInfo('Compare routes' . $args['id']);
+    $d = json_decode(file_get_contents('php://input'));
+    $mapper = new Workout($this->db, $this->logger);
+    $similarity = $mapper->compareRoutes($d->route1, $d->route2, $this->logger);
+
+    return $response->withJson($similarity);
+});
+
 $app->get('/resource/csv-to-gpx/gpx', function (Request $request, Response $response, $args) {
     $this->logger->addInfo("Get GPX file");
-    $mapper = new Workout($this->db);
+    $mapper = new Workout($this->db, $this->logger);
     if (isset($_GET['id'])) {
         $data = $mapper->csv2gpx($_GET['id']);
 
@@ -189,7 +220,7 @@ $app->get('/resource/csv-to-gpx/gpx', function (Request $request, Response $resp
                         ->withHeader('Content-Type', 'application/download')
                         ->withHeader('Content-Description', 'File Transfer')
                         ->withHeader('Content-Transfer-Encoding', 'binary')
-                        ->withHeader('Content-Disposition', 'attachment; filename="' . basename($file) . '"')
+                        ->withHeader('Content-Disposition', 'attachment; filename="parsed.gpx"')
                         ->withHeader('Expires', '0')
                         ->withHeader('Cache-Control', 'must-revalidate, post-check=0, pre-check=0')
                         ->withHeader('Pragma', 'public')

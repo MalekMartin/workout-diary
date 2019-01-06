@@ -1,7 +1,10 @@
 <?php
 require 'dto/WorkoutDto.php';
+require 'dto/WahooWorkoutRowDto.php';
 
 class Workout {
+
+    public $path = '../../files';
 
     public $columns = array(
         'TIMESTAMP' => 0,   // 0 - Timestamp (UNIX time ms)
@@ -25,16 +28,21 @@ class Workout {
         'ELE' => 1
     );
 
-    public function __construct($db)
+    public $routeComparer;
+
+    public function __construct($db, $logger)
     {
         $this->db = $db;
+        $this->logger = $logger;
+        $this->routeComparer = new RouteComparer($db, $logger);
     }
 
     public function addWorkout($d) {
         $duration = $d->sec + ($d->min * 60) + ($d->hour * 60 * 60);
+        $gear = !!$d->gear ? $d->gear : null;
         $query = $this->db->prepare('INSERT INTO workout (name, activity, `date`, `time`, duration, energy, distance, note, gearId)
             VALUES (?,?,?,?,?,?,?,?,?)');
-        $query->execute(array($d->name, $d->activity, $d->date, $d->time, $duration, $d->energy, $d->distance, $d->note, $d->gear));
+        $query->execute(array($d->name, $d->activity, $d->date, $d->time, $duration, !!$d->energy ? $d->energy : 0, !!$d->distance ? $d->distance : 0, $d->note, $gear));
 
         return $this->db->lastInsertId();
     }
@@ -42,7 +50,7 @@ class Workout {
     public function updateWorkout($id, $d) {
         $duration = $d->sec + ($d->min * 60) + ($d->hour * 60 * 60);
         $q = $this->db->prepare('UPDATE workout SET name = ?, activity = ?, `date` = ?, `time` = ?, duration = ?, energy = ?, distance = ? , note = ?, gearId = ? WHERE id = ?');
-        $q->execute(array($d->name, $d->activity, $d->date, $d->time, $duration, $d->energy, $d->distance, $d->note, $d->gear, $id));
+        $q->execute(array($d->name, $d->activity, $d->date, $d->time, $duration, !!$d->energy ? $d->energy : 0, !!$d->distance ? $d->distance : 0, $d->note, $d->gear, $id));
         return $q;
     }
 
@@ -56,7 +64,7 @@ class Workout {
             avgSpeed, avgCadence, maxSpeed, maxCadence, maxEle, minEle, eleUp, eleDown,
             maxHr, distance, note, log, files.name AS `filename`, files.size, files.type,
             gear.id as gearId, gear.brand, gear.model,
-            a.id as activityId, a.name, a.color, a.icon
+            a.id as activityId, a.name as activityName, a.color, a.icon
             FROM workout
                 LEFT JOIN exported_files AS files ON workout.id = files.workoutId
                 LEFT JOIN gear ON workout.gearId = gear.id
@@ -79,7 +87,7 @@ class Workout {
             avgSpeed, avgCadence, maxSpeed, maxCadence, maxEle, minEle, eleUp, eleDown,
             maxHr, distance, note, files.id AS log, files.name AS `filename`, files.size, files.type,
             gear.id as gearId, gear.brand, gear.model,
-            a.id as activityId, a.name, a.color, a.icon
+            a.id as activityId, a.name as activityName, a.color, a.icon
             FROM workout
                 LEFT JOIN exported_files AS files ON workout.id = files.workoutId
                 LEFT JOIN gear ON workout.gearId = gear.id
@@ -96,12 +104,27 @@ class Workout {
     }
 
     public function deleteWorkout($id) {
+        $this->_deleteWorkoutFileByWorkoutId($id);
         $itemQuery = $this->db->prepare('DELETE FROM workout WHERE id = ?');
         $itemQuery->execute(array($id));
-        // if ($d->log->id) {
-        //     $fileQuery = $this->db->prepare('DELETE FROM exported_files WHERE id = ?');
-        //     $fileQuery->execute(array($d->log->id));
-        // }
+    }
+
+    private function _deleteWorkoutFileByWorkoutId($id) {
+        $query = $this->db->prepare('SELECT name FROM exported_files WHERE workoutId = ?');
+        $query->execute(array($id));
+        $file = $query->fetch();
+        if (!!$file) {
+            unlink($this->path.'/'.$file['name']);
+        }
+    }
+
+    private function _deleteWorkoutFileById($id) {
+        $query = $this->db->prepare('SELECT name FROM exported_files WHERE id = ?');
+        $query->execute(array($id));
+        $file = $query->fetch();
+        if (!!$file) {
+            unlink($this->path.'/'.$file['name']);
+        }
     }
     
     public function handleFile() {
@@ -111,10 +134,8 @@ class Workout {
     }
 
     public function deleteWorkoutFileLog($id) {
-        // $workoutUpdate = $this->db->prepare('UPDATE workout SET log = null WHERE log = ?');
+        $this->_deleteWorkoutFileById($id);
         $fileDelete = $this->db->prepare('DELETE FROM exported_files WHERE id = ?');
-
-        // $workoutUpdate->execute(array($id));
         $fileDelete->execute(array($id));
     }
 
@@ -126,25 +147,39 @@ class Workout {
         $type = $_FILES["file"]["type"];
         $size = filesize($_FILES["file"]["tmp_name"]);
 
-        $query = $this->db->prepare('INSERT INTO exported_files (name, type, size, content, workoutId) VALUES (?,?,?,?,?)');
-        $fileStatus = $query->execute(array($name, $type, $size, $raw, $id));
+        $path = '../../files';
+        $fileName = $path.'/'.$_FILES["file"]["name"];
 
-        if (!!$fileStatus) {
-            $insertedId = $this->db->lastInsertId();
+        if (!file_exists($path)) {
+            mkdir($path, 0777);
+        }
 
-            $log = $this->_parseBasicInfoFromLogFile($raw);
-            $this->updateWorkoutWithFileLog($id, $log, $insertedId);
+        if (!file_exists($fileName)) {
+            $new = fopen($fileName, 'w');
+            fwrite($new, $raw);
+            fclose($new);;
+            $new = null;
 
-            // $query2 = $this->db->prepare('UPDATE workout SET log = ? WHERE id = ?');
-            // $query2->execute(array($insertedId, $id));
-            // return array(
-            //     'id' => $insertedId,
-            //     'name' => $name,
-            //     'type' => $type,
-            //     'size' => $size
-            // );
+            $query = $this->db->prepare('INSERT INTO exported_files (name, type, size, workoutId) VALUES (?,?,?,?)');
+            $fileStatus = $query->execute(array($name, $type, $size, $id));
+
+            if (!!$fileStatus) {
+                $insertedId = $this->db->lastInsertId();
+                
+                $log = $this->_parseBasicInfoFromLogFile($raw);
+                $this->updateWorkoutWithFileLog($id, $log, $insertedId);
+                return array(
+                    'id' => $insertedId,
+                    'name' => $name,
+                    'type' => $type,
+                    'size' => $size
+                );
+                   
+            } else {
+                return 400;
+            }
         } else {
-            return 400;
+            return 409;
         }
     }
 
@@ -171,43 +206,68 @@ class Workout {
         return [];
     }
 
+    /**
+     * @param string $row add row string
+     * @return object returns parsed row as an object 
+     */
+    private function _parseRow($row) {
+        if (!$row) return null;
+        $r = explode(",", $row);
+
+        return new WahooWorkoutRowDto($r);
+    }
+
     public function getTrackCoordinates($id) {
         $rows = $this->_parseLogFileByWorkoutId($id);
         $series = [];
         $sumLat = 0;
         $sumLon = 0;
+        $segments = [];
+        $active = false;
+        $last = null;
+        $counter = 0;
+        $sum = 0;
+        $c = 0;
 
         if (count($rows) > 0) {
- 
-            // $aggr = count($rows) > 300 ? ceil(count($rows) / 300) : 1;
-            $aggr = 0;
+            for ($i = 1; $i < count($rows); $i++) {
+                $row = $this->_parseRow($rows[$i]);
+                $lat = $row->latitude;
+                $lon = $row->longitude;
+                $active = $row->active;
 
-            $counter = 0;
-            $sum = 0;
-            $c = 0;
-
-            for ($i = 1; $i < count($rows) - 2; $i++) {
-                $row = explode(",", $rows[$i]);
-                $lat = floatval($row[$this->columns['LAT']]);
-                $lon = floatval($row[$this->columns['LON']]);
-
-                $counter += 1;
-                if ($counter >= $aggr && $lat && $lon) {
+                if ($lat && $lon) {
+                    $counter += 1;
                     $series[] = [$lon, $lat];
 
+                    if (!!$last && $last->active != $row->active) {
+                        array_push($segments, array(
+                            'active' => $last->active,
+                            'series' => $series,
+                            'lasttime' => $row->timestamp
+                        ));
+                        $series = [[$lon, $lat]];
+                    }
+
+                    $last = $this->_parseRow($rows[$i]);
                     $sumLat += $lat;
                     $sumLon += $lon;
-                    $counter = 0;
                 }
             }
         }
+        array_push($segments, array(
+            'active' => !!$last ? $last->active : null,
+            'series' => $series,
+            'lasttime' => isset($row) && !!$row ? $row->timestamp : null
+        ));
         
         return array(
             'center' => array(
-                'lat' => $sumLat > 0 ? $sumLat / count($series) : 0,
-                'lon' => $sumLon > 0 ? $sumLon / count($series) : 0
+                'lat' => $sumLat > 0 ? $sumLat / $counter : 0,
+                'lon' => $sumLon > 0 ? $sumLon / $counter : 0,
             ),
-            'coordinates' => $series
+            'count' => $counter,
+            'coordinates' => $segments
         );
     }
 
@@ -417,8 +477,7 @@ class Workout {
     }
 
     private function _parseLogFileByWorkoutId($id) {
-        $file = $this->_getLogFileByWorkoutId($id);
-        $raw = $file['content'];
+        $raw = $this->_getLogFileByWorkoutId($id);
         $rows = explode("\n", $raw);
         unset($rows[0]);
         unset($rows[count($rows) -1]);
@@ -549,19 +608,80 @@ class Workout {
         return $this->_dataToGraphFromLogFile($workoutId, $valueType);
     }
 
-    private function _dataToGraphFromLogFile($workoutId, $valueType = 'HR') {
+    // private function _dataToGraphFromLogFile($workoutId, $valueType = 'HR') {
 
-        $file = $this->_getLogFileByWorkoutId($workoutId);
-        $col = $this->columns[$valueType];
+    //     $file = $this->_getLogFileByWorkoutId($workoutId);
+    //     $col = $this->columns[$valueType];
         
-        $raw = $file['content'];
+    //     $raw = $file['content'];
+    //     $rows = explode("\n", $raw);
+    //     $aggr = count($rows) > 300 ? ceil(count($rows) / 300) : 1;
+
+    //     if ($valueType != 'ELE') {
+    //         $counter = 0;
+    //         $sum = 0;
+    //         $series = [];
+    //         $c = 0;
+    //         $start = 0;
+            
+    //         $multiplier = $this->multiplier[$valueType];
+    //         $round = $valueType === 'SPEED'
+    //             ? 1
+    //             : 0;
+
+    //         for ($i = 1; $i < count($rows) - 2; $i++) {
+    //             $row = explode(",", $rows[$i]);
+
+    //             if ($i == 1) { $start = floatval($row[$this->columns['TIMESTAMP']]); }
+
+    //             $hrMultiplier = $this->_correctHrMultiplier($start);
+    //             $value = ($valueType == 'HR')
+    //                 ? floatval(($row[$col] * $hrMultiplier))
+    //                 : floatval($row[$col]);
+                
+    //             $sum += $value;
+    //             $c = $row[10];
+
+    //             $counter += 1;
+    //             if ($counter >= $aggr) {
+    //                 // $time = explode(":", $row[$this->columns['TIME']]);
+    //                 $time = $row[$this->columns['TIMESTAMP']] - $start;
+    //                 $series[] = array(
+    //                     'name' => $valueType != 'ELE'
+    //                         ? $this->_secToTime(floatval($time > 0 ? ($time) / 1000 : 0))
+    //                         // ? $time[0].":".$time[1].":".$time[2]
+    //                         : ceil($row[$this->columns['DST']]),
+    //                     'value' => round(($sum / $aggr) * $multiplier, $round),
+    //                 );
+    //                 $counter = 0;
+    //                 $sum = 0;
+    //             }
+    //         }
+
+    //         $a = array(
+    //             'name' => $valueType,
+    //             'series' => $series,
+    //         );
+    //         $b = array($a);
+    //         return $b;
+    //     } else {
+    //         return $this->_getRouteProfile($rows);
+    //     }
+    // }
+    private function _dataToGraphFromLogFile($workoutId, $valueType = 'HR') {
+        $raw = $this->_getLogFileByWorkoutId($workoutId);
         $rows = explode("\n", $raw);
         $aggr = count($rows) > 300 ? ceil(count($rows) / 300) : 1;
 
         if ($valueType != 'ELE') {
             $counter = 0;
             $sum = 0;
-            $series = [];
+
+            $hrSeries = [];
+            $eleSeries = [];
+            $speedSeries = [];
+            $cadSeries = [];
+            
             $c = 0;
             $start = 0;
             
@@ -572,35 +692,73 @@ class Workout {
 
             for ($i = 1; $i < count($rows) - 2; $i++) {
                 $row = explode(",", $rows[$i]);
-                $value = floatval($row[$col]);
 
                 if ($i == 1) { $start = floatval($row[$this->columns['TIMESTAMP']]); }
 
-                $sum += $value;
-                $c = $row[10];
+                $hrMultiplier = $this->_correctHrMultiplier($start);
+                $hrValue = floatval(($row[$this->columns['HR']] * $hrMultiplier));
+                $eleValue = floatval($row[$this->columns['ELE']]);
+                $speedValue = floatval($row[$this->columns['SPEED']]);
+                $cadValue = floatval($row[$this->columns['CAD']]);
                 
+                $hrSum += $hrValue;
+                $eleSum += $eleValue;
+                $speedSum += $speedValue;
+                $cadSum += $cadValue;
+                $c = $row[10];
 
                 $counter += 1;
                 if ($counter >= $aggr) {
                     // $time = explode(":", $row[$this->columns['TIME']]);
                     $time = $row[$this->columns['TIMESTAMP']] - $start;
-                    $series[] = array(
-                        'name' => $valueType != 'ELE'
-                            ? $this->_secToTime(floatval($time > 0 ? ($time) / 1000 : 0))
-                            // ? $time[0].":".$time[1].":".$time[2]
-                            : ceil($row[$this->columns['DST']]),
-                        'value' => round(($sum / $aggr) * $multiplier, $round),
+                    // $hrSeries[] = array(
+                    //     'name' => $valueType != 'ELE'
+                    //         ? $this->_secToTime(floatval($time > 0 ? ($time) / 1000 : 0))
+                    //         // ? $time[0].":".$time[1].":".$time[2]
+                    //         : ceil($row[$this->columns['DST']]),
+                    //     'value' => round(($sum / $aggr) * $multiplier, $round),
+                    // );
+                    $hrSeries[] = array(
+                        'name' => $this->_secToTime(floatval($time > 0 ? ($time) / 1000 : 0)),
+                        'value' => round(($hrSum / $aggr) * $this->multiplier['HR'], $round),
+                    );
+                    $eleSeries[] = array(
+                        'name' => ceil($row[$this->columns['DST']]),
+                        'value' => round(($eleSum / $aggr) * $this->multiplier['ELE'], $round),
+                    );
+                    $speedSeries[] = array(
+                        'name' => $this->_secToTime(floatval($time > 0 ? ($time) / 1000 : 0)),
+                        'value' => round(($speedSum / $aggr) * $this->multiplier['SPEED'], $round),
+                    );
+                    $cadSeries[] = array(
+                        'name' => $this->_secToTime(floatval($time > 0 ? ($time) / 1000 : 0)),
+                        'value' => round(($cadSum / $aggr) * $this->multiplier['CAD'], $round),
                     );
                     $counter = 0;
-                    $sum = 0;
+                    $hrSum = 0;
+                    $eleSum = 0;
+                    $speedSum = 0;
+                    $cadSum = 0;
                 }
             }
 
-            $a = array(
-                'name' => $valueType,
-                'series' => $series
+            $hr = array(
+                'name' => 'HR',
+                'series' => $hrSeries
             );
-            $b = array($a);
+            $ele = array(
+                'name' => 'ELE',
+                'series' => $eleSeries
+            );
+            $speed = array(
+                'name' => 'SPEED',
+                'series' => $speedSeries
+            );
+            $cad = array(
+                'name' => 'CAD',
+                'series' => $cadSeries
+            );
+            $b = array($hr, $ele, $speed, $cad);
             return $b;
         } else {
             return $this->_getRouteProfile($rows);
@@ -641,17 +799,23 @@ class Workout {
         return $b;
     }
 
+    private function _correctHrMultiplier($timestamp) {
+        $breakpoint = strtotime("2018-05-07 00:00:00");
+        $date = $timestamp / 1000;
+        return $date < $breakpoint ? 60 : 1;
+    }
+
     private function _getLogFileByWorkoutId($id) {
         $query = $this->db->prepare('SELECT files.id, files.name, `type`, size, content
             FROM workout LEFT JOIN exported_files AS files ON workout.id = files.workoutId WHERE workout.id = ?');
         $query->execute(array($id));
-        return $query->fetch();
+        $file = $query->fetch();
+        return file_get_contents('../../files/'.$file['name']);
     }
 
     public function getLogFile($id) {
         $file = $this->_getLogFileByWorkoutId($id);
-
-        return $file['content'];
+        return !!$file ? $file : null;
     }
 
     public function createCsvTempFile() {
@@ -697,19 +861,19 @@ class Workout {
         $firstRow = explode(",", $rows[1]);
 
         $date = date("Y-m-d", floatval($firstRow[0]) / 1000);
+        $hrMultiplier = $this->_correctHrMultiplier($firstRow[0]);
 
         $myfile = fopen("parsed.gpx", "w") or die("Unable to open file!");
 
         fwrite($myfile, $this->_buildHeader($date));
 
         for ($i = 1; $i < count($rows) - 2; $i++) {
-        // for ($i = 1; $i < 30; $i++) {
             $row = explode(",", $rows[$i]);
 
             $lat = $defLat ? $defLat : floatval($row[$this->columns['LAT']]);
             $lon = $defLon ? $defLon : floatval($row[$this->columns['LON']]);
             $ele = $defEle ? $defEle : floatval($row[$this->columns['ELE']] * $this->multiplier['ELE']);
-            $hr = round(floatval($row[$this->columns['HR']] * $this->multiplier['HR']));
+            $hr = round(floatval($row[$this->columns['HR']] * $hrMultiplier));
             $cad = round(floatval($row[$this->columns['CAD']] * $this->multiplier['CAD']));
 
             $time = date('Y-m-d\TH:i:sP', ($row[$this->columns['TIMESTAMP']] / 1000));
@@ -767,7 +931,7 @@ class Workout {
         avgSpeed, avgCadence, maxSpeed, maxCadence, maxEle, minEle, eleUp, eleDown,
         maxHr, distance, note, log, files.name AS `filename`, files.size, files.type,
         gear.id as gearId, gear.brand, gear.model,
-        a.id as activityId, a.name, a.color, a.icon
+        a.id as activityId, a.name as activityName, a.color, a.icon
         FROM workout
             LEFT JOIN exported_files AS files ON workout.id = files.workoutId
             LEFT JOIN gear ON workout.gearId = gear.id
@@ -788,7 +952,7 @@ class Workout {
         avgSpeed, avgCadence, maxSpeed, maxCadence, maxEle, minEle, eleUp, eleDown,
         maxHr, distance, note, log, files.name AS `filename`, files.size, files.type,
         gear.id as gearId, gear.brand, gear.model,
-        a.id as activityId, a.name, a.color, a.icon
+        a.id as activityId, a.name as activityName, a.color, a.icon
         FROM workout
             LEFT JOIN exported_files AS files ON workout.id = files.workoutId
             LEFT JOIN gear ON workout.gearId = gear.id
@@ -808,7 +972,7 @@ class Workout {
         avgSpeed, avgCadence, maxSpeed, maxCadence, maxEle, minEle, eleUp, eleDown,
         maxHr, distance, note, log, files.name AS `filename`, files.size, files.type,
         gear.id as gearId, gear.brand, gear.model,
-        a.id as activityId, a.name, a.color, a.icon
+        a.id as activityId, a.name as activityName, a.color, a.icon
         FROM workout
             LEFT JOIN exported_files AS files ON workout.id = files.workoutId
             LEFT JOIN gear ON workout.gearId = gear.id
@@ -835,5 +999,206 @@ class Workout {
         }
         $sec = $s;
         return ($hod < 10 ? '0'.$hod : $hod) .':'.($min < 10 ? '0'.$min : $min).':'.($sec < 10 ? '0'.$sec : $sec);
+    }
+
+    public function analyzeWorkoutHr($id, $max) {
+        $workout = $this->findOneById($id);
+        $raw = $this->getLogFile($id);
+
+        if ($raw) {
+
+            $rows = explode("\n", $raw);
+        
+            $colsPom = explode(",", $rows[1]);
+            
+            $start = $colsPom[$this->columns['TIMESTAMP']];
+            $multiplier = $this->_correctHrMultiplier($start);
+
+            $ranges = $this->_createHrZonesRanges($max);
+            $res = [];
+
+            $res = array(
+                'rest' => 0,
+                strval(round(0.6 * $max)) => 0,
+                strval(round(0.65 * $max)) => 0,
+                strval(round(0.7 * $max)) => 0,
+                strval(round(0.75 * $max)) => 0,
+                strval(round(0.8 * $max)) => 0,
+                strval(round(0.85 * $max)) => 0,
+                strval(round(0.9 * $max)) => 0,
+                strval(round(0.95 * $max)) => 0,
+            );
+
+            for ($i = 1; $i < count($rows) - 2; $i++) {
+                $cols = explode(",", $rows[$i]);
+                $hr = floatval($cols[$this->columns['HR']]);
+                $hr = round($hr * $multiplier);
+                $added = false;
+
+                if ($cols[$this->columns['ACTIVE']] == 'true') {
+                    foreach($ranges as $v) {
+                        if ($this->_isInHrRange($v[0], $v[1], $hr)) {
+                            $res[$v[0]] += 1;
+                            $added = true;
+                            break;
+                        }
+                    }
+
+                    if ($added == false) {
+                        $res['rest'] += 1;
+                    }
+                }
+            }
+
+            $maxDuration = 0;
+            $workoutTime = 0;
+            foreach($res as $ind => $r) {
+                $maxDuration = $r > $maxDuration ? $r : $maxDuration;
+                $workoutTime += $ind != 'rest' ? $r : 0;
+            }
+
+            return array(
+                'zones' => $res,
+                'maxDuration' => $maxDuration,
+                'workoutTime' => $workoutTime,
+                'ranges' => $ranges
+            );
+        } else {
+            return array(
+                'zones' => null,
+                'maxDuration' => 0,
+                'workoutTime' => 0,
+                'ranges' => null
+            );
+        }
+
+    }
+
+    private function _createHrZonesRanges($max) {
+        $range = [];
+        $i = 60;
+        do {
+            $range[] = [
+                round(($i / 100) * $max),
+                round((($i + 5) / 100) * $max)
+            ];
+            $i += 5;
+        } while ($i < 100);
+        return $range;
+    }
+
+    private function _isInHrRange($from, $to, $hr) {
+        return $hr >= $from && $hr < $to
+            ? true
+            : false;
+    }
+
+    public function compareRoutes($id1, $id2) {
+        $r1 = $this->getLogFile($id1);
+        $r2 = $this->getLogFile($id2);
+
+        $similarity = $this->routeComparer->compareRoutes($r1, $r2);
+        return array('similarity' => $similarity);
+    }
+
+    public function findSameRoutes($workout) {
+        $r1 = $this->getLogFile($workout->id);
+        $r2 = null;
+
+        $similarWorkouts = $this->findWorkoutsForComparison($workout);
+
+        $foundWorkouts = [];
+
+        if (!!$similarWorkouts && count($similarWorkouts) > 0) {
+            for ($i = 0; $i < count($similarWorkouts); $i++) {
+                $r2 = $this->getLogFile($similarWorkouts[$i]['id']);
+                $s = $this->routeComparer->compareRoutes($r1, $r2);
+                if ($s['similarity'] > 0.9) {
+                    $foundWorkouts[] = $similarWorkouts[$i]['id'];
+                }
+            }
+        }
+
+        if (count($foundWorkouts)) {
+            $this->_insertSameWorkouts($workout->id, $foundWorkouts);
+        }
+        return $foundWorkouts;
+    }
+
+    private function findWorkoutsForComparison($workout) {
+        $minDst = $workout->distance - 1;
+        $maxDst = $workout->distance + 1;
+        $q = $this->db->prepare('SELECT w.id
+            FROM workout AS w
+            INNER JOIN exported_files AS f ON w.id=f.workoutId
+            WHERE w.id != ? AND w.activity = ? AND (w.distance BETWEEN ? AND ?)');
+        $q->execute(array($workout->id, $workout->activity->id, $minDst, $maxDst));
+        return $q->fetchAll();
+    }
+
+    /**
+     * @param workoutId - original workout id
+     * @param foundWorkoutIds - array of found workout ids
+     */
+    private function _insertSameWorkouts($workoutId, $foundWorkoutIds) {
+        // Delete existing references before inserting the new ones
+        $this->_deleteSameWorkouts($workoutId);
+
+        $values = '';
+        for($i = 0; $i < count($foundWorkoutIds); $i++) {
+            if (!!$values) {
+                $values .= ', ';
+            }
+            $values .= '('.$workoutId.', '.$foundWorkoutIds[$i].')';
+        }
+        $this->logger->addInfo($values);
+        $q = $this->db->prepare('INSERT INTO same_workouts (workoutId, foundWorkoutId) VALUES '.$values);
+        $q->execute(array());
+    }
+
+    private function _deleteSameWorkouts($id) {
+        $q = $this->db->prepare('DELETE FROM same_workouts WHERE workoutId = ?');
+        $q->execute(array($id));
+    }
+
+    public function getSameWorkouts($id) {
+
+        $q = $this->db->prepare('SELECT foundWorkoutId FROM same_workouts WHERE workoutId = ?');
+        $q->execute(array($id));
+        $res = $q->fetchAll();
+        
+        if (!!$res) {
+            $arr = '';
+            for ($i = 0; $i < count($res); $i++) {
+                if ($arr) {
+                    $arr .= ',';
+                }
+                $arr .= $res[$i]['foundWorkoutId'];
+            }
+
+            $query = $this->db->prepare('SELECT workout.id, workout.name, activity, `date`, `time`, duration, energy, avgHr,
+            avgSpeed, avgCadence, maxSpeed, maxCadence, maxEle, minEle, eleUp, eleDown,
+            maxHr, distance, note, log, files.name AS `filename`, files.size, files.type,
+            gear.id as gearId, gear.brand, gear.model,
+            a.id as activityId, a.name as activityName, a.color, a.icon
+            FROM workout
+                LEFT JOIN exported_files AS files ON workout.id = files.workoutId
+                LEFT JOIN gear ON workout.gearId = gear.id
+                LEFT JOIN activity as a ON workout.activity = a.id
+            WHERE workout.id IN ('.$arr.') ORDER BY duration DESC');
+            $query->execute(array());
+            $res = $query->fetchAll();
+    
+            if (!!$res) {
+                $data = [];
+                forEach($res as $r) {
+                    $data[] = new WorkoutDto($r);
+                }
+                return $data;
+            }
+
+        } else {
+            return [];
+        }
     }
 }

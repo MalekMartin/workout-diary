@@ -1,49 +1,16 @@
-<div *ngIf="isLoading" class="loading">
-    Nahrávám...
-</div>
-<div *ngIf="workouts">
-    <div>
-        <wd-workout-chart [workouts]="workouts"></wd-workout-chart>
-    </div>
+<ng-container *ngIf="!!grouped && !!grouped.length">
+    <mat-expansion-panel class="group-wrapper" *ngFor="let group of grouped; let i = index;" [expanded]="i === 0">
 
-    <div class="summaries">
-        <div class="item">
-            <div class="value">{{workouts.length}}</div>
-            <div class="name">Počet tréninků</div>
-        </div>
-        <div class="item">
-            <div class="value">{{totalDuration | secToWords}}</div>
-            <div class="name">Celkový čas</div>
-        </div>
-        <div class="item">
-            <div class="value">{{totalDistance.toFixed(2)}} km</div>
-            <div class="name">Celková vzdálenost</div>
-        </div>
-    </div>
+        <mat-expansion-panel-header>
+            <mat-panel-title>
+                <div class="group-name">{{group.name}} <span>{{group.workouts.length}}</span></div>
+            </mat-panel-title>
+        </mat-expansion-panel-header>
 
-    <div class="filter-container" *ngIf="!!types">
-        <wd-workout-types-group
-            [types]="types"
-            (changed)="typesChanged()"></wd-workout-types-group>
-    </div>
-
-    <div class="filter-container">
-        <mat-form-field>
-            <mat-select [formControl]="range" placeholder="Období">
-                <mat-option *ngFor="let r of ranges" [value]="r.id">
-                {{ r.name }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-    </div>
-    
-    <ng-container *ngIf="!!workouts && !!workouts.length && view === 'calendar'">
-        <wd-workout-calendar [workoutsData]="workouts"></wd-workout-calendar>
-    </ng-container>
-
-    <div *ngIf="view === 'list'" class="workout-list-wrapper">
-        <div *ngFor="let workout of workouts" class="card-wrapper">
-            <wd-workout-list-item [workout]="workout"></wd-workout-list-item>
+        <div class="workout-list-wrapper">
+            <div *ngFor="let workout of group.workouts" class="card-wrapper">
+                <wd-workout-list-item [workout]="workout"></wd-workout-list-item>
+            </div>
         </div>
-    </div>
-</div>
+    </mat-expansion-panel>
+</ng-container>

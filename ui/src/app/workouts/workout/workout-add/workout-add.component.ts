@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { WorkoutService } from '../../../core/workout/workout.service';
 import { FileUploader, FileUploaderOptions, FileItem } from 'ng2-file-upload';
+import { MatDialogRef, MatSnackBar } from '@angular/material';
+import { WorkoutFormComponent } from '../workout-form/workout-form.component';
 
 @Component({
     selector: 'wd-workout-add',
@@ -10,6 +12,8 @@ import { FileUploader, FileUploaderOptions, FileItem } from 'ng2-file-upload';
 })
 
 export class WorkoutAddComponent implements OnInit {
+
+    @ViewChild(WorkoutFormComponent) formRef: WorkoutFormComponent;
 
     isUploading = false;
     hasBaseDropZoneOver = false;
@@ -31,7 +35,9 @@ export class WorkoutAddComponent implements OnInit {
 
     constructor(
         private _workout: WorkoutService,
-        private _router: Router
+        private _router: Router,
+        private _dialogRef: MatDialogRef<WorkoutAddComponent>,
+        private _snackBar: MatSnackBar
     ) { }
 
     ngOnInit() {
@@ -49,13 +55,22 @@ export class WorkoutAddComponent implements OnInit {
         };
 
         this.uploader.onSuccessItem = (item: FileItem, response: any) => {
+            this._dialogRef.close();
+            this._router.navigate(['workouts', this._workoutId]);
+        };
+
+        this.uploader.onErrorItem = (item: FileItem, response: any) => {
+            this._dialogRef.close();
+            this._snackBar.open('Soubor ' + item.file.name + ' se nepodařilo nahrát', 'Zavřít', {
+                duration: 3000,
+            });
             this._router.navigate(['workouts', this._workoutId]);
         };
     }
 
-    save(value) {
+    save() {
 
-        this._workout.addWorkout(value)
+        this._workout.addWorkout(this.formRef.form.value)
             .subscribe((id: string) => {
                 this._workoutId = id;
 
@@ -65,6 +80,7 @@ export class WorkoutAddComponent implements OnInit {
                     );
                     this.uploader.uploadAll();
                 } else {
+                    this._dialogRef.close();
                     this._router.navigate(['workouts', this._workoutId]);
                 }
             }, this._onSaveError);

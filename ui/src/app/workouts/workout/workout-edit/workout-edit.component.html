@@ -1,6 +1,17 @@
-<h3>Upravit cvičení</h3>
-
-<wd-workout-form *ngIf="workout"
-    [workout]="workout"
-    (saved)="save($event)">
-</wd-workout-form>
+<h3 mat-dialog-title>
+    Upravit cvičení
+</h3>
+<ng-container *ngIf="!!workout">
+    <mat-dialog-content>
+        <!-- <div class="wrapper"> -->
+            <wd-workout-form  [workout]="workout" #formRef></wd-workout-form>
+        <!-- </div> -->
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button mat-button mat-dialog-close>Zavřít</button>
+        <button mat-raised-button
+            color="primary"
+            [disabled]="!formRef.form.valid"
+            (click)="!!formRef.form.valid && save(formRef.form.value)">Uložit</button>
+    </mat-dialog-actions>
+</ng-container>

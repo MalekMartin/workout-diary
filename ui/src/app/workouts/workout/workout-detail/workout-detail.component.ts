@@ -1,13 +1,13 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { WorkoutService } from '../../../core/workout/workout.service';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Workout, WorkoutLogFile, TrackPoints, Activity } from '../../../core/workout/workout.interface';
-import { takeUntil, map } from 'rxjs/operators';
-import { Subject } from 'rxjs/Subject';
-import { CheckPointService } from '../../../core/check-point/check-point.service';
-import * as moment from 'moment';
-import { ActivitiesService } from '../../../core/activities/activities.service';
-import { forkJoin } from 'rxjs/observable/forkJoin';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { TrackPoints, Workout, WorkoutLogFile } from '../../../core/workout/workout.interface';
+import { WorkoutService } from '../../../core/workout/workout.service';
+import { HrZonesService } from '../../../core/heart-rate/hr-zones.service';
+import { MatSnackBar, MatDialog } from '@angular/material';
+import { WorkoutEditComponent } from '../workout-edit/workout-edit.component';
+import { DeleteFileConfirmComponent } from './delete-file-confirm/delete-file-confirm.component';
 
 declare var require: any;
 const FileSaver = require('file-saver');
@@ -15,21 +15,26 @@ const FileSaver = require('file-saver');
 @Component({
     selector: 'wd-workout-detail',
     templateUrl: 'workout-detail.component.html',
-    styleUrls: ['./workout-detail.component.scss']
+    styleUrls: ['./workout-detail.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WorkoutDetailComponent implements OnInit, OnDestroy {
     id: string;
     workout: Workout;
     downoading = false;
-    cadenceUnits: string;
     route: TrackPoints;
 
     next: string;
     prev: string;
+    hrAnalyzed: any;
 
     workoutRoute: any;
 
     checkPointsLoading = false;
+    loading = false;
+    loadingCoords = false;
+
+    sameWorkouts = null;
 
     private _onDestroy$ = new Subject();
 
@@ -37,14 +42,16 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
         private _workout: WorkoutService,
         private _route: ActivatedRoute,
         private _router: Router,
-        private _activity: ActivitiesService
+        private _cd: ChangeDetectorRef,
+        private _zones: HrZonesService,
+        private _snackBar: MatSnackBar,
+        private _dialog: MatDialog
     ) {}
 
     ngOnInit() {
         this._route.params.pipe(takeUntil(this._onDestroy$)).subscribe(p => {
             this.id = p['id'];
             this.findWorkout();
-            this.getCoordinates();
         });
     }
 
@@ -53,6 +60,7 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
     }
 
     findWorkout() {
+        this.loading = true;
         this._workout
             .findOneById(this.id)
             .pipe(takeUntil(this._onDestroy$))
@@ -60,11 +68,19 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
                 this.workout = w;
 
                 const a = w.activity.id;
-                this.cadenceUnits = a === '1' || a === '5' ? 'spm' : a === '2' || a === '3' ? 'rpm' : null;
                 this.id = w.id;
 
-                this.onCheckPointsChanged();
+                if (!!w.log && !!w.log.id) {
+                    this.onCheckPointsChanged();
+                    this.analyzeHr(w.id);
+                    this.getCoordinates();
+                } else {
+                    this.route = null;
+                }
                 this.findNextAndPrev();
+
+                this.loading = false;
+                this._cd.markForCheck();
             }, this._onFindWorkoutError);
     }
 
@@ -75,11 +91,24 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
             .subscribe((val: any) => {
                 this.next = val.next;
                 this.prev = val.prev;
+                this._cd.markForCheck();
             });
     }
 
     goToEdit() {
-        this._router.navigate(['/workouts', this.workout.id, 'edit']);
+        this._dialog
+            .open(WorkoutEditComponent, {
+                width: '500px',
+                data: this.workout
+            })
+            .afterClosed()
+            .pipe(takeUntil(this._onDestroy$))
+            .subscribe(res => {
+                if (!!res) {
+                    this.workout = res;
+                    this.findWorkout();
+                }
+            });
     }
 
     delete(id: string) {
@@ -88,9 +117,16 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
         });
     }
 
-    deleteFileLog() {
-        this._workout.deleteWorkoutFileLog(this.workout.log.id).subscribe(() => {
-            this.workout.log.id = null;
+    deleteFile() {
+        this._dialog.open(DeleteFileConfirmComponent, {
+            width: '300px',
+            data: this.workout
+        }).afterClosed()
+        .pipe(takeUntil(this._onDestroy$))
+        .subscribe(r => {
+            if (!!r) {
+                this.findWorkout();
+            }
         });
     }
 
@@ -124,9 +160,11 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
                 (route: any) => {
                     this.workoutRoute = route;
                     this.checkPointsLoading = false;
+                    this._cd.markForCheck();
                 },
                 () => {
                     this.checkPointsLoading = false;
+                    this._cd.markForCheck();
                 }
             );
     }
@@ -136,11 +174,14 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
     }
 
     getCoordinates() {
+        this.loadingCoords = true;
         this._workout
             .getRouteCoordinates(this.id)
             .pipe(takeUntil(this._onDestroy$))
             .subscribe((data: TrackPoints) => {
                 this.route = data;
+                this.loadingCoords = false;
+                this._cd.markForCheck();
             });
     }
 
@@ -161,13 +202,46 @@ export class WorkoutDetailComponent implements OnInit, OnDestroy {
             );
     }
 
+    analyzeHr(workoutId: string) {
+        this._workout
+            .analyzeHr(workoutId, this._zones.hrMax)
+            .pipe(takeUntil(this._onDestroy$))
+            .subscribe((val: any) => {
+                this.hrAnalyzed = val;
+                this._cd.markForCheck();
+            });
+    }
+
+    findSame() {
+        this._workout
+            .findSameRoutes(this.workout)
+            .pipe(takeUntil(this._onDestroy$))
+            .subscribe((res: any[]) => {
+                if (!!res && !!res.length) {
+                    this.openSnackBar('Nalezeno ' + res.length + ' tréninků', '');
+                } else {
+                    this.openSnackBar('Nalezeno 0 tréninků', '');
+                }
+            });
+    }
+
+    openSnackBar(message: string, action: string) {
+        this._snackBar.open(message, action, {
+            duration: 2000
+        });
+    }
+
     private _onDeleteCpSuccess = () => {
         this.onCheckPointsChanged();
     }
 
-    private _onDeleteCpError = () => {};
+    private _onDeleteCpError = () => {
+        this._cd.markForCheck();
+    }
 
     private _onFindWorkoutError = (e: any) => {
+        this.loading = false;
+        this._cd.markForCheck();
         if (e.status === 404) {
             this._router.navigate(['/workouts/not-found']);
         } else {

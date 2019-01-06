@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpService } from '../http.service';
-import { map } from 'rxjs/operators';
-import { WorkoutType, Workout, WorkoutWoActivity } from './workout.interface';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { ActivitiesService } from '../activities/activities.service';
-import { forkJoin } from 'rxjs/observable/forkJoin';
+import { HttpService } from '../http.service';
+import { Workout, WorkoutType } from './workout.interface';
 
 @Injectable()
 export class WorkoutService {
@@ -78,4 +76,21 @@ export class WorkoutService {
         const types = localStorage.getItem('wd.filter.types');
         return !!types ? JSON.parse(types) : [];
     }
+
+    analyzeHr(id: string, hrMax: number) {
+        return this._http.get(`/resource/workout/${id}/analyze-hr?max=${hrMax}`);
+    }
+
+    findSameRoutes(workout: Workout) {
+        return this._http.post('/resource/workout/find-same-routes', workout);
+    }
+
+    getSameWorkouts(id: string) {
+        return this._http.get(`/resource/workout/${id}/same-workouts`);
+    }
+
+    // One time operation to export all files form DB
+    // saveAllFiles() {
+    //     return this._http.get('/resource/csv/save-all');
+    // }
 }

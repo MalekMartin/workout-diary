@@ -2,34 +2,39 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import * as moment from 'moment';
 import { HeartRateService } from '../../core/heart-rate/heart-rate.service';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar, MatDialog } from '@angular/material';
+import { HR_ACTIVITIES } from './resting-hr-table/resting-hr-table.component';
+import { RestingHrDeleteComponent } from './resting-hr-delete/resting-hr-delete.component';
+import { HeartRate } from '../../core/heart-rate/hr.interface';
+import { RestingHrEditComponent } from './resting-hr-edit/resting-hr-edit.component';
 
 @Component({
     selector: 'wd-resting-hr',
     templateUrl: 'resting-hr.component.html',
     styleUrls: ['./resting-hr.component.scss']
 })
-
 export class RestingHrComponent implements OnInit, OnDestroy {
-
     form = this._fb.group({
-        date: [new Date() , Validators.required],
+        date: [new Date(), Validators.required],
         bpm: [60, [Validators.required, Validators.min(40), Validators.max(250)]],
-        note: ['', Validators.maxLength(255)]
+        note: ['', Validators.maxLength(255)],
+        activity: ['']
     });
 
     colorScheme = {
         domain: ['#c71639', '#00b0bd', '#70b600', '#e6cb00', '#b000d3', '#001fce', '#919191']
     };
 
-    data: any;
-    tableSource: any[];
-    displayedColumns = ['date', 'bpm', 'note'];
+    activities = HR_ACTIVITIES;
 
-    minHr = {name: '', value: 300};
-    maxHr = {name: '', value: 0};
+    data: any;
+
+    restingHrData: HeartRate[];
+
+    minHr = { name: '', value: 300 };
+    maxHr = { name: '', value: 0 };
     avgHr = 0;
     maxScale: number;
     minScale: number;
@@ -40,9 +45,12 @@ export class RestingHrComponent implements OnInit, OnDestroy {
 
     private _onDestroy$ = new Subject();
 
-    constructor(private _hr: HeartRateService,
-                private _fb: FormBuilder,
-                private _snackBar: MatSnackBar) { }
+    constructor(
+        private _hr: HeartRateService,
+        private _fb: FormBuilder,
+        private _snackBar: MatSnackBar,
+        private _dialog: MatDialog
+    ) {}
 
     ngOnInit() {
         this.findAll();
@@ -54,99 +62,129 @@ export class RestingHrComponent implements OnInit, OnDestroy {
 
     addHr() {
         this.savingData = true;
-        this._hr.addRestingHr(
-                this.form.get('bpm').value,
-                this.form.get('date').value,
-                this.form.get('note').value
-            )
+        this._hr
+            .addRestingHr({
+                ...this.form.value,
+                date: moment(this.form.get('date').value).format('YYYY-MM-DDTHH:mm:ss.000') + 'Z'
+            })
             .pipe(takeUntil(this._onDestroy$))
             .subscribe(this._saveSuccess, this._saveError);
     }
 
     findAll() {
         this.graphLoading = true;
-        this._hr.findWeeklyAverages()
+        this._hr
+            .findRestingHrs()
             .pipe(takeUntil(this._onDestroy$))
-            .subscribe(d => {
-                console.log(d);
-            });
-        this._hr.findRestingHrs()
-            .pipe(takeUntil(this._onDestroy$))
-            // .subscribe((res: any) => {
-            //     this.data = [
-            //         {
-            //             name: 'Klidova SF',
-            //             series: this._prepareAllRestHrs(res.hr)
-            //         }
-            //     ];
-            //     console.log(this.data);
-            //     this.graphLoading = false;
-            // });
-            .subscribe((res: any) => {
-                const hr = this._replaceData(res.hr);
-                const run = this._replaceWorkoutdata(res.workouts.run);
-                const cicle = this._replaceWorkoutdata(res.workouts.cicle);
-                const spin = this._replaceWorkoutdata(res.workouts.spin);
-                const moto = this._replaceWorkoutdata(res.workouts.moto);
-                const walk = this._replaceWorkoutdata(res.workouts.walk);
-                const gym = this._replaceWorkoutdata(res.workouts.gym);
-                const football = this._replaceWorkoutdata(res.workouts.football);
-                const rollers = this._replaceWorkoutdata(res.workouts.rollerskates);
-                const other = this._replaceWorkoutdata(res.workouts.other);
-
-                this.data = [
-                    {
+            .subscribe(
+                (res: any) => {
+                    const hr = this._replaceData(res.hr);
+                    const data = [];
+                    data.push({
                         name: 'Klidová SF',
                         series: hr.reverse()
-                    },
-                    {
-                        name: 'Běh [min]',
-                        series: run.reverse()
-                    },
-                    {
-                        name: 'Kolo [min]',
-                        series: cicle.reverse()
-                    },
-                    {
-                        name: 'Spinning [min]',
-                        series: spin.reverse()
-                    },
-                    {
-                        name: 'Motorka [min]',
-                        series: moto.reverse()
-                    },
-                    {
-                        name: 'Chůze [min]',
-                        series: walk.reverse()
-                    },
-                    {
-                        name: 'Ostatní [min]',
-                        series: other.reverse()
-                    },
-                    {
-                        name: 'Posilování [min]',
-                        series: gym.reverse(),
-                    },
-                    {
-                        name: 'Fotbal [min]',
-                        series: football.reverse()
-                    },
-                    {
-                        name: 'Kolečkové [min]',
-                        series: rollers.reverse()
-                    }
-                ];
+                    });
 
-                this.graphLoading = false;
-                this.tableSource = res.hr.map(r => {
-                    return {
-                        date: moment(r.date).format('DD.MM.YYYY'),
-                        bpm: r.bpm,
-                        note: r.note
-                    };
-                }).reverse();
-            }, () => {
-                this.graphLoading = false;
+                    if (!!res.workouts.run) {
+                        const run = this._replaceWorkoutdata(res.workouts.run);
+                        data.push({
+                            name: 'Běh [min]',
+                            series: run.reverse()
+                        });
+                    }
+                    if (!!res.workouts.cicle) {
+                        const cycle = this._replaceWorkoutdata(res.workouts.cicle);
+                        data.push({
+                            name: 'Kolo [min]',
+                            series: cycle.reverse()
+                        });
+                    }
+                    if (!!res.workouts.spin) {
+                        const spin = this._replaceWorkoutdata(res.workouts.spin);
+                        data.push({
+                            name: 'Spinning [min]',
+                            series: spin.reverse()
+                        });
+                    }
+                    if (!!res.workouts.moto) {
+                        const moto = this._replaceWorkoutdata(res.workouts.moto);
+                        data.push({
+                            name: 'Motorka [min]',
+                            series: moto.reverse()
+                        });
+                    }
+                    if (!!res.workouts.walk) {
+                        const walk = this._replaceWorkoutdata(res.workouts.walk);
+                        data.push({
+                            name: 'Chůze [min]',
+                            series: walk.reverse()
+                        });
+                    }
+                    if (!!res.workouts.gym) {
+                        const gym = this._replaceWorkoutdata(res.workouts.gym);
+                        data.push({
+                            name: 'Posilování [min]',
+                            series: gym.reverse()
+                        });
+                    }
+                    if (!!res.workouts.football) {
+                        const football = this._replaceWorkoutdata(res.workouts.football);
+                        data.push({
+                            name: 'Fotbal [min]',
+                            series: football.reverse()
+                        });
+                    }
+                    if (!!res.workouts.rollerskates) {
+                        const rollers = this._replaceWorkoutdata(res.workouts.rollerskates);
+                        data.push({
+                            name: 'Kolečkové [min]',
+                            series: rollers.reverse()
+                        });
+                    }
+                    if (!!res.workouts.other) {
+                        const other = this._replaceWorkoutdata(res.workouts.other);
+                        data.push({
+                            name: 'Ostatní [min]',
+                            series: other.reverse()
+                        });
+                    }
+                    this.data = data;
+
+                    this.restingHrData = res.hr;
+
+                    this.graphLoading = false;
+                },
+                () => {
+                    this.graphLoading = false;
+                }
+            );
+    }
+
+    onDelete(value: HeartRate) {
+        this._dialog
+            .open(RestingHrDeleteComponent, {
+                data: value
+            })
+            .afterClosed()
+            .subscribe(v => {
+                if (v === 'DELETED') {
+                    this.findAll();
+                }
+            });
+    }
+
+    onEdit(value: HeartRate) {
+        this._dialog
+            .open(RestingHrEditComponent, {
+                data: value,
+                width: '300px'
+            })
+            .afterClosed()
+            .pipe(takeUntil(this._onDestroy$))
+            .subscribe(v => {
+                if (v === 'EDITED') {
+                    this.findAll();
+                }
             });
     }
 
@@ -159,33 +197,7 @@ export class RestingHrComponent implements OnInit, OnDestroy {
             actDate = moment(actDate).subtract(1, 'days');
         }
 
-
         return data;
-    }
-
-    private _prepareAllRestHrs(data: any) {
-        const arr = [];
-        let sumHr = 0;
-
-        for (let i = 0; i < data.length; i++) {
-            sumHr += data[i].bpm;
-
-            this.minHr = data.bpm < this.minHr.value
-                ? {name: moment(data[i].date).format('DD.MM.YYYY'), value: data[i].bpm}
-                : this.minHr;
-            this.maxHr = data[i].bpm > this.maxHr.value
-                ? {name: moment(data[i].date).format('DD.MM.YYYY'), value: data[i].bpm}
-                : this.maxHr;
-
-            arr.push({
-                name: moment(data[i].date).format('DD.MM.YYYY'),
-                value: data[i].bpm
-            });
-        }
-
-        this.avgHr = data.length > 0 ? Math.ceil(sumHr / data.length) : 0;
-        this.refLine = {name: 'Průměrná klidová SF', value: this.avgHr};
-        return arr;
     }
 
     private _replaceData(d) {
@@ -201,46 +213,61 @@ export class RestingHrComponent implements OnInit, OnDestroy {
                 hasEmptyItem = true;
             }
 
-            newArr = [...newArr, {
-                name: i,
-                value: item ? item.bpm : 0,
-                note: item ? item.note : ''
-            }];
+            newArr = [
+                ...newArr,
+                {
+                    name: i,
+                    value: item ? item.bpm : 0,
+                    note: item ? item.note : ''
+                }
+            ];
         });
 
-        d.forEach((data) => {
+        d.forEach(data => {
             sumHr += data.bpm;
 
-            this.minHr = data.bpm < this.minHr.value
-                ? {name: moment(data.date).format('DD.MM.YYYY'), value: data.bpm}
-                : this.minHr;
-            this.maxHr = data.bpm > this.maxHr.value
-                ? {name: moment(data.date).format('DD.MM.YYYY'), value: data.bpm}
-                : this.maxHr;
+            this.minHr =
+                data.bpm < this.minHr.value
+                    ? { name: moment(data.date).format('DD.MM.YYYY'), value: data.bpm }
+                    : this.minHr;
+            this.maxHr =
+                data.bpm > this.maxHr.value
+                    ? { name: moment(data.date).format('DD.MM.YYYY'), value: data.bpm }
+                    : this.maxHr;
         });
 
         // this.maxScale = this.maxHr.value + 5;
         // this.minScale = hasEmptyItem ? 0 : this.minHr.value - 5;
         this.minScale = 0;
         this.avgHr = d.length > 0 ? Math.ceil(sumHr / d.length) : 0;
-        this.refLine = {name: 'Průměrná klidová SF', value: this.avgHr};
+        this.refLine = { name: 'Průměrná klidová SF', value: this.avgHr };
         return newArr;
     }
 
-    private _replaceWorkoutdata(d: {date: string; duration: number}[]) {
+    private _replaceWorkoutdata(d: { date: string; duration: number }[]) {
         const emptyData = this._createRange();
+
+        let maxDuration = 0;
 
         let newArr = [];
         emptyData.forEach((i: any) => {
-            const item = d.find(f => moment(f.date).format('DD.MM.YYYY') === i);
+            const items = d.filter(f => moment(f.date).format('DD.MM.YYYY') === i);
+            let duration = 0;
+            items.forEach(w => {
+                duration += w.duration;
+            });
 
-            newArr = [...newArr, {
-                name: i,
-                value: item ? item.duration : 0,
-            }];
+            maxDuration = duration > maxDuration ? duration : maxDuration;
+            newArr = [
+                ...newArr,
+                {
+                    name: i,
+                    value: duration
+                }
+            ];
         });
 
-        return newArr;
+        return maxDuration > 0 ? newArr : null;
     }
 
     private _saveSuccess = (res: any) => {
@@ -259,7 +286,7 @@ export class RestingHrComponent implements OnInit, OnDestroy {
 
     private _openSnackBar(message: string, action = '') {
         this._snackBar.open(message, action, {
-            duration: 3000,
+            duration: 3000
         });
     }
 }

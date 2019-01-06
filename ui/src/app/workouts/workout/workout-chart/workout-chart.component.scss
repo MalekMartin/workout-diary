@@ -1,18 +1,59 @@
 .chart-wrapper {
-    display: flex;
+    // display: flex;
     height: 145px;
     width: 700px;
     margin: 0 auto 16px auto;
+    position: relative;
+
+    .items-wrapper {
+        position: relative;
+    }
+
+    .hour {
+        position: absolute;
+        height: 1px;
+        width: 100%;
+        border-bottom: 1px dashed #ccc;
+
+        span {
+            position: absolute;
+            font-size: 11px;
+            left: -35px;
+            top: -6px;
+            color: #999;
+        }
+    }
 
     .item {
-        flex-grow: 1;
+        // flex-grow: 1;
         margin-top: auto;
 
+
+        width: 22px;
+        height: 145px;
+        float: left;
+        position: relative;
+
+        &:first-child {
+            border-left: 1px solid #ccc;
+        }
+
+        &.sunday {
+            border-right: 1px dashed #ddd;
+        }
+
         .date {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 18px;
+            line-height: 18px;
+
+
             font-size: 12px;
             text-align: center;
             color: #666;
-            padding-top: 3px;
+            // padding-top: 3px;
             border-top: 1px solid #ccc;
 
             &.weekend {
@@ -22,8 +63,15 @@
         }
 
         .bar {
-            margin-bottom: -4px;
-            border-radius: 2px 2px 0 0;
+            position: absolute;
+            bottom: 19px;
+            width: 18px;
+            border-width: 2px 2px 0 2px;
+            border-style: solid;
+            border-color: #fafafa;
+
+            // margin-bottom: -4px;
+            border-radius: 4px 4px 0 0;
         }
 
         a {
@@ -49,8 +97,8 @@
     }
 }
 
-.bar {
-    display: inline-block;
-    width: 18px;
-    background-color: #70b600;
-}
+// .bar {
+//     display: inline-block;
+//     width: 18px;
+//     background-color: #70b600;
+// }

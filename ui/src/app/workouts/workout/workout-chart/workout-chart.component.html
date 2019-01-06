@@ -1,28 +1,44 @@
 <div>
     <div class="chart-wrapper">
-        <div class="item" *ngFor="let item of data">
-            <div class="workout-icons">
-                <!-- <div *ngFor="let workout of item.workouts" class="workouts-cell">
-                    <a [routerLink]="['/workouts', workout.id]"
-                        [matTooltip]="(workout.duration | secToTime) + ' | ' + workout.distance + 'km | ' + workout.energy + ' kcal'">
-                        <i class="material-icons">{{workout.activity.icon}}</i>
-                    </a>
-                </div> -->
-                <div class="bar" [style.height.px]="columnHeigh(item.totalDuration)"
-                    [style.backgroundColor]="item.color"
-                    [matTooltip]="(item.totalDuration | secToTime) + ' | ' + item.totalDistance + ' km | ' + item.totalCalories + ' kcal'"
-                    matTooltipPosition="above"></div>
+        <div *ngIf="colMaxHeight >= (columnHeigh(3600) + 19)"
+            class="hour"
+            [style.bottom.px]="columnHeigh(3600) + 19">
+            <span>1 hod</span>
+        </div>
+        <div *ngIf="colMaxHeight >= (columnHeigh(3600) + 19)"
+            class="hour"
+            [style.bottom.px]="columnHeigh(7200) + 19">
+            <span>2 hod</span>
+        </div>
+        <div class="items-wrapper">
+            <div class="item" [class.sunday]="item.day === 'Neděle'" *ngFor="let item of data">
+                <div class="workout-icons">
+                    <div class="bar" *ngIf="columnHeigh(item.totalDuration) > 0" [style.height.px]="columnHeigh(item.totalDuration)"
+                        [style.backgroundColor]="item.color"
+                        [matTooltip]="(item.totalDuration | secToTime) + ' | ' + item.totalDistance + ' km | ' + item.totalCalories + ' kcal'"
+                        matTooltipPosition="above"></div>
+                </div>
+                <div class="date" [class.weekend]="item.day === 'Sobota' || item.day === 'Neděle'">
+                    <span [matTooltip]="item.day" >{{item.date | moment: 'D'}}</span>
+                </div>
             </div>
-            <div class="date" [class.weekend]="item.day === 'Sobota' || item.day === 'Neděle'">
-                <span [matTooltip]="item.day" >{{item.date | moment: 'D'}}</span>
-            </div>
-            <!-- <div class="date" [class.weekend]="item.day === 'Sobota' || item.day === 'Neděle'">
-                {{item.date | moment: 'DD.MM'}}
-                <br>{{item.day}}
-            </div> -->
         </div>
     </div>
 </div>
+
+<!-- <ngx-charts-bar-vertical *ngIf="!!source"
+    [view]="[700, 200]"
+    [scheme]="colorScheme"
+    [results]="source"
+    [gradient]="false"
+    [xAxis]="true"
+    [yAxis]="true"
+    [legend]="false"
+    [showXAxisLabel]="true"
+    [showYAxisLabel]="true"
+    [xAxisLabel]="'Dny'"
+    [yAxisLabel]="'Čas [min]'">
+</ngx-charts-bar-vertical> -->
 
 <!-- workout chart will be here soon -->
 <!-- <ngx-charts-bar-vertical-stacked *ngIf="!!data"

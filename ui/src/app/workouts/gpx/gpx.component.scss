@@ -29,6 +29,15 @@
             background-color: rgb(67, 184, 0);
         }
     }
+
+    mat-radio-button {
+        display: block;
+        padding-bottom: 10px;
+
+        &:last-child {
+            padding-bottom: 0;
+        }
+    }
 }
 
 .dropzone {

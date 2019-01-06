@@ -1,0 +1,55 @@
+<div *ngIf="isLoading" class="loading">
+    <mat-spinner [diameter]="40"></mat-spinner>
+</div>
+
+<button class="add" mat-mini-fab (click)="addWorkout()">+</button>
+
+<div *ngIf="workouts">
+    <div>
+        <wd-workout-chart [workouts]="workouts"></wd-workout-chart>
+    </div>
+
+    <div class="summaries">
+        <div class="item">
+            <div class="value">{{workouts.length}}</div>
+            <div class="name">Počet tréninků</div>
+        </div>
+        <div class="item">
+            <div class="value">{{totalDuration | secToWords}}</div>
+            <div class="name">Celkový čas</div>
+        </div>
+        <div class="item">
+            <div class="value">{{totalDistance.toFixed(2)}} km</div>
+            <div class="name">Celková vzdálenost</div>
+        </div>
+        <div class="item">
+            <div class="value">{{totalCalories}} kcal</div>
+            <div class="name">Spálené kalorie</div>
+        </div>
+    </div>
+
+    <div class="filter-container" *ngIf="!!types">
+        <wd-workout-types-group
+            [types]="types"
+            (changed)="typesChanged()"></wd-workout-types-group>
+    </div>
+
+    <form [formGroup]="form" class="filter-container">
+        <wd-workout-range-selector formControlName="range" ngDefaultControl></wd-workout-range-selector>
+        <wd-workout-view-selector [formControl]="view" ngDefaultControl></wd-workout-view-selector>
+    </form>
+
+    <ng-container [ngSwitch]="view.value" *ngIf="!!workouts && !!workouts.length">
+        <ng-container *ngSwitchCase="'calendar'">
+            <wd-workout-calendar [workoutsData]="workouts"></wd-workout-calendar>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'list'">
+            <wd-workout-list [workouts]="workouts"></wd-workout-list>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'table'">
+            <wd-workout-table-view [workouts]="workouts"></wd-workout-table-view>
+        </ng-container>
+    </ng-container>
+</div>

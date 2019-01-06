@@ -1,7 +1,15 @@
-import { Component, OnInit, Output, EventEmitter, OnDestroy, ViewChild, ChangeDetectorRef } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    Output,
+    EventEmitter,
+    OnDestroy,
+    ViewChild,
+    ChangeDetectorRef
+} from '@angular/core';
 import { Gear } from '../../core/gear/gear.interface';
 import { GearService } from '../../core/gear/gear.service';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { GearFormComponent } from '../gear-form/gear-form.component';
 
@@ -9,28 +17,24 @@ import { GearFormComponent } from '../gear-form/gear-form.component';
     selector: 'wd-gear-add',
     templateUrl: 'gear-add.component.html'
 })
-
 export class GearAddComponent implements OnInit, OnDestroy {
-
     @Output() saved = new EventEmitter();
 
     @ViewChild(GearFormComponent) gearForm: GearFormComponent;
 
     private _onDestroy$ = new Subject();
 
-    constructor(
-        private _gearService: GearService,
-        private _cd: ChangeDetectorRef,
-    ) { }
+    constructor(private _gearService: GearService, private _cd: ChangeDetectorRef) {}
 
-    ngOnInit() { }
+    ngOnInit() {}
 
     ngOnDestroy() {
         this._onDestroy$.next();
     }
 
     save(gear: Gear) {
-        this._gearService.addGear(gear)
+        this._gearService
+            .addGear(gear)
             .pipe(takeUntil(this._onDestroy$))
             .subscribe(() => {
                 this.saved.emit();

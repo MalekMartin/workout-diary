@@ -1,0 +1,14 @@
+<h3 mat-dialog-title>
+    Smazat soubor
+</h3>
+    
+<mat-dialog-content class="content">
+    Opravdu chceš smazat soubor <b>{{data.log.name}}</b>?
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Zavřít</button>
+    <button mat-raised-button
+        color="primary"
+        (click)="delete()">Smazat</button>
+</mat-dialog-actions>

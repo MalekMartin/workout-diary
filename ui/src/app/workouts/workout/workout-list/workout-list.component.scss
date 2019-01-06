@@ -1,57 +1,24 @@
-:host {
-    display: block;
-    background-color: #FAFAFA;
-    padding: 10px 20px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
 .card-wrapper {
     margin-bottom: 5px;
 }
 
-.workout-list-wrapper {
+.group-wrapper {
     width: 640px;
     margin: 0 auto;
+    // padding-bottom: 8px;
 }
 
-.summaries {
-    text-align: center;
-    font-weight: 500;
-    max-width: 640px;
+.group-name {
+    padding: 16px 0px 10px 0px;
+    font-size: 18px;
     display: flex;
-    margin: 0 auto;
 
-    .item {
-        padding: 6px 6px;
-        flex-grow: 1;
-        
-        .value {
-            font-size: 22px;
-            font-weight: bold;
-        }
-
-        .name {
-            font-size: 12px;
-            color: #ccc;
-        }
+    span {
+        margin: auto 0 auto 8px;
+        display: inline-block;
+        padding: 3px 8px;
+        background-color: #e0e0e0;
+        border-radius: 10px;
+        font-size: 12px;
     }
-}
-
-.filter-container {
-    text-align: center;
-}
-
-// form {
-//     ul {
-//         li {
-//             list-style-type: none;
-//             display: inline-block;
-//             margin-right: 12px;
-//         }
-//     }
-// }
-
-.loading {
-    position: absolute;
 }

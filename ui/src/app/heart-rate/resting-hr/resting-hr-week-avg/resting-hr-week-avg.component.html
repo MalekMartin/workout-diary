@@ -1,0 +1,17 @@
+<div *ngIf="!!graphData && !!graphData.length && !!graphData[0] && !!graphData[0].series.length && !loading"
+    class="graph">
+    <ngx-charts-line-chart
+        [scheme]="colorScheme"
+        [results]="graphData"
+        [xAxis]="true"
+        [yAxis]="true"
+        [legend]="true"
+        [showXAxisLabel]="true"
+        [showYAxisLabel]="true"
+        xAxisLabel="Datum"
+        yAxisLabel="BPM"
+        [showRefLines]="true"
+        [referenceLines]="[refLine]"
+        (select)="onSelect($event)">
+    </ngx-charts-line-chart>
+</div>

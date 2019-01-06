@@ -1,0 +1,102 @@
+<div *ngIf="workout" class="hr-values">
+    <div>
+        <div class="value">{{workout.duration | secToTime}}</div>
+        <div class="note">Celkový čas</div>
+    </div>
+    <div>
+        <div class="value">{{workoutTime | secToTime}}</div>
+        <div class="note">Workout time</div>
+    </div>
+    <div>
+        <div class="value">{{workout.maxHr}}</div>
+        <div class="note">Maximální SF</div>
+    </div>
+    <div>
+        <div class="value">{{workout.avgHr}}</div>
+        <div class="note">Průměrná SF</div>
+    </div>
+</div>
+<table *ngIf="keys">
+    <thead>
+        <tr>
+            <th class="sf">SF</th>
+            <th class="time">Čas</th>
+            <th class="sf">%</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{keys[7]}}</td>
+            <td>{{hrs[keys[7]] | secToTime}}</td>
+            <td>{{hrs[keys[7]] | percentage: workout.duration}}</td>
+            <td>
+                <div class="bar b7" [style.width]="getWidth(hrs[keys[7]])"></div>
+            </td>
+        </tr>
+        <tr>
+            <td>{{keys[6]}}</td>
+            <td>{{hrs[keys[6]] | secToTime}}</td>
+            <td>{{hrs[keys[6]] | percentage: workout.duration}}</td>
+            <td>
+                <div class="bar b6" [style.width]="getWidth(hrs[keys[6]])"></div>
+            </td>
+        </tr>
+        <tr>
+            <td>{{keys[5]}}</td>
+            <td>{{hrs[keys[5]] | secToTime}}</td>
+            <td>{{hrs[keys[5]] | percentage: workout.duration}}</td>
+            <td>
+                <div class="bar b5" [style.width]="getWidth(hrs[keys[5]])"></div>
+            </td>
+        </tr>
+        <tr>
+            <td>{{keys[4]}}</td>
+            <td>{{hrs[keys[4]] | secToTime}}</td>
+            <td>{{hrs[keys[4]] | percentage: workout.duration}}</td>
+            <td>
+                <div class="bar  b4" [style.width]="getWidth(hrs[keys[4]])"></div>
+            </td>
+        </tr>
+        <tr>
+            <td>{{keys[3]}}</td>
+            <td>{{hrs[keys[3]] | secToTime}}</td>
+            <td>{{hrs[keys[3]] | percentage: workout.duration}}</td>
+            <td>
+                <div class="bar b3" [style.width]="getWidth(hrs[keys[3]])"></div>
+            </td>
+        </tr>
+        <tr>
+            <td>{{keys[2]}}</td>
+            <td>{{hrs[keys[2]] | secToTime}}</td>
+            <td>{{hrs[keys[2]] | percentage: workout.duration}}</td>
+            <td>
+                <div class="bar b2" [style.width]="getWidth(hrs[keys[2]])"></div>
+            </td>
+        </tr>
+        <tr>
+            <td>{{keys[1]}}</td>
+            <td>{{hrs[keys[1]] | secToTime}}</td>
+            <td>{{hrs[keys[1]] | percentage: workout.duration}}</td>
+            <td>
+                <div class="bar b1" [style.width]="getWidth(hrs[keys[1]])"></div>
+            </td>
+        </tr>
+        <tr>
+            <td>{{keys[0]}}</td>
+            <td>{{hrs[keys[0]] | secToTime}}</td>
+            <td>{{hrs[keys[0]] | percentage: workout.duration}}</td>
+            <td>
+                <div class="bar b0" [style.width]="getWidth(hrs[keys[0]])"></div>
+            </td>
+        </tr>
+        <tr>
+            <td>Rest</td>
+            <td>{{hrs.rest | secToTime}}</td>
+            <td>{{hrs.rest | percentage: workout.duration}}</td>
+            <td>
+                <div class="bar" [style.width]="getWidth(hrs.rest)"></div>
+            </td>
+        </tr>
+    </tbody>
+</table>

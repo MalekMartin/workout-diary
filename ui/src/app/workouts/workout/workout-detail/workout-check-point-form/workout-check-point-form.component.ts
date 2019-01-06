@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
 import { WorkoutService } from '../../../../core/workout/workout.service';
 import { CheckPointService } from '../../../../core/check-point/check-point.service';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { CheckPoint } from '../../../../core/check-point/check-point.interface';
 import { FormBuilder, Validators } from '@angular/forms';

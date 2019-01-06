@@ -1,16 +1,13 @@
-import { Component, Output, EventEmitter, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { WorkoutService } from '../../../core/workout/workout.service';
 import { Workout, Activity } from '../../../core/workout/workout.interface';
 import { SecToTimePipe } from '../../../shared/pipes/sec-to-time.pipe';
 import * as moment from 'moment';
 import { GearService } from '../../../core/gear/gear.service';
-import { takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs/Subject';
+import { takeUntil ,  first } from 'rxjs/operators';
+import { Subject ,  forkJoin } from 'rxjs';
 import { Gear } from '../../../core/gear/gear.interface';
 import { ActivitiesService } from '../../../core/activities/activities.service';
-import { forkJoin } from 'rxjs/observable/forkJoin';
-import { first } from 'rxjs/operators/first';
 
 @Component({
     selector: 'wd-workout-form',
@@ -19,7 +16,6 @@ import { first } from 'rxjs/operators/first';
 })
 export class WorkoutFormComponent implements OnInit, OnDestroy {
     @Input() workout: Workout;
-    @Output() saved = new EventEmitter();
 
     pipe: SecToTimePipe;
 
@@ -31,22 +27,21 @@ export class WorkoutFormComponent implements OnInit, OnDestroy {
         activity: ['', Validators.required],
         date: [new Date(), Validators.required],
         time: ['12:00', [Validators.maxLength(5), Validators.minLength(5)]],
-        hour: [0, [Validators.min(0), Validators.max(24)]],
-        min: [0, [Validators.min(0), Validators.max(59)]],
-        sec: [0, [Validators.min(0), Validators.max(59)]],
-        energy: [0, [Validators.min(0), Validators.max(5000)]],
-        distance: [0, Validators.min(0)],
+        hour: ['', [Validators.min(0), Validators.max(24)]],
+        min: ['', [Validators.min(0), Validators.max(59)]],
+        sec: ['', [Validators.min(0), Validators.max(59)]],
+        energy: ['', [Validators.min(0), Validators.max(5000)]],
+        distance: ['', Validators.min(0)],
         note: ['', Validators.maxLength(255)],
-        gear: ['']
+        gear: [null]
     });
 
     private _onDestroy$ = new Subject();
 
     constructor(
         private _fb: FormBuilder,
-        private _workout: WorkoutService,
         private _gearService: GearService,
-        private _activities: ActivitiesService
+        private _activities: ActivitiesService,
     ) {
         this.pipe = new SecToTimePipe();
     }
@@ -57,10 +52,6 @@ export class WorkoutFormComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this._onDestroy$.next();
-    }
-
-    save() {
-        this.saved.emit(this.form.value);
     }
 
     prepareData() {
@@ -106,7 +97,7 @@ export class WorkoutFormComponent implements OnInit, OnDestroy {
             energy: this.workout.energy,
             distance: this.workout.distance,
             note: this.workout.note,
-            gear: this.workout.gear
+            gear: this.workout.gear.id
         });
     }
 
