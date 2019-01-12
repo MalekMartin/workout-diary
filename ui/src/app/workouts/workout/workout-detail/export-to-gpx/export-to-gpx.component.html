@@ -1,0 +1,30 @@
+<h3 mat-dialog-title>
+    Export do GPX
+</h3>
+    
+<mat-dialog-content class="content">
+    <form [formGroup]="form">
+        <div>
+            <mat-radio-group formControlName="options">
+
+                <mat-radio-button value="REMOVE_EMPTY">Odstranit chybějící souřadnice</mat-radio-button>
+                <mat-radio-button value="USE_DEFAULT">Použít zadané souřadnice</mat-radio-button>
+            </mat-radio-group>
+        </div>
+        <mat-form-field *ngIf="form.get('options').value === 'USE_DEFAULT'">
+            <mat-select formControlName="coordinates" placeholder="Vyber souřadnice">
+                <mat-option *ngFor="let item of coordinates" [value]="item.id">
+                {{ item.name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Zavřít</button>
+    <button mat-raised-button
+        color="primary"
+        (click)="download()">Exportovat</button>
+</mat-dialog-actions>

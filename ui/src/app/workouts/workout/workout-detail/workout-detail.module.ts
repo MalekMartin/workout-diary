@@ -40,6 +40,7 @@ import { SameWorkoutsComponent } from './same-workouts/same-workouts.component';
 import { SMapModule } from '../../../shared/components/smap/smap.module';
 import { WorkoutEditModule } from '../workout-edit/workout-edit.module';
 import { DeleteFileConfirmComponent } from './delete-file-confirm/delete-file-confirm.component';
+import { ExportToGpxModule } from './export-to-gpx/export-to-gpx.module';
 
 @NgModule({
     imports: [
@@ -52,6 +53,7 @@ import { DeleteFileConfirmComponent } from './delete-file-confirm/delete-file-co
         WdFileUploadModule,
         SMapModule,
         WorkoutEditModule,
+        ExportToGpxModule,
 
         MatMenuModule,
         MatIconModule,

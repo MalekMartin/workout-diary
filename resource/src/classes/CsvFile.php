@@ -16,6 +16,13 @@ class CsvFile {
         'POWER' => 11   // 11 Power (watts)
     );
 
+    public $multiplier = array(
+        'HR' => 1,
+        'SPEED' => 3.6,
+        'CAD' => 1,
+        'ELE' => 1
+    );
+
     public $path = '../../files';
 
     public function __construct($db)
@@ -26,6 +33,20 @@ class CsvFile {
     public function convertToGpx($id) {
 
         $fileName = $this->_getLogFileByWorkoutId($id);
+
+        $removeEmpty = isset($_GET['action']) && $_GET['action'] === 'REMOVE_EMPTY'
+            ? true
+            : false;
+        
+        $latVal = null;
+        $lonVal = null;
+        $eleVal = null;
+
+        if (!$removeEmpty) {
+            $latVal = floatval($_GET['lat']);
+            $lonVal = floatval($_GET['lon']);
+            $eleVal = floatval($_GET['ele']);
+        }
 
         if (!$fileName) {
             return 'NO_FILE';
@@ -45,6 +66,7 @@ class CsvFile {
         $firstRow = explode(",", $rows[1]);
 
         $date = date("Y-m-d", floatval($firstRow[0]) / 1000);
+        $hrMultiplier = $this->_correctHrMultiplier($firstRow[0]);
         $myfile = fopen("parsed.gpx", "w") or die("Unable to open file!");
 
         fwrite($myfile, $this->_buildGpxHeader($date));
@@ -55,11 +77,13 @@ class CsvFile {
             $gpxBody .= $i . ', ';
             $row = explode(",", $rows[$i]);
 
-            $lat = floatval($row[$this->columns['LAT']]);
-            $lon = floatval($row[$this->columns['LON']]);
-            $ele = floatval($row[$this->columns['ELE']]);
-            $hr = round(floatval($row[$this->columns['HR']]));
-            $cad = round(floatval($row[$this->columns['CAD']]));
+            $lat = $latVal ? $latVal : floatval($row[$this->columns['LAT']]);
+            $lon = $lonVal ? $lonVal : floatval($row[$this->columns['LON']]);
+            $ele = $eleVal ? $eleVal : floatval($row[$this->columns['ELE']]);
+            // $hr = round(floatval($row[$this->columns['HR']]));
+            // $cad = round(floatval($row[$this->columns['CAD']]));
+            $hr = round(floatval($row[$this->columns['HR']] * $hrMultiplier));
+            $cad = round(floatval($row[$this->columns['CAD']] * $this->multiplier['CAD']));
 
             $time = date('Y-m-d\TH:i:sP', ($row[$this->columns['TIMESTAMP']] / 1000));
 
@@ -112,5 +136,11 @@ class CsvFile {
 
     private function _buildGpxHeader($date) {
         return '<?xml version="1.0" encoding="UTF-8" standalone="no"?><gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="Sports Tracker" version="1.1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd"><metadata><name>' . $date . '</name><author><name>Martin</name></author><link href="www.sports-tracker.com"><text>Sports Tracker</text></link></metadata><trk><trkseg>';
+    }
+
+    private function _correctHrMultiplier($timestamp) {
+        $breakpoint = strtotime("2018-05-07 00:00:00");
+        $date = $timestamp / 1000;
+        return $date < $breakpoint ? 60 : 1;
     }
 }

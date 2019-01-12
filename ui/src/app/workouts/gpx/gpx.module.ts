@@ -40,6 +40,6 @@ import { GpxService } from '../../core/gpx/gpx.service';
     ],
     exports: [GpxComponent, ChartComponent],
     declarations: [GpxComponent, ChartComponent],
-    providers: [GpxService]
+    providers: []
 })
 export class GpxModule {}
