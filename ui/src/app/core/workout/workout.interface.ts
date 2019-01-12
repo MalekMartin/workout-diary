@@ -75,6 +75,7 @@ export interface TrackPoints {
     center: Coordinate;
     coordinates: TrackPoint[];
     count: number;
+    distance: Coordinate;
 }
 
 export interface TrackPoint {

@@ -220,8 +220,6 @@ class Workout {
     public function getTrackCoordinates($id) {
         $rows = $this->_parseLogFileByWorkoutId($id);
         $series = [];
-        $sumLat = 0;
-        $sumLon = 0;
         $segments = [];
         $active = false;
         $last = null;
@@ -229,12 +227,23 @@ class Workout {
         $sum = 0;
         $c = 0;
 
+        $maxLat = -9999;
+        $minLat = 9999;
+        $maxLon = -9999;
+        $minLon = 9999;
+
         if (count($rows) > 0) {
             for ($i = 1; $i < count($rows); $i++) {
                 $row = $this->_parseRow($rows[$i]);
                 $lat = $row->latitude;
                 $lon = $row->longitude;
                 $active = $row->active;
+
+                // Get max/min coordinates
+                $maxLat = $lat > $maxLat && $lat != 0 ? $lat : $maxLat;
+                $minLat = $lat < $minLat && $lat != 0 ? $lat : $minLat;
+                $maxLon = $lon > $maxLon && $lon != 0 ? $lon : $maxLon;
+                $minLon = $lon < $minLon && $lon != 0 ? $lon : $minLon;
 
                 if ($lat && $lon) {
                     $counter += 1;
@@ -250,8 +259,6 @@ class Workout {
                     }
 
                     $last = $this->_parseRow($rows[$i]);
-                    $sumLat += $lat;
-                    $sumLon += $lon;
                 }
             }
         }
@@ -260,11 +267,24 @@ class Workout {
             'series' => $series,
             'lasttime' => isset($row) && !!$row ? $row->timestamp : null
         ));
+
+        $latDst = $this->_distanceInMBetweenEarthCoordinates($maxLat, $maxLon, $minLat, $maxLon);
+        $lonDst = $this->_distanceInMBetweenEarthCoordinates($maxLat, $maxLon, $maxLat, $minLon);
         
         return array(
             'center' => array(
-                'lat' => $sumLat > 0 ? $sumLat / $counter : 0,
-                'lon' => $sumLon > 0 ? $sumLon / $counter : 0,
+                'lat' => ($maxLat + $minLat) / 2,
+                'lon' => ($maxLon + $minLon) / 2,
+            ),
+            'max' => array(
+                'maxLat' => $maxLat,
+                'minLat' => $minLat,
+                'maxLon' => $maxLon,
+                'minLon' => $minLon,
+            ),
+            'distance' => array(
+                'lat' => $latDst,
+                'lon' => $lonDst
             ),
             'count' => $counter,
             'coordinates' => $segments

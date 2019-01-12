@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { SMapComponent } from './SMap.component';
+import { SMapComponent } from './smap.component';
 
 @NgModule({
     imports: [],
